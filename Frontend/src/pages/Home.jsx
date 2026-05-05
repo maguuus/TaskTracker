@@ -1,3 +1,3 @@
 export function Home() {
-    return (<h1>Добро пожаловать.</h1>);
+    return (<h1>Task Tracker MVP</h1>);
 }
