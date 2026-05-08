@@ -1,8 +1,7 @@
 export function Home() {
     return (
-        <div class="container">
-            <h1 class="display-3">Task Tracker MVP</h1>
-            <p>Проекты</p>
+        <div className="container">
+            <h1 className="display-3">Проекты:</h1>
         </div>
     );
 }
