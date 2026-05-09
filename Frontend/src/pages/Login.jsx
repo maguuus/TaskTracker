@@ -1,17 +1,50 @@
+import { Container, Row, Col, Form, Button } from 'react-bootstrap'
+import { useState } from 'react'
+
+
+function Submit(e) {
+    e.preventDefault();
+    alert(`Email: ${email}\nPassword: ${password}`)
+}
+
 export function Login() {
+
+
+    const [password, setPassword] = useState('')
+    const [email, setEmail] = useState('')
+
+
     return (
-        <div className="container mt-4">
-            <form>
-                <h1>Войдите в аккаунт:</h1>
-                <div className="my-3">
-                    <label className="from-label">Email:</label>
-                    <input className="form-control" id="email" placeholder="Enter email"></input>
-                </div>
-                <div class="mb-3">
-                    <label className="form-label">Password:</label>
-                    <input className="form-control" id="pwd" placeholder="Enter password"></input>
-                </div>
-            </form>
-        </div>
+        <Container fluid className="h-100 d-flex align-items-center justify-content-center">
+            <Row>
+                <Col>
+                    <h3 className="text-center mb-3">Войдите в аккаунт: </h3>
+
+                    <Form onSubmit={Submit}>
+                        <Form.Group className="mb-3 form-floating" controlId="formEmail">
+                            <Form.Control
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                            <Form.Label>Адрес почты</Form.Label>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3 form-floating" controlId="formPassword">
+                            <Form.Control
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <Form.Label>Пропускающее слово</Form.Label>
+                        </Form.Group>
+
+                        <Button variant="primary" type="submit" className="w-100">
+                            Подписаться в
+                        </Button>
+                    </Form>
+                </Col>
+            </Row>
+        </Container>
     );
 }
