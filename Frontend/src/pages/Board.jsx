@@ -1,6 +1,6 @@
 import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
 
-function Board() {
+export function Board() {
   // Данные для колонок и карточек
   const columns = [
     {
@@ -95,5 +95,3 @@ function Board() {
     </Container>
   );
 }
-
-export default Board;

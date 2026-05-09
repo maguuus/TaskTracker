@@ -1,17 +1,16 @@
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { useState } from 'react'
 
-
-function Submit(e) {
-    e.preventDefault();
-    alert(`Email: ${email}\nPassword: ${password}`)
-}
-
 export function Login() {
 
 
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
+
+    function Submit(e) {
+        e.preventDefault();
+        alert(`Email: ${email}\nPassword: ${password}`)
+    }
 
 
     return (
