@@ -2,7 +2,7 @@ import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
 import { Navigate, useParams } from 'react-router-dom';
 import { useProject } from '../context/ProjectContext.jsx';
 
-import RenderTask from '../models/Task.jsx';
+import Task from '../models/Task.jsx';
 
 export function Board() {
 
@@ -110,7 +110,9 @@ function RenderColumn(column) {
 
                 {/* область с карточками (тело)*/}
                 <Card.Body style={{ overflowY: 'auto', padding: '0.75rem' }}>
-                    {column.tasks.map(RenderTask)}  {/* Отрисовка каждой отдельной карточки*/}
+                    {column.tasks.map((task) =>
+                        <Task key={task.id} {...task}/>
+                    )}
                 </Card.Body>
             </Card>
         </Col>

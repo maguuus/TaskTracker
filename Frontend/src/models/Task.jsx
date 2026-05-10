@@ -1,12 +1,12 @@
 import { Card, Button } from 'react-bootstrap';
 
-function RenderTask({ task }) {
+function Task({ title, description, ...rest }) {
     return (
         <Card className="mb-3 shadow-sm">
             <Card.Body>
-                <Card.Title className="h6">{task.title}</Card.Title>
+                <Card.Title className="h6">{title}</Card.Title>
                 <Card.Text className="small text-muted">
-                    {task.description}
+                    {description}
                 </Card.Text>
 
                 {/* Кнопки */}
@@ -26,4 +26,4 @@ function RenderTask({ task }) {
     )
 }
 
-export default RenderTask;
+export default Task;
