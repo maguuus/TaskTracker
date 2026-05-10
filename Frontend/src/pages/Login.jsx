@@ -11,7 +11,6 @@ export function Login() {
         alert(`Email: ${email}\nPassword: ${password}`)
     }
 
-
     return (
         <Container fluid className="h-100 d-flex align-items-center justify-content-center">
             <Row>

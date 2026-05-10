@@ -1,17 +1,27 @@
 import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
-
+import { Navigate, useParams } from 'react-router-dom';
+import { useProject } from '../context/ProjectContext.jsx';
 
 export function Board() {
 
-    let id = 0;
+    const { projectName } = useParams();
+    const { currentProject } = useProject();
 
+
+
+
+    let id = 0;
     function makeTask() {
         id++;
 
-        return { id: id, title: `Текст оглавление ${id}`, description: `Тело текста ${id}` };
+        return {
+            id: id,
+            title: `Текст оглавление ${id}`,
+            description: `Тело текста ${id}`
+        };
     }
 
-    // Данные для колонок и карточек
+    // Данные колонок и карточек
     const columns = [
         {
             id: 1,
@@ -24,15 +34,7 @@ export function Board() {
         {
             id: 2,
             title: "In Progress",
-            tasks: [
-                    makeTask(),
-                    makeTask(),
-                    makeTask(),
-                    makeTask(),
-                    makeTask(),
-                    makeTask(),
-                ]
-
+            tasks: Array(5).fill().map((_) => makeTask())
         },
         {
             id: 3,
@@ -99,7 +101,7 @@ export function Board() {
 
     return (
         <Container fluid className="mt-4">
-            <h2 className="mb-4">Проект {name}:</h2>
+            <h2 className="mb-4">Проект {projectName.projectName}:</h2>
 
             {/* Горизонтальный скролл для поддержки многих колонок */}
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem' }}>

@@ -1,35 +1,33 @@
-import { useState } from 'react'
+import { useProject } from './context/ProjectContext.jsx';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
 import { Home } from './pages/Home';
 import { Board } from './pages/Board';
 import { Login } from './pages/Login';
 
-import 'bootstrap/dist/css/bootstrap.min.css'
-import './App.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-    {/* Тело возвращаемого документа: */ }
+    const {currentProject} = useProject();
 
     return (
-        <BrowserRouter> {/* Активирует возможности Routes */}
-            {/* Панель сверху - <Link={куда отправляет надпись}>{слово}</Link>  */}
-            <nav class="container-fluid bg-dark text-light pt-3">
-                {/* Настройки: контейнер, который заполняет всю ширину, background-color = dark, text-color = light, padding top = 3 (макс 5)  */}
+        <BrowserRouter>
+            {/* Nav bar сверху*/}
+            <nav className="container-fluid bg-dark text-light pt-3">
                 Task Tracker:{" "}
                 <Link to="/">Home</Link> |{" "}
                 <Link to="/login">Login</Link> |{" "}
-                <Link to="/board">Board</Link>
+                <Link to={`/${currentProject.header}/board`}>Board</Link>
             </nav>
 
-            {/* Смотрит какой сейчас endpoint, и на место соотвествующего подставляет результат функции {element} */}
+            {/* По endpoint подставляет соотвествующий компонент*/}
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/board" element={<Board />} />
+                <Route path="/login/" element={<Login />} />
+                <Route path="/:projectName/board/" element={<Board />} />
             </Routes>
         </BrowserRouter>
     )
 }
 
-export default App
+export default App;
