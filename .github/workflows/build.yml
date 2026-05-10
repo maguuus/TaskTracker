@@ -10,12 +10,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Docker images
+        id: build
         run: docker compose -p "ci-${{ github.run_id }}" build
 
-      - name: Summary
-        if: success()
-        run: echo "### BUILD SUCCESS" >> $GITHUB_STEP_SUMMARY
-
-      - name: Summary
-        if: failure()
-        run: echo "### BUILD FAILED" >> $GITHUB_STEP_SUMMARY
+      - name: Build status
+        if: always()
+        run: |
+          if [ "${{ steps.build.outcome }}" = "success" ]; then
+            echo "### BUILD SUCCESS" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### BUILD FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
