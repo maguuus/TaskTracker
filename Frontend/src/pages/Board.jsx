@@ -8,7 +8,7 @@ export function Board() {
     function makeTask() {
         id++;
 
-        return { id: id, title: `Задача ${id}`, description: `Описание задачи ${id}` };
+        return { id: id, title: `Текст оглавление ${id}`, description: `Тело текста ${id}` };
     }
 
     // Данные для колонок и карточек
@@ -89,7 +89,7 @@ export function Board() {
 
                     {/* область с карточками (тело)*/}
                     <Card.Body style={{ overflowY: 'auto', padding: '0.75rem' }}>
-                        {column.tasks.map((task) => PaintTask(task))}  {/* Отрисовка каждой отдельной карточки*/}
+                        {column.tasks.map(PaintTask)}  {/* Отрисовка каждой отдельной карточки*/}
                     </Card.Body>
                 </Card>
             </Col>
@@ -104,7 +104,7 @@ export function Board() {
             {/* Горизонтальный скролл для поддержки многих колонок */}
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem' }}>
                 <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }}>
-                    {columns.map((column) => PaintColumn(column))} {/* Отрисовка каждой отдельной колонки*/}
+                    {columns.map(PaintColumn)} {/* Отрисовка каждой отдельной колонки*/}
                 </Row>
             </div>
         </Container>
