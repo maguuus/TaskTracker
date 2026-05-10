@@ -110,7 +110,9 @@ function RenderColumn(column) {
 
                 {/* область с карточками (тело)*/}
                 <Card.Body style={{ overflowY: 'auto', padding: '0.75rem' }}>
-                    {column.tasks.map(RenderTask)}  {/* Отрисовка каждой отдельной карточки*/}
+                    {column.tasks.map((task) => (
+                        <RenderTask key={task.id} task={task} />
+                    ))}
                 </Card.Body>
             </Card>
         </Col>

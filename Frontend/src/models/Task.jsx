@@ -1,8 +1,8 @@
 import { Card, Button } from 'react-bootstrap';
 
-function RenderTask(task) {
+function RenderTask({ task }) {
     return (
-        <Card key={task.id} className="mb-3 shadow-sm">
+        <Card className="mb-3 shadow-sm">
             <Card.Body>
                 <Card.Title className="h6">{task.title}</Card.Title>
                 <Card.Text className="small text-muted">
