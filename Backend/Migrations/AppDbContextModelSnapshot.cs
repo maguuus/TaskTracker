@@ -63,6 +63,8 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OwnerId");
+
                     b.ToTable("Projects");
                 });
 
@@ -87,7 +89,7 @@ namespace Backend.Migrations
                     b.Property<int>("OrderIndex")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("PlannedStartAt")
+                    b.Property<DateTime?>("PlannedStartAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Priority")
@@ -144,6 +146,17 @@ namespace Backend.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("TaskTracker.Models.Project", b =>
+                {
+                    b.HasOne("TaskTracker.Models.User", "Owner")
+                        .WithMany("OwnedProjects")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
             modelBuilder.Entity("TaskTracker.Models.TaskItem", b =>
                 {
                     b.HasOne("TaskTracker.Models.Column", "Column")
@@ -163,6 +176,11 @@ namespace Backend.Migrations
             modelBuilder.Entity("TaskTracker.Models.Project", b =>
                 {
                     b.Navigation("Columns");
+                });
+
+            modelBuilder.Entity("TaskTracker.Models.User", b =>
+                {
+                    b.Navigation("OwnedProjects");
                 });
 #pragma warning restore 612, 618
         }
