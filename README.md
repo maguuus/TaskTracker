@@ -41,6 +41,6 @@ npm run dev
 | Слой | Технологии |
 |---|---|
 | Фронтенд | React 19, Vite, Bootstrap 5, React Router v7 |
-| Бэкенд | ASP.NET Core 9, C# |
+| Бэкенд | ASP.NET Core 10, C# |
 | База данных | PostgreSQL 15 |
 | Инфраструктура | Docker Compose |
