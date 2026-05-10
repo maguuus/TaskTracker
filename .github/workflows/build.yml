@@ -11,3 +11,11 @@ jobs:
 
       - name: Build Docker images
         run: docker compose -p "ci-${{ github.run_id }}" build
+
+      - name: Summary
+        if: success()
+        run: echo "### BUILD SUCCESS" >> $GITHUB_STEP_SUMMARY
+
+      - name: Summary
+        if: failure()
+        run: echo "### BUILD FAILED" >> $GITHUB_STEP_SUMMARY
