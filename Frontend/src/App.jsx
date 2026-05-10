@@ -17,14 +17,14 @@ function App() {
                 Task Tracker:{" "}
                 <Link to="/">Home</Link> |{" "}
                 <Link to="/login">Login</Link> |{" "}
-                <Link to={`/${currentProject.header}/board`}>Board</Link>
+                <Link to="/board">Board</Link>
             </nav>
 
             {/* По endpoint подставляет соотвествующий компонент*/}
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login/" element={<Login />} />
-                <Route path="/:projectName/board/" element={<Board />} />
+                <Route path="/:projectName?/board/" element={<Board />} />
             </Routes>
         </BrowserRouter>
     )

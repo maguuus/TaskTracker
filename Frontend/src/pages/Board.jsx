@@ -7,7 +7,11 @@ export function Board() {
     const { projectName } = useParams();
     const { currentProject } = useProject();
 
+    if (!currentProject && !projectName)
+        return <Navigate to="/" replace />;
 
+    if (!projectName)
+        return <Navigate to={`/${currentProject.header}/board/`} replace />;
 
 
     let id = 0;
