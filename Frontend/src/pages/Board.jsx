@@ -2,6 +2,8 @@ import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
 import { Navigate, useParams } from 'react-router-dom';
 import { useProject } from '../context/ProjectContext.jsx';
 
+import RenderTask from '../models/Task.jsx';
+
 export function Board() {
 
     const { projectName } = useParams();
@@ -113,31 +115,5 @@ function RenderColumn(column) {
             </Card>
         </Col>
 
-    )
-}
-
-function RenderTask(task) {
-    return (
-        <Card key={task.id} className="mb-3 shadow-sm">
-            <Card.Body>
-                <Card.Title className="h6">{task.title}</Card.Title>
-                <Card.Text className="small text-muted">
-                    {task.description}
-                </Card.Text>
-
-                {/* Кнопки */}
-                <div className="d-flex gap-2 mt-2">
-                    <Button variant="outline-primary" size="sm">
-                        Редактировать
-                    </Button>
-                    <Button variant="outline-danger" size="sm">
-                        Удалить
-                    </Button>
-                    <Button variant="outline-secondary" size="sm">
-                        Детали
-                    </Button>
-                </div>
-            </Card.Body>
-        </Card>
     )
 }
