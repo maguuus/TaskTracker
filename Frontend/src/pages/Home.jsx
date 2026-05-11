@@ -38,7 +38,7 @@ const projectData3 = {
     bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
 };
 
-export function Home() {
+function Home() {
 
     const projects = [projectData1, projectData2, projectData3];
     return (
@@ -51,7 +51,7 @@ export function Home() {
     );
 }
 
-function PaintProject(project, idx) {
+function PaintProject(project, idx) { // To new file
 
     const { setCurrentProject } = useProject();
     const navigate = useNavigate();
@@ -105,3 +105,5 @@ function PaintProject(project, idx) {
         </Col >
     )
 }
+
+export default Home;

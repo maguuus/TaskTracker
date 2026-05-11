@@ -17,7 +17,7 @@ import api from '../api/index.js'
 //     }
 // }
 
-export function Board() {
+function Board() {
 
     const { projectId } = useParams();
     const { currentProject, setCurrentProject } = useProject();
@@ -64,6 +64,8 @@ export function Board() {
     
     return <ProjectBoard name={currentProject.name} columns={columns} />;
 }
+
+export default Board;
 
 /* 
 const project: Project = {

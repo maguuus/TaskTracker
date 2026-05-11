@@ -1,7 +1,7 @@
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { useState } from 'react'
 
-export function Login() {
+function Login() {
 
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
@@ -45,3 +45,5 @@ export function Login() {
         </Container>
     );
 }
+
+export default Login;
