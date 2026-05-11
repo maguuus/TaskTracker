@@ -3,6 +3,8 @@ import { useProject } from '../context/ProjectContext.jsx';
 import { useNavigate } from 'react-router-dom';
 
 const projectData1 = {
+    id: 0,
+    name: "Project 1",
     icon: '📁',
     header: 'Head1',
     subhead: 'Субголова',
@@ -13,6 +15,8 @@ const projectData1 = {
 };
 
 const projectData2 = {
+    id: 1,
+    name: "Project 2",
     icon: '📁',
     header: 'Head2',
     subhead: 'Субголова',
@@ -23,6 +27,8 @@ const projectData2 = {
 };
 
 const projectData3 = {
+    id: 2,
+    name: "Project 3",
     icon: '📁',
     header: 'Head3',
     subhead: 'Субголова',
@@ -39,7 +45,7 @@ export function Home() {
         <Container className="mt-4">
             <h2 className="mb-4">Проекты</h2>
             <Row>
-                {projects.map(PaintProject)}
+                {projects.map(PaintProject)} {/* TO REACT */}
             </Row>
         </Container>
     );
@@ -90,7 +96,7 @@ function PaintProject(project, idx) {
                 <Card.Footer className="d-flex justify-content-end gap-3">
                     <Button variant="light border">Вторичная</Button>
                     <Button variant="primary"
-                        onClick={() => { setCurrentProject(project); navigate(`/${project.header}/board/`); }}> {/* To do вынести лямбду */}
+                        onClick={() => { setCurrentProject(project); navigate(`/${project.id}/board/`); }}> {/* To Do вынести лямбду */}
                         Изначальная
                     </Button>
                 </Card.Footer>

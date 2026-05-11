@@ -1,18 +1,31 @@
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Navigate, useParams } from 'react-router-dom';
+import { useState, useTransition } from 'react'
 import { useProject } from '../context/ProjectContext.jsx';
 import ProjectBoard from '../models/ProjectBoard.jsx';
 
+import api from '../api/index.js'
+
+// const [responseMsg, setResponseMsg] = useState('');
+// async function LoadProject(id) {
+//     try {
+//         const response = await api.get(`/projects/${id}`);
+//         return reponse.data;
+//     }
+//     catch (error) {
+//         return {}
+//     }
+// }
+
 export function Board() {
 
-    const { projectName } = useParams();
-    const { currentProject } = useProject();
+    const { projectId } = useParams();
+    const { currentProject, setCurrentProject } = useProject();
 
-    if (!currentProject && !projectName)
+    if (!currentProject && !projectId)
         return <Navigate to="/" replace />;
-    if (!projectName)
-        return <Navigate to={`/${currentProject.header}/board/`} replace />;
-
+    if (!projectId)
+        return <Navigate to={`/${currentProject.id}/board/`} replace />;
 
     let id = 0;
     function makeTask() { // testing only
@@ -25,7 +38,7 @@ export function Board() {
         };
     }
 
-    // Данные колонок и карточек (testing only)
+    // (testing only)
     const columns = [
         {
             id: 1,
@@ -48,8 +61,8 @@ export function Board() {
             ]
         }
     ];
-
-    return <ProjectBoard name={projectName} columns={columns} />;
+    
+    return <ProjectBoard name={currentProject.name} columns={columns} />;
 }
 
 /* 
