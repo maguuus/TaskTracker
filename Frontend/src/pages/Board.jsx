@@ -1,8 +1,7 @@
-import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Navigate, useParams } from 'react-router-dom';
 import { useProject } from '../context/ProjectContext.jsx';
-
-import RenderTask from '../models/Task.jsx';
+import ProjectBoard from '../models/ProjectBoard.jsx';
 
 export function Board() {
 
@@ -50,7 +49,7 @@ export function Board() {
         }
     ];
 
-    return <RenderProject project={{ name: projectName, columns: columns }} />;
+    return <ProjectBoard name={projectName} columns={columns} />;
 }
 
 /* 
@@ -74,48 +73,3 @@ const task: Task = {
     description: "", ///
     }
 */
-
-function RenderProject({ project }) {
-    return (
-        <Container fluid className="mt-4">
-            <h2 className="mb-4">Проект <mark>{project.name}</mark>:</h2>
-
-            {/* + Горизонтальный скролл */}
-            <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem' }}>
-                <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }}>
-                    {project.columns.map(RenderColumn)}
-                </Row>
-            </div>
-        </Container >
-    );
-}
-
-function RenderColumn(column) {
-    return (
-        <Col
-            key={column.id}
-            style={{ minWidth: '350px', width: '350px' }}
-            className="me-3"
-        >
-            {/* Колонка*/}
-            <Card style={{ height: 'calc(100vh - 150px)', display: 'flex', flexDirection: 'column' }}>
-                <Card.Header className="bg-light">
-                    <h5 className="mb-0">
-                        {column.title}
-                        <Badge bg="secondary" className="ms-2">
-                            {column.tasks.length}
-                        </Badge>
-                    </h5>
-                </Card.Header>
-
-                {/* область с карточками (тело)*/}
-                <Card.Body style={{ overflowY: 'auto', padding: '0.75rem' }}>
-                    {column.tasks.map((task) => (
-                        <RenderTask key={task.id} task={task} />
-                    ))}
-                </Card.Body>
-            </Card>
-        </Col>
-
-    )
-}
