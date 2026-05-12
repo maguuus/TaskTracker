@@ -1,6 +1,6 @@
-using TaskTracker.Data;
 using Microsoft.EntityFrameworkCore;
-using TaskTracker.Models;
+using System.Text.Json.Serialization;
+using Backend.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +18,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString( "DefaultConnection" )));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
