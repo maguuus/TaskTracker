@@ -87,3 +87,9 @@ Swagger UI автоматически отражает все зарегистр
 |---|---|
 | `Microsoft.AspNetCore.OpenApi` | Генерация OpenAPI-схемы |
 | `Swashbuckle.AspNetCore` | Swagger UI |
+
+---
+
+## База данных
+
+Структура БД, описание таблиц и ER-диаграмма: [er-model.md](./er-model.md)
