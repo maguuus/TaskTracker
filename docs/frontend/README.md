@@ -25,6 +25,8 @@ Frontend/
     ├── App.jsx           # Корневой компонент, роутер, навигация
     ├── App.css           # Глобальные стили приложения
     ├── index.css         # Базовые CSS-сбросы
+    ├── api/
+    │   └── index.js      # Axios-клиент для запросов к бэкенду
     └── pages/
         ├── Home.jsx      # Главная страница — список досок
         ├── Login.jsx     # Страница входа / регистрации
@@ -45,11 +47,21 @@ Frontend/
 
 ## Запуск
 
+### Локальная разработка
+
 ```bash
 cd Frontend
 npm install
 npm run dev
 # http://localhost:5173
+```
+
+### Docker
+
+Фронтенд собирается в Docker-образ и раздаётся статически:
+
+```bash
+docker-compose up -d frontend
 ```
 
 ### Прочие скрипты
@@ -71,6 +83,7 @@ npm run dev
 | `react` / `react-dom` | UI-фреймворк |
 | `react-router-dom` | Клиентский роутинг |
 | `bootstrap` | CSS-компоненты и утилиты |
+| `axios` | HTTP-клиент для запросов к API |
 
 ### Development
 
