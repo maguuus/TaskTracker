@@ -1,17 +1,44 @@
-import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Navigate, useParams } from 'react-router-dom';
+import { useState, useTransition } from 'react'
+import { useProject } from '../context/ProjectContext.jsx';
+import ProjectBoard from '../models/ProjectBoard.jsx';
 
+import api from '../api/index.js'
 
-export function Board() {
+// const [responseMsg, setResponseMsg] = useState('');
+// async function LoadProject(id) {
+//     try {
+//         const response = await api.get(`/projects/${id}`);
+//         return reponse.data;
+//     }
+//     catch (error) {
+//         return {}
+//     }
+// }
+
+function Board() {
+
+    const { projectId } = useParams();
+    const { currentProject, setCurrentProject } = useProject();
+
+    if (!currentProject && !projectId)
+        return <Navigate to="/" replace />;
+    if (!projectId)
+        return <Navigate to={`/${currentProject.id}/board/`} replace />;
 
     let id = 0;
-
-    function makeTask() {
+    function makeTask() { // testing only
         id++;
 
-        return { id: id, title: `Текст оглавление ${id}`, description: `Тело текста ${id}` };
+        return {
+            id: id,
+            title: `Текст оглавление ${id}`,
+            description: `Тело текста ${id}`
+        };
     }
 
-    // Данные для колонок и карточек
+    // (testing only)
     const columns = [
         {
             id: 1,
@@ -24,15 +51,7 @@ export function Board() {
         {
             id: 2,
             title: "In Progress",
-            tasks: [
-                    makeTask(),
-                    makeTask(),
-                    makeTask(),
-                    makeTask(),
-                    makeTask(),
-                    makeTask(),
-                ]
-
+            tasks: Array(5).fill().map((_) => makeTask())
         },
         {
             id: 3,
@@ -42,71 +61,30 @@ export function Board() {
             ]
         }
     ];
-
-    function PaintTask(task) {
-        return (
-            <Card key={task.id} className="mb-3 shadow-sm">
-                <Card.Body>
-                    <Card.Title className="h6">{task.title}</Card.Title>
-                    <Card.Text className="small text-muted">
-                        {task.description}
-                    </Card.Text>
-
-                    {/* Кнопки */}
-                    <div className="d-flex gap-2 mt-2">
-                        <Button variant="outline-primary" size="sm">
-                            Редактировать
-                        </Button>
-                        <Button variant="outline-danger" size="sm">
-                            Удалить
-                        </Button>
-                        <Button variant="outline-secondary" size="sm">
-                            Детали
-                        </Button>
-                    </div>
-                </Card.Body>
-            </Card>
-        )
-    }
-
-    function PaintColumn(column) {
-        return (
-            <Col
-                key={column.id}
-                style={{ minWidth: '350px', width: '350px' }}
-                className="me-3"
-            >
-                {/* Колонка*/}
-                <Card style={{ height: 'calc(100vh - 150px)', display: 'flex', flexDirection: 'column' }}>
-                    <Card.Header className="bg-light">
-                        <h5 className="mb-0">
-                            {column.title}
-                            <Badge bg="secondary" className="ms-2">
-                                {column.tasks.length}
-                            </Badge>
-                        </h5>
-                    </Card.Header>
-
-                    {/* область с карточками (тело)*/}
-                    <Card.Body style={{ overflowY: 'auto', padding: '0.75rem' }}>
-                        {column.tasks.map(PaintTask)}  {/* Отрисовка каждой отдельной карточки*/}
-                    </Card.Body>
-                </Card>
-            </Col>
-
-        )
-    }
-
-    return (
-        <Container fluid className="mt-4">
-            <h2 className="mb-4">Проект {name}:</h2>
-
-            {/* Горизонтальный скролл для поддержки многих колонок */}
-            <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem' }}>
-                <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }}>
-                    {columns.map(PaintColumn)} {/* Отрисовка каждой отдельной колонки*/}
-                </Row>
-            </div>
-        </Container>
-    );
+    
+    return <ProjectBoard name={currentProject.name} columns={columns} />;
 }
+
+export default Board;
+
+/* 
+const project: Project = {
+    id: 1,
+    name: "" ///
+    owner: {user}
+    createdAt: {time}
+    columns: List<Column>: [] ///
+    }
+
+const column: Column = {
+    id: 1,
+    title: "", ///
+    tasks: List<Task>: [] ///
+    }
+
+const task: Task = {
+    id: = 1,
+    title: "", ///
+    description: "", ///
+    }
+*/

@@ -1,67 +1,70 @@
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { useProject } from '../context/ProjectContext.jsx';
+import { useNavigate } from 'react-router-dom';
+import ProjectCard from '../models/ProjectCard.jsx';
 
-export function Home() {
-    const projectData = {
-        icon: '📁',
-        header: 'Голова',
-        subhead: 'Субголова',
-        imageAlt: 'Портрет  проекта',
-        title: 'Титул',
-        subtitle: 'Субтитул',
-        bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-    };
+const projectData1 = {
+    id: 0,
+    name: "Project 1",
+    icon: '📁',
+    header: 'Head1',
+    subhead: 'Субголова',
+    imageAlt: 'Портрет  проекта',
+    title: 'Титул',
+    subtitle: 'Субтитул',
+    bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
+};
 
-    const projects = Array(3).fill(projectData);
+const projectData2 = {
+    id: 1,
+    name: "Project 2",
+    icon: '📁',
+    header: 'Head2',
+    subhead: 'Субголова',
+    imageAlt: 'Портрет  проекта',
+    title: 'Титул',
+    subtitle: 'Субтитул',
+    bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
+};
 
-    function PaintProject(project, idx) {
-        return (
-            <Col key={idx} md={4} className="mb-4">
-                <Card style={{ height: '100%' }}>
-                    <Card.Header>
-                        <div className="d-flex align-items-center mb-2">
-                            <span style={{ fontSize: '1.8rem', marginRight: '0.8rem' }}>
-                                {project.icon}
-                            </span>
-                            <h4 className="mb-0">{project.header}</h4>
-                        </div>
-                        {/* Subhead */}
-                        <h6 className="text-muted mb-3">{project.subhead}</h6>
-                        {/* Image (пустое изображение-заглушка) */}
-                    </Card.Header>
-                    <Card.Img
-                        variant="top"
-                        src=""
-                        alt={project.imageAlt}
-                        style={{ marginBottom: '1rem' }}
-                    />
-                    <Card.Body>
-                        <Card.Title>{project.title}</Card.Title>
+const projectData3 = {
+    id: 2,
+    name: "Project 3",
+    icon: '📁',
+    header: 'Head3',
+    subhead: 'Субголова',
+    imageAlt: 'Портрет  проекта',
+    title: 'Титул',
+    subtitle: 'Субтитул',
+    bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
+};
 
-                        <Card.Subtitle className="mb-2 text-muted">
-                            {project.subtitle}
-                        </Card.Subtitle>
+function Home() {
 
-                        <Card.Text>{project.bodyText}</Card.Text>
+    const { setCurrentProject } = useProject();
+    const navigate = useNavigate();
 
-                        <div className="d-flex justify-content-between mt-3">
-
-                        </div>
-                    </Card.Body>
-                    <Card.Footer className="d-flex justify-content-end gap-3">
-                        <Button variant="light border">Вторичная</Button>
-                        <Button variant="primary">Основная</Button>
-                    </Card.Footer>
-                </Card>
-            </Col>
-        )
+    function onProjectCardClicked(project) {
+        setCurrentProject(project);
+        navigate(`/${project.id}/board/`);
     }
 
+    const projects = [projectData1, projectData2, projectData3];
     return (
         <Container className="mt-4">
             <h2 className="mb-4">Проекты</h2>
             <Row>
-                {projects.map(PaintProject)}
+                {projects.map((project) =>
+                    <ProjectCard
+                        key={project.id}
+                        project={project}
+                        onClick={() => onProjectCardClicked(project)}
+                    />)}
             </Row>
         </Container>
     );
 }
+
+
+
+export default Home;
