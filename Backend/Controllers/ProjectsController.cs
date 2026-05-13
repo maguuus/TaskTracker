@@ -28,6 +28,16 @@ public class ProjectsController(AppDbContext context) : ControllerBase
         
         return projects;
     }
+    
+    [HttpGet("user/{userId:guid}")]
+    public async Task<ActionResult<IEnumerable<Project>>> GetProjectsByUser(Guid userId)
+    {
+        var projects = await context.Projects
+            .Where(p => p.OwnerId == userId)
+            .ToListAsync();
+        
+        return Ok(projects);
+    }
 
     [HttpPost]
     public async Task<ActionResult<Project>> CreateProject(Project project)
