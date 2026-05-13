@@ -6,6 +6,8 @@ namespace TaskTracker.Models
         public string Name { get; set; }
         public Guid OwnerId { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string Description { get; set; }
+        public string Title { get; set; }
 
         // Навигационные свойства для связей
         public ICollection<Column> Columns { get; set; }
