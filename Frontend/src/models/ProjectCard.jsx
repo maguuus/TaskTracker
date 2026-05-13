@@ -1,7 +1,7 @@
 import { Col, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
-function ProjectCard({ project, onClick }) {
+function ProjectCard({ project, onChoose, onDelete, onEdit }) {
 
     const { icon, header, subhead, imageAlt, title, subtitle, bodyText } = project;
 
@@ -14,28 +14,28 @@ function ProjectCard({ project, onClick }) {
                         <span style={{ fontSize: '1.8rem', marginRight: '0.8rem' }}>
                             {icon}
                         </span>
-                        <h4 className="mb-0">{header}</h4>
+                        <h4 className="mb-0">{header || ""}</h4>
                     </div>
 
-                    <h6 className="text-muted mb-3">{subhead}</h6>
+                    <h6 className="text-muted mb-3">{subhead || ""}</h6>
 
                 </Card.Header>
 
                 <Card.Img
                     variant="top"
                     src=""
-                    alt={imageAlt}
+                    alt={imageAlt || ""}
                     style={{ marginBottom: '1rem' }}
                 />
 
                 <Card.Body>
-                    <Card.Title>{title}</Card.Title>
+                    <Card.Title>{title || ""}</Card.Title>
 
                     <Card.Subtitle className="mb-2 text-muted">
-                        {subtitle}
+                        {subtitle || ""}
                     </Card.Subtitle>
 
-                    <Card.Text>{bodyText}</Card.Text>
+                    <Card.Text>{bodyText || ""}</Card.Text>
 
                     <div className="d-flex justify-content-between mt-3">
 
@@ -43,11 +43,9 @@ function ProjectCard({ project, onClick }) {
                 </Card.Body>
 
                 <Card.Footer className="d-flex justify-content-end gap-3">
-                    <Button variant="light border">Вторичная</Button>
-                    <Button variant="primary"
-                        onClick={onClick}>
-                        Изначальная
-                    </Button>
+                    <Button variant="danger" onClick={onDelete}>Удалить</Button>
+                    <Button variant="light" onClick={onEdit}>Изменить</Button>
+                    <Button variant="primary" onClick={onChoose}>Перейти</Button>
                 </Card.Footer>
 
             </Card>

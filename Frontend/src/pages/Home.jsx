@@ -5,8 +5,25 @@ import ProjectCard from '../models/ProjectCard.jsx';
 import { useProject } from '../context/ProjectContext.jsx';
 import { useUser } from '../context/UserContext.jsx';
 
-function onProjectCreate() {
+function onProjectCreate(setCurrentUser) {
+    const newProject = {
+        name: "New project",
+        icon: '📁',
+        header: 'Empty project',
+    };
+    setCurrentUser(prev =>
+        ({ ...prev, projects: [...prev.projects, newProject] })
+    );
+}
 
+function onProjectDelete(project, setCurrentUser) {
+    setCurrentUser(prev =>
+        ({ ...prev, projects: prev.projects.filter(p => p != project) })
+    );
+}
+
+function onProjectEdit(project, setCurrentUser) {
+    return;
 }
 
 function Home() {
@@ -36,7 +53,7 @@ function Home() {
             if (!currentUser?.id) return;
 
             const projects = await LoadUserProjectsMeta(currentUser.id);
-             
+
             if (projects.length != 0)
                 setCurrentUser(prevUser => ({
                     ...prevUser,
@@ -60,7 +77,9 @@ function Home() {
                         <ProjectCard
                             key={project.id}
                             project={project}
-                            onClick={() => onProjectCardClicked(project)}
+                            onChoose={() => onProjectCardClicked(project)}
+                            onDelete={() => onProjectDelete(project, setCurrentUser)}
+                            onEdit={() => onProjectEdit(project, setCurrentUser)}
                         />)
                     : `Создайте новый проект!`}
             </Row>
@@ -82,7 +101,7 @@ function Home() {
                 <Button
                     variant='secondary'
                     className="border-2 mb-4"
-
+                    onClick={() => onProjectCreate(setCurrentUser)}
                 >
                     +
                 </Button>

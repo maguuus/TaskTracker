@@ -1,10 +1,26 @@
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import Column from './Column';
+
+function onColumnCreate()
+{
+    const column = {
+
+    }
+
+}
 
 function ProjectBoard({ name, columns, ...rest }) {
     return (
         <Container fluid className="mt-4">
             <h2 className="mb-4">Проект <mark>{name}</mark>:</h2>
+
+            <Button
+                variant='secondary'
+                className="border-2 mb-4"
+                onClick={() => onColumnCreate()}
+            >
+                +
+            </Button>
 
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem' }}>
                 <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }}>

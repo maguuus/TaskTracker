@@ -1,3 +1,4 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 
 import { useProject } from './context/ProjectContext';
@@ -5,9 +6,19 @@ import Home from './pages/Home';
 import Board from './pages/Board';
 import Login from './pages/Login';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useUser } from './context/UserContext';
+
+const mock = {
+    id: 1,
+    email: "sdsd",
+    projects: []
+}
 
 function App() {
+
+    const [currentUser, setCurrentUser] = useUser();
+    if (!currentUser)
+        setCurrentUser(mock);
 
     const [ currentProject ] = useProject();
     let tryToBoard = `${currentProject ? `${currentProject.id}/board` : `/`}`;
