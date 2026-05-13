@@ -22,6 +22,9 @@ function Board() {
     const { projectId } = useParams();
     const { currentProject, setCurrentProject } = useProject();
 
+    alert(currentProject);
+    alert(currentProject.name);
+
     if (!currentProject && !projectId)
         return <Navigate to="/" replace />;
     if (!projectId)

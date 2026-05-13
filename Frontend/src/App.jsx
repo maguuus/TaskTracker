@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
 
-    const { currentProject } = useProject();
+    const [ currentProject ] = useProject();
     let boardPath = `${currentProject ? `${currentProject.id}/` : ``}board`;
 
     return (
