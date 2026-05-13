@@ -1,16 +1,13 @@
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { useProject } from '../context/ProjectContext.jsx';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import ProjectCard from '../models/ProjectCard.jsx';
+import { useProject } from '../context/ProjectContext.jsx';
 import { useUser } from '../context/UserContext.jsx';
 
-
-
-function onProjectCreate()
-{
+function onProjectCreate() {
 
 }
-
 
 function Home() {
 
@@ -19,25 +16,42 @@ function Home() {
 
     const [currentUser] = useUser();
 
+    async function LoadUserProjectsMeta(id) {
+        try {
+            const response = await api.get(`/user/${id}`);
+            return reponse.data;
+        }
+        catch (error) {
+            return {}
+        }
+    }
+
     function onProjectCardClicked(project) {
         setCurrentProject(project);
         navigate(`/${project.id}/board/`);
     }
 
     function UserDefined() {
-    return (
-        <Row>
-            {currentUser.projects
-                ? currentUser.projects.map((project) =>
-                    <ProjectCard
-                        key={project.id}
-                        project={project}
-                        onClick={() => onProjectCardClicked(project)}
-                    />)
-                : `Создайте новый проект!`}
-        </Row>
-    )
-}
+        useEffect(() => {
+            const loadedMeta = LoadUserProjectsMeta(currentUser.id);
+            if (loadedMeta)
+                currentUser.projects = loadedMeta;
+        },
+            []);
+
+        return (
+            <Row>
+                {currentUser.projects
+                    ? currentUser.projects.map((project) =>
+                        <ProjectCard
+                            key={project.id}
+                            project={project}
+                            onClick={() => onProjectCardClicked(project)}
+                        />)
+                    : `Создайте новый проект!`}
+            </Row>
+        )
+    }
 
     return (
         <Container className="mt-4">
@@ -46,7 +60,7 @@ function Home() {
                 <Button
                     variant='secondary'
                     className="border-2 mb-4"
-                   
+
                 >
                     +
                 </Button>

@@ -10,7 +10,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
 
     const [ currentProject ] = useProject();
-    let boardPath = `${currentProject ? `${currentProject.id}/` : ``}board`;
+    let tryToBoard = `${currentProject ? `${currentProject.id}/board` : `/`}`;
 
     return (
         <BrowserRouter>
@@ -18,7 +18,7 @@ function App() {
                 {"Task Tracker: "}
                 <NavLink to="/">Home</NavLink> {"| "}
                 <NavLink to="/login">Login</NavLink> {"| "}
-                <NavLink to={boardPath}>Board</NavLink>
+                <NavLink to={tryToBoard}>Board</NavLink>
             </nav>
 
             <Routes>

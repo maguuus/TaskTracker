@@ -17,55 +17,73 @@ import api from '../api/index.js'
 //     }
 // }
 
+var id = 0;
+function makeTask() { // testing only
+    id++;
+
+    return {
+        id: id,
+        title: `Текст оглавление ${id}`,
+        description: `Тело текста ${id}`
+    };
+}
+
+// (testing only)
+const columns = [
+    {
+        id: 1,
+        title: "To Do",
+        tasks: [
+            makeTask(),
+            makeTask(),
+        ]
+    },
+    {
+        id: 2,
+        title: "In Progress",
+        tasks: Array(5).fill().map((_) => makeTask())
+    },
+    {
+        id: 3,
+        title: "On Review",
+        tasks: [
+            makeTask(),
+        ]
+    }
+];
+
+function FetchProjectMeta(projectId) {
+
+}
+
+function FetchColumns(projectId) {
+    const [currentProject, setCurrentProject] = useProject();
+    if (currentProject != projectId)
+        setCurrentProject(FetchProjectMeta(projectId));
+
+    if (projectId == 0 || projectId == 1)
+        return columns;
+
+    return
+}
+
 function Board() {
 
     const { projectId } = useParams();
-    const { currentProject, setCurrentProject } = useProject();
-
-    alert(currentProject);
-    alert(currentProject.name);
+    const [currentProject, setCurrentProject] = useProject();
 
     if (!currentProject && !projectId)
         return <Navigate to="/" replace />;
     if (!projectId)
         return <Navigate to={`/${currentProject.id}/board/`} replace />;
 
-    let id = 0;
-    function makeTask() { // testing only
-        id++;
+    const name = currentProject ? currentProject.name : "unknown";
 
-        return {
-            id: id,
-            title: `Текст оглавление ${id}`,
-            description: `Тело текста ${id}`
-        };
-    }
 
-    // (testing only)
-    const columns = [
-        {
-            id: 1,
-            title: "To Do",
-            tasks: [
-                makeTask(),
-                makeTask(),
-            ]
-        },
-        {
-            id: 2,
-            title: "In Progress",
-            tasks: Array(5).fill().map((_) => makeTask())
-        },
-        {
-            id: 3,
-            title: "On Review",
-            tasks: [
-                makeTask(),
-            ]
-        }
-    ];
-    
-    return <ProjectBoard name={currentProject.name} columns={columns} />;
+
+
+
+    return <ProjectBoard name={name} columns={columns} />;
 }
 
 export default Board;
