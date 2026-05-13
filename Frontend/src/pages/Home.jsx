@@ -53,6 +53,7 @@ function Home() {
         )
     }
 
+    const projects = [projectData1, projectData2, projectData3];
     return (
         <Container className="mt-4">
             <div className="d-flex justify-content-between">
