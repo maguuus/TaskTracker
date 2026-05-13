@@ -11,33 +11,47 @@ function onProjectCreate() {
 
 function Home() {
 
-    const [currentProject, setCurrentProject] = useProject();
     const navigate = useNavigate();
 
-    const [currentUser] = useUser();
-
-    async function LoadUserProjectsMeta(id) {
-        try {
-            const response = await api.get(`/user/${id}`);
-            return reponse.data;
-        }
-        catch (error) {
-            return {}
-        }
-    }
+    const [currentProject, setCurrentProject] = useProject();
+    const [currentUser, setCurrentUser] = useUser();
 
     function onProjectCardClicked(project) {
         setCurrentProject(project);
         navigate(`/${project.id}/board/`);
     }
 
-    function UserDefined() {
-        useEffect(() => {
-            const loadedMeta = LoadUserProjectsMeta(currentUser.id);
-            if (loadedMeta)
-                currentUser.projects = loadedMeta;
-        },
-            []);
+    async function LoadUserProjectsMeta(id) {
+        try {
+            const response = await api.get(`/user/${id}`);
+            return response.data;
+        }
+        catch (error) {
+            return []
+        }
+    }
+
+    useEffect(() => {
+        async function fetchProjects() {
+            if (!currentUser?.id) return;
+
+            const projects = await LoadUserProjectsMeta(currentUser.id);
+             
+            if (projects.length != 0)
+                setCurrentUser(prevUser => ({
+                    ...prevUser,
+                    projects
+                }));
+        }
+        fetchProjects();
+    }, [currentUser?.id]);
+
+    function onProjectCardClicked(project) {
+        setCurrentProject(project);
+        navigate(`/${project.id}/board/`);
+    }
+
+    function UserProjects() {
 
         return (
             <Row>
@@ -53,7 +67,14 @@ function Home() {
         )
     }
 
-    const projects = [projectData1, projectData2, projectData3];
+    if (!currentUser)
+        return (
+            <Container>
+                <h2>Проекты</h2>
+                <p>Войдите в аккаунт, чтобы увидеть проекты.</p>
+            </Container>
+        )
+
     return (
         <Container className="mt-4">
             <div className="d-flex justify-content-between">
@@ -66,7 +87,7 @@ function Home() {
                     +
                 </Button>
             </div>
-            {currentUser ? <UserDefined /> : `Войдите в аккаунт, чтобы увидеть проекты.`}
+            <UserProjects />
         </Container>
     );
 }

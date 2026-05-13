@@ -24,7 +24,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/:projectId?/board" element={<Board />} />
+                <Route path="/:projectId/board" element={<Board />} />
             </Routes>
         </BrowserRouter>
     );

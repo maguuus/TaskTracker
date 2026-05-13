@@ -1,6 +1,6 @@
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Navigate, useParams } from 'react-router-dom';
-import { useState, useTransition } from 'react'
+import { useState, useEffect } from 'react'
 import { useProject } from '../context/ProjectContext.jsx';
 import ProjectBoard from '../models/ProjectBoard.jsx';
 
@@ -29,7 +29,7 @@ function makeTask() { // testing only
 }
 
 // (testing only)
-const columns = [
+const mockcolumns = [
     {
         id: 1,
         title: "To Do",
@@ -53,59 +53,49 @@ const columns = [
 ];
 
 function FetchProjectMeta(projectId) {
-
+    return ({
+        id: projectId,
+        name: `Project ${projectId}`,
+        icon: '📁',
+        header: 'Head1',
+        subhead: 'Субголова',
+        imageAlt: 'Портрет  проекта',
+        title: 'Титул',
+        subtitle: 'Субтитул',
+        bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
+    });
 }
 
-function FetchColumns(projectId) {
-    const [currentProject, setCurrentProject] = useProject();
-    if (currentProject != projectId)
-        setCurrentProject(FetchProjectMeta(projectId));
-
+function FetchColumns(projectId, setCols) {
     if (projectId == 0 || projectId == 1)
-        return columns;
-
-    return
+        setCols(mockcolumns);
 }
 
 function Board() {
 
     const { projectId } = useParams();
     const [currentProject, setCurrentProject] = useProject();
+    const [columns, setColumns] = useState(null);
 
-    if (!currentProject && !projectId)
-        return <Navigate to="/" replace />;
     if (!projectId)
-        return <Navigate to={`/${currentProject.id}/board/`} replace />;
+        return <Navigate to="/" replace />;
 
-    const name = currentProject ? currentProject.name : "unknown";
+    useEffect(() => {
+        if (!currentProject || currentProject.id != projectId)
+            setCurrentProject(FetchProjectMeta(projectId))
+    }, []);
 
+    useEffect(() => FetchColumns(projectId, setColumns), [currentProject]);
 
+    if (!columns)
+        return <h1>Loading Project...</h1>
+        
+    return (
+        <ProjectBoard
+            name={currentProject ? currentProject.name : "unknown"}
+            columns={columns} />
 
-
-
-    return <ProjectBoard name={name} columns={columns} />;
+    );
 }
 
 export default Board;
-
-/* 
-const project: Project = {
-    id: 1,
-    name: "" ///
-    owner: {user}
-    createdAt: {time}
-    columns: List<Column>: [] ///
-    }
-
-const column: Column = {
-    id: 1,
-    title: "", ///
-    tasks: List<Task>: [] ///
-    }
-
-const task: Task = {
-    id: = 1,
-    title: "", ///
-    description: "", ///
-    }
-*/
