@@ -6,5 +6,9 @@ export default defineConfig({
     plugins: [plugin()],
     server: {
         port: 5173,
-    }
+    },
+    test: {
+    globals: true,
+    environment: 'jsdom',
+  },
 })

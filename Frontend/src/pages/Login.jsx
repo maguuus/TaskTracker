@@ -1,7 +1,7 @@
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { useState } from 'react'
 
-export function Login() {
+function Login() {
 
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
@@ -10,7 +10,6 @@ export function Login() {
         e.preventDefault();
         alert(`Email: ${email}\nPassword: ${password}`)
     }
-
 
     return (
         <Container fluid className="h-100 d-flex align-items-center justify-content-center">
@@ -27,7 +26,7 @@ export function Login() {
                             />
                             <Form.Label>Адрес почты</Form.Label>
                         </Form.Group>
-
+  
                         <Form.Group className="mb-3 form-floating" controlId="formPassword">
                             <Form.Control
                                 type="password"
@@ -46,3 +45,5 @@ export function Login() {
         </Container>
     );
 }
+
+export default Login;
