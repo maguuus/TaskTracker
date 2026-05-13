@@ -16,6 +16,15 @@ services:
     networks:
       - backend
 
+  backend:
+    build:
+      context: ./Backend
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - backend
+
 volumes:
   pgdata:
 
