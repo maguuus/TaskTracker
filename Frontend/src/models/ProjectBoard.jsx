@@ -3,8 +3,6 @@ import Column from './Column';
 import { useBoard } from '../context/BoardContext';
 import { useEffect } from 'react';
 
-
-
 var id = 0;
 function makeTask() { // testing only
     id++;
@@ -39,7 +37,6 @@ const mockcolumns = [
         ]
     }
 ];
-
 
 function FetchColumns(projectId, setCols) {
     if (projectId == 0 || projectId == 1)

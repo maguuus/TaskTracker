@@ -19,6 +19,20 @@ function Column({ column, onColumnUpdate, onDelete }) {
         );
     }
 
+    function onTaskCreate() {
+        const id = column.tasks.length != 0 ? Math.max(...column.tasks.map(t => t.id)) + 1 : 0;
+        const newTask = {
+            id: id,
+            title: `Текст оглавление ${id}`,
+            description: `Тело текста ${id}`
+        }
+        
+        setColumns(prev => prev.map(c => c.id !== column.id
+            ? c
+            : { ...c, tasks: [...c.tasks, newTask] }
+        ));
+    }
+
     return (
         <Card style={{ backgroundColor: 'lightblue', height: 'calc(100vh - 150px)', display: 'flex', flexDirection: 'column' }}>
             <Card.Header className="bg-light">
@@ -27,6 +41,14 @@ function Column({ column, onColumnUpdate, onDelete }) {
                     <Badge bg="secondary" className="ms-2">
                         {column.tasks.length}
                     </Badge>
+                    <Button
+                        variant='primary'
+                        className="ms-auto py-0 px-2"
+                        style={{ height: '24px', minWidth: '24px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                        onClick={onTaskCreate}
+                    >
+                        +
+                    </Button>
                     <Button
                         variant='secondary'
                         className="ms-auto py-0 px-2"
