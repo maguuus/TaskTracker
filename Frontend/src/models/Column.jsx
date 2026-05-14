@@ -3,7 +3,7 @@ import RenderTask from './Task';
 
 function Column({ column, onDelete }) {
     return (
-        <Card style={{ height: 'calc(100vh - 150px)', display: 'flex', flexDirection: 'column' }}>
+        <Card style={{ backgroundColor: 'lightblue', height: 'calc(100vh - 150px)', display: 'flex', flexDirection: 'column' }}>
             <Card.Header className="bg-light">
                 <h5 className="mb-0 d-flex align-items-center justify-content-between w-100">
 
