@@ -3,17 +3,17 @@ import { createContext, useContext, useState, useMemo } from 'react';
 const BoardContext = createContext();
 
 export function BoardProvider({ children }) {
-    const [columns, setColumns] = useState(null);
+    const [columns, setColumns] = useState([]);
 
     const memoized = useMemo(() => ([columns, setColumns]), [columns]);
 
     return (
-        <ProjectContext.Provider value={memoized}>
+        <BoardContext.Provider value={memoized}>
             {children}
-        </ProjectContext.Provider>
+        </BoardContext.Provider>
     );
 }
 
-export function useProject() {
+export function useBoard() {
     return useContext(BoardContext);
 }

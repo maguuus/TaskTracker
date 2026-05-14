@@ -7,6 +7,7 @@ import { useUser } from '../context/UserContext.jsx';
 
 function onProjectCreate(setCurrentUser) {
     const newProject = {
+        id: 0,
         name: "New project",
         icon: '📁',
         header: 'Empty project',

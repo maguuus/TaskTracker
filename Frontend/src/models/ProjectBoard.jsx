@@ -1,15 +1,74 @@
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import Column from './Column';
+import { useBoard } from '../context/BoardContext';
+import { useEffect } from 'react';
 
-function onColumnCreate()
-{
-    const column = {
 
-    }
 
+var id = 0;
+function makeTask() { // testing only
+    id++;
+
+    return {
+        id: id,
+        title: `Текст оглавление ${id}`,
+        description: `Тело текста ${id}`
+    };
 }
 
-function ProjectBoard({ name, columns, ...rest }) {
+// (testing only)
+const mockcolumns = [
+    {
+        id: 1,
+        title: "To Do",
+        tasks: [
+            makeTask(),
+            makeTask(),
+        ]
+    },
+    {
+        id: 2,
+        title: "In Progress",
+        tasks: Array(5).fill().map((_) => makeTask())
+    },
+    {
+        id: 3,
+        title: "On Review",
+        tasks: [
+            makeTask(),
+        ]
+    }
+];
+
+
+function FetchColumns(projectId, setCols) {
+    if (projectId == 0 || projectId == 1)
+        setCols(mockcolumns);
+}
+
+function ProjectBoard({ name, id, ...rest }) {
+
+    const [columns, setColumns] = useBoard();
+
+    function onColumnCreate() {
+        const newColumn = {
+            id: (columns[columns.length - 1]?.id ?? -1) + 1,
+            title: `On Review ${columns.length}`,
+            tasks: [
+                makeTask(),
+            ]
+        }
+        setColumns(prev =>
+            [...prev, newColumn]
+        );
+    }
+
+
+    useEffect(() => FetchColumns(id, setColumns), []);
+
+    if (!columns)
+        return <h1>Loading Columns for {name}...</h1>
+
     return (
         <Container fluid className="mt-4">
             <h2 className="mb-4">Проект <mark>{name}</mark>:</h2>
