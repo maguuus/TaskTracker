@@ -34,7 +34,7 @@ public class ColumnsController(AppDbContext context) : ControllerBase
         var column = new Column
         {
             Id = Guid.NewGuid(),
-            Title = columnDto.Title,
+            Title = string.IsNullOrWhiteSpace(columnDto.Title) ? "" : columnDto.Title,
             OrderIndex = columnDto.OrderIndex,
             ProjectId = columnDto.ProjectId
         };

@@ -17,11 +17,15 @@ public class AuthController(AppDbContext context): ControllerBase
         {
             return BadRequest("Email is already taken");
         }
+        
+        var finalName = string.IsNullOrWhiteSpace(registerDto.Name) 
+            ? registerDto.Email.Split('@')[0] 
+            : registerDto.Name;
 
         var user = new User
         {
             Id = Guid.NewGuid(),
-            Name = registerDto.Name,
+            Name = finalName,
             Email = registerDto.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
         };
