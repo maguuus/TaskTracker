@@ -1,34 +1,31 @@
-using TaskTracker.Models;
-using Microsoft.EntityFrameworkCore; 
+using Backend.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace TaskTracker.Data
-{ 
-    public  class  AppDbContext : DbContext
-     { 
-        public  AppDbContext ( DbContextOptions<AppDbContext> options ) : base ( options ) {} 
+namespace Backend.Data;
 
-        public DbSet<Column> Columns { get; set; }
-        public DbSet<Project> Projects { get; set; }
-        public DbSet<TaskItem> TaskItems { get; set; }
-        public DbSet<User> Users { get; set; }
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+{
+    public DbSet<Column> Columns { get; set; }
+    public DbSet<Project> Projects { get; set; }
+    public DbSet<TaskItem> TaskItems { get; set; }
+    public DbSet<User> Users { get; set; }
 
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Project>()
-                .HasMany(p => p.Columns)
-                .WithOne(c => c.Project)
-                .HasForeignKey(c => c.ProjectId)
-                .OnDelete(DeleteBehavior.Cascade);
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Project>()
+            .HasMany(p => p.Columns)
+            .WithOne(c => c.Project)
+            .HasForeignKey(c => c.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Column>()
-                .HasMany(c => c.TaskItems)
-                .WithOne(t => t.Column)
-                .HasForeignKey(t => t.ColumnId)
-                .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Column>()
+            .HasMany(c => c.TaskItems)
+            .WithOne(t => t.Column)
+            .HasForeignKey(t => t.ColumnId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-            base.OnModelCreating(modelBuilder);
-        }
-
+        base.OnModelCreating(modelBuilder);
     }
+
 }
