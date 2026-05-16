@@ -10,7 +10,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProjectsController(ProjectService projectService) : ControllerBase
+public class ProjectsController(IProjectService projectService) : ControllerBase
 {
     [HttpGet("user/{userId:guid}")]
     public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> GetProjectsByUser(Guid userId)
