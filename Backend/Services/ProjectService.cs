@@ -16,7 +16,7 @@ public class ProjectService: IProjectService
     {
         var projects = await context.Projects
             .Where(p => p.OwnerId == userId)
-            .Select(p => new ProjectResponseDto(p.Id, p.Name, p.Id, p.CreatedAt, null))
+            .Select(p => new ProjectResponseDto(p.Id, p.Name, p.OwnerId, p.CreatedAt, null))
             .ToListAsync();
         
         return projects;
