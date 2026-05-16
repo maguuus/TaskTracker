@@ -1,12 +1,14 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useMemo } from 'react';
 
 const ProjectContext = createContext();
 
 export function ProjectProvider({ children }) {
     const [currentProject, setCurrentProject] = useState(null);
 
+    const memoized = useMemo(() => ([currentProject, setCurrentProject]), [currentProject]);
+
     return (
-        <ProjectContext.Provider value={{ currentProject, setCurrentProject }}>
+        <ProjectContext.Provider value={memoized}>
             {children}
         </ProjectContext.Provider>
     );
