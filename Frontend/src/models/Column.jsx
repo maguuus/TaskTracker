@@ -1,6 +1,6 @@
 import { Col, Card, Badge, Button } from 'react-bootstrap';
 import { useBoard } from '../context/BoardContext';
-import RenderTask from './Task';
+import Task from './Task';
 
 
 function Column({ column, onColumnUpdate, onDelete }) {
@@ -62,7 +62,7 @@ function Column({ column, onColumnUpdate, onDelete }) {
 
             <Card.Body style={{ overflowY: 'auto', padding: '0.75rem' }}>
                 {column.tasks.map((task) => (
-                    <RenderTask key={task.id} task={task} />
+                    <Task key={task.id} task={task} />
                     // onDelete={() => onTaskDelete(task)}
                 ))}
             </Card.Body>

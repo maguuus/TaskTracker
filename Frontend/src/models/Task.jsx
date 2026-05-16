@@ -1,25 +1,27 @@
 import { Card, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function Task({ title, description, ...rest }) {
+function Task({ task }) {
+    const { title, description, ...rest } = task;
     return (
 
         <Card className="border-primary shadow-sm p-3 mb-5 bg-white rounded ">
             <Card.Body>
                 <h5> {description} </h5>
-                <button 
+                <button
                     className="btn btn-success rounded-pill position-absolute top-2 start-2"
                     style={{
                         top: '8px',
                         left: '8px',
                         fontSize: '0.65rem',
-                        padding: '2px 8px'}}
+                        padding: '2px 8px'
+                    }}
                 >
                     {"#работа"}
                 </button>
                 {/* Кнопки */}
                 <div className="d-flex gap-3 mt-4 justify-content-end">
-                    <button 
+                    <button
                         className="btn-close position-absolute top-0 end-0 mt-3 me-4"
                         aria-label="Close"
                     ></button>
