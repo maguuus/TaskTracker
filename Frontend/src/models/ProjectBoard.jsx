@@ -1,6 +1,7 @@
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import Column from './Column';
-import { useBoard } from '../context/BoardContext';
+import { useColumns } from '../context/BoardContext';
+import { useBoard } from '../context/BoardHooks';
 import { useEffect } from 'react';
 
 var id = 0;
@@ -43,37 +44,32 @@ function FetchColumns(projectId, setCols) {
         setCols(mockcolumns);
 }
 
-function ProjectBoard({ name, id, ...rest }) {
+function ProjectBoard({ header, id, ...rest }) {
 
-    const [columns, setColumns] = useBoard();
+    const [columns, setColumns] = useColumns();
+    const [addColumn, updateColumn, removeColumn] = useBoard();
 
-    function onColumnCreate() {
-        const newColumn = {
-            id: (columns[columns.length - 1]?.id ?? -1) + 1,
-            title: `On Review ${columns.length}`,
-            tasks: [
-                makeTask(),
-            ]
-        }
-        setColumns(prev =>
-            [...prev, newColumn]
-        );
-    }
-
+    const newColumn = (columns) => ({
+        id: (columns[columns.length - 1]?.id ?? -1) + 1,
+        title: `On Review ${columns.length}`,
+        tasks: [
+            makeTask(),
+        ]
+    });
 
     useEffect(() => FetchColumns(id, setColumns), []);
 
     if (!columns)
-        return <h1>Loading Columns for {name}...</h1>
+        return <h1>Loading Columns for {header}...</h1>
 
     return (
         <Container fluid className="mt-4">
-            <h2 className="mb-4">Проект <mark>{name}</mark>:</h2>
+            <h2 className="mb-4">Проект <mark>{header}</mark>:</h2>
 
             <Button
                 variant='secondary'
                 className="border-2 mb-4"
-                onClick={() => onColumnCreate()}
+                onClick={() => addColumn(newColumn(columns))}
             >
                 +
             </Button>
@@ -82,7 +78,7 @@ function ProjectBoard({ name, id, ...rest }) {
                 <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }}>
                     {columns.map((column) =>
                         <Col key={column.id} style={{ minWidth: '350px', width: '350px' }} className="me-3">
-                            <Column column={column} />
+                            <Column column={column} onColumnUpdate={updateColumn} onColumnDelete={() => removeColumn(column)}/>
                         </Col>)}
                 </Row>
             </div>

@@ -4,13 +4,16 @@ import { ProjectProvider } from './context/ProjectContext.jsx'
 import { UserProvider } from './context/UserContext.jsx'
 
 import App from './App.jsx'
+import { BoardProvider } from './context/BoardContext.jsx'
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
         <UserProvider>
             <ProjectProvider>
-                <App />
+                <BoardProvider>
+                    <App />
+                </BoardProvider>
             </ProjectProvider>
         </UserProvider>
-    </StrictMode>,
+    </StrictMode >,
 )

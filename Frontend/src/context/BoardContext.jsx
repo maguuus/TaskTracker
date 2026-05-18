@@ -14,6 +14,6 @@ export function BoardProvider({ children }) {
     );
 }
 
-export function useBoard() {
+export function useColumns() {
     return useContext(BoardContext);
 }

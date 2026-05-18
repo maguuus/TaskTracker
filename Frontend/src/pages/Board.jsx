@@ -21,7 +21,6 @@ import api from '../api/index.js'
 function FetchProjectMeta(projectId) {
     return ({
         id: projectId,
-        name: `Project ${projectId}`,
         icon: '📁',
         header: 'Head1',
         subhead: 'Субголова',
@@ -51,11 +50,9 @@ function Board() {
         return <h1>Loading Project Meta...</h1>
 
     return (
-        <BoardProvider>
-            <ProjectBoard
-                name={currentProject ? currentProject.name : "unknown"}
-                id={projectId} />
-        </BoardProvider>
+        <ProjectBoard
+            header={currentProject ? currentProject.header : "unknown"}
+            id={projectId} />
     );
 }
 

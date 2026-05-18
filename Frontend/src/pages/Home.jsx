@@ -4,28 +4,15 @@ import { useEffect } from 'react';
 import ProjectCard from '../models/ProjectCard.jsx';
 import { useProject } from '../context/ProjectContext.jsx';
 import { useUser } from '../context/UserContext.jsx';
+import { useProjectsMeta } from '../context/ProjectMetaHook.jsx';
+import api from '../api/index.js';
 
-function onProjectCreate(setCurrentUser) {
-    const newProject = {
-        id: 0,
+const newProject = (projects) => ({
+        id: (projects.length == 0 ? 0 : (Math.max(...projects.map(p => p.id)) + 1)),
         name: "New project",
         icon: '📁',
         header: 'Empty project',
-    };
-    setCurrentUser(prev =>
-        ({ ...prev, projects: [...prev.projects, newProject] })
-    );
-}
-
-function onProjectDelete(project, setCurrentUser) {
-    setCurrentUser(prev =>
-        ({ ...prev, projects: prev.projects.filter(p => p != project) })
-    );
-}
-
-function onProjectEdit(project, setCurrentUser) {
-    return;
-}
+    });
 
 function Home() {
 
@@ -33,6 +20,8 @@ function Home() {
 
     const [currentProject, setCurrentProject] = useProject();
     const [currentUser, setCurrentUser] = useUser();
+
+    const [createProjectMeta, updateProjectMeta, removeProjectMeta] = useProjectsMeta();
 
     function onProjectCardClicked(project) {
         setCurrentProject(project);
@@ -79,10 +68,11 @@ function Home() {
                             key={project.id}
                             project={project}
                             onChoose={() => onProjectCardClicked(project)}
-                            onDelete={() => onProjectDelete(project, setCurrentUser)}
-                            onEdit={() => onProjectEdit(project, setCurrentUser)}
+                            onDelete={() => removeProjectMeta(project)}
+                            onUpdate={updateProjectMeta}
                         />)
-                    : `Создайте новый проект!`}
+                    : `Создайте новый проект!`
+                }
             </Row>
         )
     }
@@ -102,7 +92,7 @@ function Home() {
                 <Button
                     variant='secondary'
                     className="border-2 mb-4"
-                    onClick={() => onProjectCreate(setCurrentUser)}
+                    onClick={() => createProjectMeta(newProject(currentUser.projects))}
                 >
                     +
                 </Button>
