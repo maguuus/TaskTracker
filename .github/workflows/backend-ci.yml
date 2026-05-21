@@ -10,3 +10,7 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
+
+  integration-auth:
+    needs: build
+    uses: ./.github/workflows/integration-auth.yml

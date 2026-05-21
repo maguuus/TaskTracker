@@ -2,10 +2,6 @@ name: Integration — Auth
 
 on:
   workflow_call:
-    inputs:
-      project:
-        type: string
-        required: true
 
 jobs:
   auth:
@@ -14,7 +10,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Start services
-        run: docker compose -p ${{ inputs.project }} up --no-build -d
+        run: docker compose -p ci-${{ github.run_id }} up --no-build -d
 
       - name: Wait for backend
         run: |
@@ -26,7 +22,7 @@ jobs:
 
       - name: Seed database
         run: |
-          docker compose -p ${{ inputs.project }} exec -T postgres-db \
+          docker compose -p ci-${{ github.run_id }} exec -T postgres-db \
             sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB' \
             < tests/integration/seed.sql
 
@@ -35,7 +31,7 @@ jobs:
 
       - name: Verify register
         run: |
-          docker compose -p ${{ inputs.project }} exec -T postgres-db \
+          docker compose -p ci-${{ github.run_id }} exec -T postgres-db \
             sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB' \
             < tests/integration/auth/register/verify.sql
 
@@ -44,4 +40,4 @@ jobs:
 
       - name: Stop services
         if: always()
-        run: docker compose -p ${{ inputs.project }} down -v
+        run: docker compose -p ci-${{ github.run_id }} down -v
