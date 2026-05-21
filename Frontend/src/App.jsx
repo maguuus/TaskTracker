@@ -1,60 +1,45 @@
-import { useState } from 'react'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 
-import { Home } from './pages/Home';
-import { Board } from './pages/Board';
-import { Login } from './pages/Login';
+import { useProject } from './context/ProjectContext';
+import Home from './pages/Home';
+import Board from './pages/Board';
+import Login from './pages/Login';
 
-import 'bootstrap/dist/css/bootstrap.min.css'
-import './App.css'
-import api from "./api/index.js";
+import { useUser } from './context/UserContext';
+
+const mock = {
+    id: 1,
+    email: "sdsd",
+    projects: []
+}
 
 function App() {
-  const [responseMsg, setResponseMsg] = useState('Пока ничего нет...');  
-  
-  const testConnection = async () => {
-    try {
-      const response = await api.get('/');
-      setResponseMsg(`Успех: ${response.data}`);
-      console.log(`Данные от backend: ${response.data}`);
-    } 
-    catch (error) { 
-    setResponseMsg('Ошибка! View console (F12).');
-    console.error("CORS error/backend is dead:", error);
-    }
-  }
-  
-  return (
-    <>
-    <BrowserRouter>
-    {/* Navigation */}
-      <nav>
-        <Link to="/">Home</Link> |{" "}
-        <Link to="/login">Login</Link> |{" "}
-        <Link to="/board">Board</Link>
-      </nav>
 
-      {/* Routes */}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/board" element={<Board />} />
-      </Routes>
-    </BrowserRouter>
-      <div style={{ padding: '50px', textAlign: 'center' }}>
-        <h1>Тест связи Front ↔ Back</h1>
-        <button
-          onClick={testConnection}
-          style={{ padding: '10px 20px', fontSize: '18px', cursor: 'pointer' }}
-        >
-          Дернуть API
-        </button>
-        <p style={{ marginTop: '20px', fontSize: '20px', color: '#646cff' }}>
-          {responseMsg}
-        </p>
-      </div>
-    </>
-  )
+    const [currentUser, setCurrentUser] = useUser();
+    if (!currentUser)
+        setCurrentUser(mock);
+
+    const [ currentProject ] = useProject();
+    let tryToBoard = `${currentProject ? `${currentProject.id}/board` : `/`}`;
+
+    return (
+        <BrowserRouter>
+            <nav className="container-fluid bg-dark text-light pt-3">
+                {"Task Tracker: "}
+                <NavLink to="/">Home</NavLink> {"| "}
+                <NavLink to="/login">Login</NavLink> {"| "}
+                <NavLink to={tryToBoard}>Board</NavLink>
+            </nav>
+
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/:projectId/board" element={<Board />} />
+            </Routes>
+        </BrowserRouter>
+    );
+
 }
 
 export default App;
