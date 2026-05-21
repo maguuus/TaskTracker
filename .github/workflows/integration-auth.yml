@@ -1,0 +1,47 @@
+name: Integration — Auth
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        type: string
+        required: true
+
+jobs:
+  auth:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start services
+        run: docker compose -p ${{ inputs.project }} up --no-build -d
+
+      - name: Wait for backend
+        run: |
+          for i in $(seq 1 15); do
+            curl -sf http://localhost:8080/ && exit 0
+            sleep 2
+          done
+          exit 1
+
+      - name: Seed database
+        run: |
+          docker compose -p ${{ inputs.project }} exec -T postgres-db \
+            sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB' \
+            < tests/integration/seed.sql
+
+      - name: Test register
+        run: httpyac send tests/integration/auth/register/test.http --all
+
+      - name: Verify register
+        run: |
+          docker compose -p ${{ inputs.project }} exec -T postgres-db \
+            sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB' \
+            < tests/integration/auth/register/verify.sql
+
+      - name: Test login
+        run: httpyac send tests/integration/auth/login/test.http --all
+
+      - name: Stop services
+        if: always()
+        run: docker compose -p ${{ inputs.project }} down -v

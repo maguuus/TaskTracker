@@ -1,3 +1,7 @@
+x-urls:
+  backend: &backend-url "http://${BACKEND_HOST:-localhost}:${BACKEND_PORT:-8080}"
+  frontend: &frontend-url "http://${FRONTEND_HOST:-localhost}:${FRONTEND_PORT:-3000}"
+
 services:
   postgres-db:
     image: postgres:15.6-alpine
@@ -19,9 +23,24 @@ services:
   backend:
     build:
       context: ./Backend
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=${POSTGRES_HOST:-postgres-db};Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      CORS_ORIGIN: *frontend-url
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres-db:
         condition: service_healthy
+    networks:
+      - backend
+
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        VITE_API_URL: *backend-url
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
     networks:
       - backend
 
