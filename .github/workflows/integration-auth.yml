@@ -9,6 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Prepare env
+        run: cp .env.example .env
+
       - name: Start services
         run: docker compose -p ci-${{ github.run_id }} up --no-build -d
 
