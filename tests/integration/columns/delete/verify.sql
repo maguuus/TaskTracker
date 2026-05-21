@@ -1,0 +1,6 @@
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM "Columns" WHERE "Id" = '00000000-0000-0000-0000-000000000020') THEN
+        RAISE EXCEPTION 'Column was not deleted';
+    END IF;
+END $$;

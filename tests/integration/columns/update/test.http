@@ -1,0 +1,7 @@
+### Update column
+PATCH http://localhost:8080/api/columns/00000000-0000-0000-0000-000000000020
+Content-Type: application/json
+
+{"title":"Updated To Do","orderIndex":0}
+
+?? status == 204

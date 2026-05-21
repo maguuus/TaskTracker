@@ -1,0 +1,7 @@
+### Update project
+PATCH http://localhost:8080/api/projects/00000000-0000-0000-0000-000000000010
+Content-Type: application/json
+
+{"name":"CI Updated Project"}
+
+?? status == 204

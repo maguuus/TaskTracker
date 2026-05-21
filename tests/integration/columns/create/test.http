@@ -1,0 +1,7 @@
+### Create column
+POST http://localhost:8080/api/columns
+Content-Type: application/json
+
+{"title":"CI Column","orderIndex":3,"projectId":"00000000-0000-0000-0000-000000000010"}
+
+?? status == 200
