@@ -28,7 +28,6 @@ jobs:
           echo "tests=$tests" >> $GITHUB_OUTPUT
 
   integration:
-    name: ${{ matrix.config.name }}
     needs: [build, discover]
     strategy:
       matrix:
@@ -36,3 +35,4 @@ jobs:
     uses: ./.github/workflows/integration-test.yml
     with:
       test_path: tests/integration/${{ matrix.config.path }}
+      name: ${{ matrix.config.name }}

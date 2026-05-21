@@ -6,9 +6,13 @@ on:
       test_path:
         type: string
         required: true
+      name:
+        type: string
+        required: true
 
 jobs:
   test:
+    name: ${{ inputs.name }}
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +42,8 @@ jobs:
 
       - name: Request
         run: |
-          httpyac send ${{ inputs.test_path }}/test.http --all \
+          set -o pipefail
+          httpyac send ${{ inputs.test_path }}/test.http \
             | tee >(awk '/^[{[]$/{p=1} p{print} /^[}\]]$/{p=0}' > /tmp/response.json)
 
       - name: Detect checks
