@@ -1,8 +1,9 @@
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Navigate, useParams } from 'react-router-dom';
-import { useState, useTransition } from 'react'
+import { useState, useEffect } from 'react'
 import { useProject } from '../context/ProjectContext.jsx';
 import ProjectBoard from '../models/ProjectBoard.jsx';
+import { BoardProvider } from '../context/BoardContext.jsx';
 
 import api from '../api/index.js'
 
@@ -17,74 +18,42 @@ import api from '../api/index.js'
 //     }
 // }
 
+function FetchProjectMeta(projectId) {
+    return ({
+        id: projectId,
+        icon: '📁',
+        header: 'Head1',
+        subhead: 'Субголова',
+        imageAlt: 'Портрет  проекта',
+        title: 'Титул',
+        subtitle: 'Субтитул',
+        bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
+    });
+}
+
+
+
 function Board() {
 
     const { projectId } = useParams();
-    const { currentProject, setCurrentProject } = useProject();
+    const [currentProject, setCurrentProject] = useProject();
 
-    if (!currentProject && !projectId)
-        return <Navigate to="/" replace />;
     if (!projectId)
-        return <Navigate to={`/${currentProject.id}/board/`} replace />;
+        return <Navigate to="/" replace />;
 
-    let id = 0;
-    function makeTask() { // testing only
-        id++;
+    useEffect(() => {
+        if (currentProject?.id !== projectId)
+            setCurrentProject(FetchProjectMeta(projectId))
+    }, []);
 
-        return {
-            id: id,
-            title: `Текст оглавление ${id}`,
-            description: `Тело текста ${id}`
-        };
-    }
+    if (currentProject?.id !== projectId)
+        return <h1>Loading Project Meta...</h1>
 
-    // (testing only)
-    const columns = [
-        {
-            id: 1,
-            title: "To Do",
-            tasks: [
-                makeTask(),
-                makeTask(),
-            ]
-        },
-        {
-            id: 2,
-            title: "In Progress",
-            tasks: Array(5).fill().map((_) => makeTask())
-        },
-        {
-            id: 3,
-            title: "On Review",
-            tasks: [
-                makeTask(),
-            ]
-        }
-    ];
-    
-    return <ProjectBoard name={currentProject.name} columns={columns} />;
+    return (
+        <ProjectBoard
+            header={currentProject ? currentProject.header : "unknown"}
+            id={projectId} />
+    );
 }
 
 export default Board;
-
-/* 
-const project: Project = {
-    id: 1,
-    name: "" ///
-    owner: {user}
-    createdAt: {time}
-    columns: List<Column>: [] ///
-    }
-
-const column: Column = {
-    id: 1,
-    title: "", ///
-    tasks: List<Task>: [] ///
-    }
-
-const task: Task = {
-    id: = 1,
-    title: "", ///
-    description: "", ///
-    }
-*/

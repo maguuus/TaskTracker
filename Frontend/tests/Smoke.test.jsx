@@ -5,19 +5,30 @@ import Home from '../src/pages/Home';
 import Login from '../src/pages/Login';
 import { ProjectProvider } from '../src/context/ProjectContext';
 import { BrowserRouter } from 'react-router-dom';
+import { UserProvider } from '../src/context/UserContext';
+
+function MockApp({ children }) {
+    return (
+        <UserProvider>
+            <ProjectProvider>
+                {children}
+            </ProjectProvider>
+        </UserProvider>
+    )
+}
 
 function Mock({ children }) {
     return (
-        <ProjectProvider>
+        <MockApp>
             <BrowserRouter>
                 {children}
             </BrowserRouter>
-        </ProjectProvider>
+        </MockApp>
     );
 }
 
 it('компонент App', () => {
-    render(<ProjectProvider> <App /> </ProjectProvider>);
+    render(<MockApp> <App /> </MockApp>);
 });
 
 it('компонент Board', () => {

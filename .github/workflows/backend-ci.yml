@@ -1,0 +1,12 @@
+name: Backend CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Backend/**'
+      - 'docker-compose.yml'
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml

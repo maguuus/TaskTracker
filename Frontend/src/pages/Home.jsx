@@ -1,70 +1,105 @@
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { useProject } from '../context/ProjectContext.jsx';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import ProjectCard from '../models/ProjectCard.jsx';
+import { useProject } from '../context/ProjectContext.jsx';
+import { useUser } from '../context/UserContext.jsx';
+import { useProjectsMeta } from '../context/ProjectMetaHook.jsx';
+import api from '../api/index.js';
 
-const projectData1 = {
-    id: 0,
-    name: "Project 1",
-    icon: '📁',
-    header: 'Head1',
-    subhead: 'Субголова',
-    imageAlt: 'Портрет  проекта',
-    title: 'Титул',
-    subtitle: 'Субтитул',
-    bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-};
-
-const projectData2 = {
-    id: 1,
-    name: "Project 2",
-    icon: '📁',
-    header: 'Head2',
-    subhead: 'Субголова',
-    imageAlt: 'Портрет  проекта',
-    title: 'Титул',
-    subtitle: 'Субтитул',
-    bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-};
-
-const projectData3 = {
-    id: 2,
-    name: "Project 3",
-    icon: '📁',
-    header: 'Head3',
-    subhead: 'Субголова',
-    imageAlt: 'Портрет  проекта',
-    title: 'Титул',
-    subtitle: 'Субтитул',
-    bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-};
+const newProject = (projects) => ({
+        id: (projects.length == 0 ? 0 : (Math.max(...projects.map(p => p.id)) + 1)),
+        name: "New project",
+        icon: '📁',
+        header: 'Empty project',
+    });
 
 function Home() {
 
-    const { setCurrentProject } = useProject();
     const navigate = useNavigate();
+
+    const [currentProject, setCurrentProject] = useProject();
+    const [currentUser, setCurrentUser] = useUser();
+
+    const [createProjectMeta, updateProjectMeta, removeProjectMeta] = useProjectsMeta();
 
     function onProjectCardClicked(project) {
         setCurrentProject(project);
         navigate(`/${project.id}/board/`);
     }
 
-    const projects = [projectData1, projectData2, projectData3];
+    async function LoadUserProjectsMeta(id) {
+        try {
+            const response = await api.get(`/user/${id}`);
+            return response.data;
+        }
+        catch (error) {
+            return []
+        }
+    }
+
+    useEffect(() => {
+        async function fetchProjects() {
+            if (!currentUser?.id) return;
+
+            const projects = await LoadUserProjectsMeta(currentUser.id);
+
+            if (projects.length != 0)
+                setCurrentUser(prevUser => ({
+                    ...prevUser,
+                    projects
+                }));
+        }
+        fetchProjects();
+    }, [currentUser?.id]);
+
+    function onProjectCardClicked(project) {
+        setCurrentProject(project);
+        navigate(`/${project.id}/board/`);
+    }
+
+    function UserProjects() {
+
+        return (
+            <Row>
+                {currentUser.projects
+                    ? currentUser.projects.map((project) =>
+                        <ProjectCard
+                            key={project.id}
+                            project={project}
+                            onChoose={() => onProjectCardClicked(project)}
+                            onDelete={() => removeProjectMeta(project)}
+                            onUpdate={updateProjectMeta}
+                        />)
+                    : `Создайте новый проект!`
+                }
+            </Row>
+        )
+    }
+
+    if (!currentUser)
+        return (
+            <Container>
+                <h2>Проекты</h2>
+                <p>Войдите в аккаунт, чтобы увидеть проекты.</p>
+            </Container>
+        )
+
     return (
         <Container className="mt-4">
-            <h2 className="mb-4">Проекты</h2>
-            <Row>
-                {projects.map((project) =>
-                    <ProjectCard
-                        key={project.id}
-                        project={project}
-                        onClick={() => onProjectCardClicked(project)}
-                    />)}
-            </Row>
+            <div className="d-flex justify-content-between">
+                <h2 className="mb-4">Проекты</h2>
+                <Button
+                    variant='secondary'
+                    className="border-2 mb-4"
+                    onClick={() => createProjectMeta(newProject(currentUser.projects))}
+                >
+                    +
+                </Button>
+            </div>
+            <UserProjects />
         </Container>
     );
 }
-
-
 
 export default Home;
