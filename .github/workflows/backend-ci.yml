@@ -11,6 +11,23 @@ jobs:
   build:
     uses: ./.github/workflows/build.yml
 
-  integration-auth:
-    needs: build
-    uses: ./.github/workflows/integration-auth.yml
+  discover:
+    runs-on: self-hosted
+    outputs:
+      tests: ${{ steps.find.outputs.tests }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: find
+        run: |
+          tests=$(find tests/integration -name "test.http" -exec dirname {} \; | sed 's|tests/integration/||' | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "tests=$tests" >> $GITHUB_OUTPUT
+
+  integration:
+    name: ${{ replace(matrix.test, '/', '-') }}
+    needs: [build, discover]
+    strategy:
+      matrix:
+        test: ${{ fromJson(needs.discover.outputs.tests) }}
+    uses: ./.github/workflows/integration-test.yml
+    with:
+      test_path: tests/integration/${{ matrix.test }}
