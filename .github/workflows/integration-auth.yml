@@ -23,6 +23,10 @@ jobs:
           done
           exit 1
 
+      - name: Backend logs
+        if: failure()
+        run: docker compose -p ci-${{ github.run_id }} logs backend
+
       - name: Seed database
         run: |
           docker compose -p ci-${{ github.run_id }} exec -T postgres-db \
