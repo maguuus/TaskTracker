@@ -1,0 +1,85 @@
+name: Integration
+
+on:
+  workflow_call:
+
+jobs:
+  discover:
+    runs-on: self-hosted
+    outputs:
+      tests: ${{ steps.find.outputs.tests }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: find
+        run: |
+          tests=$(find tests/integration -name "test.http" -exec dirname {} \; \
+            | sed 's|tests/integration/||' | sort \
+            | while read path; do
+                name=$(echo "$path" | tr '/' '-')
+                echo "{\"path\":\"$path\",\"name\":\"$name\"}"
+              done | paste -sd ',' | sed 's/.*/[&]/')
+          echo "tests=$tests" >> $GITHUB_OUTPUT
+
+  test:
+    name: ${{ matrix.config.name }}
+    needs: discover
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        config: ${{ fromJson(needs.discover.outputs.tests) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare env
+        run: cp .env.example .env
+
+      - name: Set project name
+        run: echo "PROJECT=ci-$(echo 'tests/integration/${{ matrix.config.path }}' | tr '/.' '-')-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: Start services
+        run: docker compose -p $PROJECT up --no-build -d postgres-db backend
+
+      - name: Wait for backend
+        run: |
+          for i in $(seq 1 15); do
+            curl -sf http://localhost:8080/ && exit 0
+            sleep 2
+          done
+          exit 1
+
+      - name: Seed
+        run: |
+          docker compose -p $PROJECT exec -T postgres-db \
+            sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB' \
+            < tests/integration/seed.sql
+
+      - name: Request
+        run: |
+          set -o pipefail
+          httpyac send tests/integration/${{ matrix.config.path }}/test.http --all \
+            | tee >(awk '/^[{[]$/{p=1} p{print} /^[}\]]$/{p=0}' > /tmp/response.json)
+
+      - name: Detect checks
+        id: checks
+        run: |
+          [ -f "tests/integration/${{ matrix.config.path }}/expected.json" ] && echo "json=true" >> $GITHUB_OUTPUT || echo "json=false" >> $GITHUB_OUTPUT
+          [ -f "tests/integration/${{ matrix.config.path }}/verify.sql" ] && echo "sql=true" >> $GITHUB_OUTPUT || echo "sql=false" >> $GITHUB_OUTPUT
+
+      - name: Check JSON
+        if: steps.checks.outputs.json == 'true'
+        run: diff <(jq -S . /tmp/response.json) <(jq -S . tests/integration/${{ matrix.config.path }}/expected.json)
+
+      - name: Check PostgreSQL
+        if: steps.checks.outputs.sql == 'true'
+        run: |
+          docker compose -p $PROJECT exec -T postgres-db \
+            sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB' \
+            < tests/integration/${{ matrix.config.path }}/verify.sql
+
+      - name: Backend logs
+        if: failure()
+        run: docker compose -p $PROJECT logs backend
+
+      - name: Stop services
+        if: always()
+        run: docker compose -p $PROJECT down -v
