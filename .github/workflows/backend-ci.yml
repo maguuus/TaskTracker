@@ -28,6 +28,7 @@ jobs:
           echo "tests=$tests" >> $GITHUB_OUTPUT
 
   integration:
+    name: integration
     needs: [build, discover]
     strategy:
       matrix:

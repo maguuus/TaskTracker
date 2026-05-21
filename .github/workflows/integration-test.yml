@@ -43,7 +43,7 @@ jobs:
       - name: Request
         run: |
           set -o pipefail
-          httpyac send ${{ inputs.test_path }}/test.http \
+          httpyac send ${{ inputs.test_path }}/test.http --all \
             | tee >(awk '/^[{[]$/{p=1} p{print} /^[}\]]$/{p=0}' > /tmp/response.json)
 
       - name: Detect checks
