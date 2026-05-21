@@ -1,0 +1,6 @@
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM "TaskItems" WHERE "Id" = '00000000-0000-0000-0000-000000000030') THEN
+        RAISE EXCEPTION 'Task was not deleted';
+    END IF;
+END $$;
