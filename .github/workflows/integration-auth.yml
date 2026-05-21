@@ -23,10 +23,6 @@ jobs:
           done
           exit 1
 
-      - name: Backend logs
-        if: failure()
-        run: docker compose -p ci-${{ github.run_id }} logs backend
-
       - name: Seed database
         run: |
           docker compose -p ci-${{ github.run_id }} exec -T postgres-db \
@@ -44,6 +40,10 @@ jobs:
 
       - name: Test login
         run: httpyac send tests/integration/auth/login/test.http --all
+
+      - name: Backend logs
+        if: failure()
+        run: docker compose -p ci-${{ github.run_id }} logs backend
 
       - name: Stop services
         if: always()
