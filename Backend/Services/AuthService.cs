@@ -22,7 +22,7 @@ public class AuthService: IAuthService
     {
         var user = await _userService.GetByEmailAsync(dto.Email);
         
-        if (user is null || BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+        if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
         {
             throw new UnauthorizedAccessException("Invalid email or password");
         }
