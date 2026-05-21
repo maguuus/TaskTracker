@@ -5,19 +5,6 @@ import { useProject } from '../context/ProjectContext.jsx';
 import ProjectBoard from '../models/ProjectBoard.jsx';
 import { BoardProvider } from '../context/BoardContext.jsx';
 
-import api from '../api/index.js'
-
-// const [responseMsg, setResponseMsg] = useState('');
-// async function LoadProject(id) {
-//     try {
-//         const response = await api.get(`/projects/${id}`);
-//         return reponse.data;
-//     }
-//     catch (error) {
-//         return {}
-//     }
-// }
-
 function FetchProjectMeta(projectId) {
     return ({
         id: projectId,
@@ -30,8 +17,6 @@ function FetchProjectMeta(projectId) {
         bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
     });
 }
-
-
 
 function Board() {
 

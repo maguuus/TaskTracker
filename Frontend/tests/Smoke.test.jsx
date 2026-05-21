@@ -6,12 +6,15 @@ import Login from '../src/pages/Login';
 import { ProjectProvider } from '../src/context/ProjectContext';
 import { BrowserRouter } from 'react-router-dom';
 import { UserProvider } from '../src/context/UserContext';
+import { BoardProvider } from '../src/context/BoardContext';
 
 function MockApp({ children }) {
     return (
         <UserProvider>
             <ProjectProvider>
-                {children}
+                <BoardProvider>
+                    {children}
+                </BoardProvider>
             </ProjectProvider>
         </UserProvider>
     )

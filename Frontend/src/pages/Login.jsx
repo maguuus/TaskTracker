@@ -1,6 +1,7 @@
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useUser } from '../context/UserContext'
+import { useDBUser } from '../DataBaseHook';
 
 
 const projectMeta1 = {
@@ -42,22 +43,44 @@ const projectMeta3 = {
 const mockUser = (email) => ({
     id: 1,
     email: email,
-    projects:  [projectMeta1, projectMeta2, projectMeta3]
+    projects: [projectMeta1, projectMeta2, projectMeta3]
 })
 
 function Login() {
+
+    const [getMetas, login, register] = useDBUser();
 
     const [currentUser, setCurrentUser] = useUser();
 
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
 
-    function Submit(e) {
+    useEffect(() => {
+        async function fetchMetas() {
+            if (!currentUser) return;
+
+            const metas = await getMetas(currentUser.id);
+            alert(JSON.stringify(metas));
+
+            if (JSON.stringify(metas) === JSON.stringify(currentUser.projects))
+                return;
+
+            setCurrentUser({ ...currentUser, projects: metas });
+        }
+
+        fetchMetas();
+    }, [currentUser]); // to fix
+
+    async function Submit(e) {
 
         e.preventDefault();
+        alert(JSON.stringify({ email: email, password: password }));
+        const loginResult = await login({ name: "dsds", email: email, password: password });
+        alert(JSON.stringify(loginResult));
         if (email === "test@test") {
             setCurrentUser(mockUser(email));
             alert(`User Stated`);
+            register('test@test');
         }
     }
 
@@ -76,7 +99,7 @@ function Login() {
                             />
                             <Form.Label>Адрес почты</Form.Label>
                         </Form.Group>
-  
+
                         <Form.Group className="mb-3 form-floating" controlId="formPassword">
                             <Form.Control
                                 type="password"

@@ -16,10 +16,6 @@ const mock = {
 
 function App() {
 
-    const [currentUser, setCurrentUser] = useUser();
-    if (!currentUser)
-        setCurrentUser(mock);
-
     const [ currentProject ] = useProject();
     let tryToBoard = `${currentProject ? `${currentProject.id}/board` : `/`}`;
 
