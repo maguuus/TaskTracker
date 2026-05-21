@@ -37,7 +37,9 @@ jobs:
             < tests/integration/seed.sql
 
       - name: Request
-        run: httpyac send ${{ inputs.test_path }}/test.http --all --output body > /tmp/response.json
+        run: |
+          httpyac send ${{ inputs.test_path }}/test.http --all \
+            | tee >(awk '/^[{[]$/{p=1} p{print} /^[}\]]$/{p=0}' > /tmp/response.json)
 
       - name: Detect checks
         id: checks
