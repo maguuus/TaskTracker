@@ -24,7 +24,7 @@ jobs:
             | while read path; do
                 name=$(echo "$path" | tr '/' '-')
                 echo "{\"path\":\"$path\",\"name\":\"$name\"}"
-              done | jq -s -c '.')
+              done | paste -sd ',' | sed 's/.*/[&]/')
           echo "tests=$tests" >> $GITHUB_OUTPUT
 
   integration:
