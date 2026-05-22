@@ -1,7 +1,11 @@
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Backend.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Backend.Services;
+using Backend.Services.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +26,26 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Регистрация сервисов
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-//builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IColumnService, ColumnService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing")))
+        };
+    });
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -54,6 +74,7 @@ app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

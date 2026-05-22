@@ -12,6 +12,8 @@ public record ColumnCreateDto(string? Title, int OrderIndex, Guid ProjectId);
 public record ColumnUpdateDto(string Title, int OrderIndex);
 public record ColumnResponseDto(Guid Id, string Title, int OrderIndex, Guid ProjectId);
 
+public record TokenResponseDto(string AccessToken);
+
 public record TaskCreateDto(
     string Title, 
     string? Description, 
