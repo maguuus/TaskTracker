@@ -1,0 +1,4 @@
+### Get columns by project
+GET http://localhost:8080/api/columns/project/00000000-0000-0000-0000-000000000010
+
+?? status == 200

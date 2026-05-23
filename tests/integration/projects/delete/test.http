@@ -1,0 +1,4 @@
+### Delete project
+DELETE http://localhost:8080/api/projects/00000000-0000-0000-0000-000000000010
+
+?? status == 204

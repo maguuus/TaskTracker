@@ -1,0 +1,7 @@
+### Create task
+POST http://localhost:8080/api/tasks
+Content-Type: application/json
+
+{"title":"CI New Task","columnId":"00000000-0000-0000-0000-000000000020","orderIndex":1,"priority":"High","urgency":"Normal"}
+
+?? status == 200

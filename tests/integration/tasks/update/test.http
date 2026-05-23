@@ -1,0 +1,7 @@
+### Update task
+PATCH http://localhost:8080/api/tasks/00000000-0000-0000-0000-000000000030
+Content-Type: application/json
+
+{"title":"CI Updated Task","columnId":"00000000-0000-0000-0000-000000000020","orderIndex":0,"priority":"High","urgency":"Normal"}
+
+?? status == 204

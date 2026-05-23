@@ -1,0 +1,4 @@
+### Delete task
+DELETE http://localhost:8080/api/tasks/00000000-0000-0000-0000-000000000030
+
+?? status == 204

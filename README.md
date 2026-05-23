@@ -5,12 +5,11 @@
 ## Документация
 
 - [Описание продукта](docs/product.md)
+- [Развёртывание](docs/deploy.md)
 - [Бэкенд](docs/backend/README.md)
 - [Фронтенд](docs/frontend/README.md)
 
 ## Быстрый старт
-
-**1. База данных**
 
 ```bash
 cp .env.example .env
@@ -18,23 +17,11 @@ cp .env.example .env
 docker-compose up -d
 ```
 
-**2. Бэкенд**
+- Frontend: `http://localhost:5173`
+- API: `http://localhost:5124`
+- Swagger: `http://localhost:5124/swagger`
 
-```bash
-cd Backend
-dotnet run
-# API: http://localhost:5124
-# Swagger: http://localhost:5124/swagger
-```
-
-**3. Фронтенд**
-
-```bash
-cd Frontend
-npm install
-npm run dev
-# http://localhost:5173
-```
+Подробнее о способах запуска и дополнительных настройках окружения — в [документации по развёртыванию](docs/deploy.md).
 
 ## Стек
 

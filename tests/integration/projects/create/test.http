@@ -1,0 +1,7 @@
+### Create project
+POST http://localhost:8080/api/projects
+Content-Type: application/json
+
+{"name":"CI New Project","ownerId":"00000000-0000-0000-0000-000000000001"}
+
+?? status == 200

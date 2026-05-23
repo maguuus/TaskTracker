@@ -21,6 +21,14 @@ Backend/
 ├── appsettings.json              # Конфигурация (production)
 ├── appsettings.Development.json  # Конфигурация (development)
 ├── Backend.http                  # Примеры HTTP-запросов для ручного тестирования
+├── Data/
+│   └── AppDbContext.cs           # EF Core контекст БД
+├── Models/
+│   ├── User.cs
+│   ├── Project.cs
+│   ├── Column.cs
+│   └── TaskItem.cs
+├── Migrations/                   # Миграции EF Core (автогенерация)
 └── Properties/
     └── launchSettings.json       # Профили запуска (порты, окружение)
 ```
@@ -87,3 +95,12 @@ Swagger UI автоматически отражает все зарегистр
 |---|---|
 | `Microsoft.AspNetCore.OpenApi` | Генерация OpenAPI-схемы |
 | `Swashbuckle.AspNetCore` | Swagger UI |
+| `Microsoft.EntityFrameworkCore` | ORM |
+| `Npgsql.EntityFrameworkCore.PostgreSQL` | Провайдер PostgreSQL для EF Core |
+| `DotNetEnv` | Загрузка переменных окружения из `.env` |
+
+---
+
+## База данных
+
+Структура БД, описание таблиц и ER-диаграмма: [er-model.md](./er-model.md)
