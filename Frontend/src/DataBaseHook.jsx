@@ -22,7 +22,7 @@ export function useDBUser() {
     //     return await /**/api.patch(`/projects/${id}`);
     // }
 
-    return [getMetas, login, register];
+    return [login, register];
 }
 
 export function useDBProjectMeta() {
@@ -40,7 +40,7 @@ export function useDBProjectMeta() {
         return await /**/api.patch(`/${id}`);
     }
 
-    return [getColumns, post, patch, remove];
+    return [getMetas, post, patch, remove];
 }
 
 export function useDBColumn() {
