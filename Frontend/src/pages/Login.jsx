@@ -2,6 +2,7 @@ import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { useEffect, useState } from 'react'
 import { useUser } from '../context/UserContext'
 import { useDBUser } from '../DataBaseHook';
+import api from '../api';
 
 
 const projectMeta1 = {
@@ -48,39 +49,36 @@ const mockUser = (email) => ({
 
 function Login() {
 
-    const [getMetas, login, register] = useDBUser();
+    const [login, register] = useDBUser();
 
     const [currentUser, setCurrentUser] = useUser();
 
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
 
-    useEffect(() => {
-        async function fetchMetas() {
-            if (!currentUser) return;
+    // useEffect(() => {
+    //     async function fetchMetas() {
+    //         if (!currentUser) return;
 
-            const metas = await getMetas(currentUser.id);
-            alert(JSON.stringify(metas));
+    //         const metas = await getMetas(currentUser.id);
+    //         alert(JSON.stringify(metas));
 
-            if (JSON.stringify(metas) === JSON.stringify(currentUser.projects))
-                return;
+    //         if (JSON.stringify(metas) === JSON.stringify(currentUser.projects))
+    //             return;
 
-            setCurrentUser({ ...currentUser, projects: metas });
-        }
+    //         setCurrentUser({ ...currentUser, projects: metas });
+    //     }
 
-        fetchMetas();
-    }, [currentUser]); // to fix
+    //     fetchMetas();
+    // }, [currentUser]); // to fix
 
     async function Submit(e) {
-
         e.preventDefault();
-        alert(JSON.stringify({ email: email, password: password }));
-        const loginResult = await login({ name: "dsds", email: email, password: password });
-        alert(JSON.stringify(loginResult));
+        //const loginResult = await register({ name: "dsds", email: "test@test", password: "test" });
+        //alert(JSON.stringify(loginResult.data));
         if (email === "test@test") {
-            setCurrentUser(mockUser(email));
-            alert(`User Stated`);
-            register('test@test');
+            // setCurrentUser(mockUser(email));
+            alert((await login('test@test', "test")).data);
         }
     }
 

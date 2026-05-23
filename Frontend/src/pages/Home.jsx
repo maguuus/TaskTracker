@@ -16,7 +16,7 @@ const newProject = (projects) => ({
 
 function Home() {
 
-    const [post, patch, remove] = useDBProjectMeta();
+    const [getMetas, post, patch, remove] = useDBProjectMeta();
 
 
     const navigate = useNavigate();
