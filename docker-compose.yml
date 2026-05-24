@@ -1,6 +1,6 @@
 x-urls:
-  backend: &backend-url "http://${BACKEND_HOST:-localhost}:${BACKEND_PORT:-5124}"
-  frontend: &frontend-url "http://${FRONTEND_HOST:-localhost}:${FRONTEND_PORT:-5173}"
+  backend: &backend-url "http://${BACKEND_HOST:-localhost}:${BACKEND_PORT:-8080}"
+  frontend: &frontend-url "http://${FRONTEND_HOST:-localhost}:${FRONTEND_PORT:-3000}"
 
 services:
   postgres-db:
