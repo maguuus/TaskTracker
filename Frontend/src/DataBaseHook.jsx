@@ -28,16 +28,16 @@ export function useDBUser() {
 export function useDBProjectMeta() {
 
     async function getMetas(id) {
-        return await /**/api.get(`/user/${id}`);
+        return await /**/api.get(`/api/user/${id}`);
     }
     async function post(project) {
-        return await /**/api.post(`/`, project);
+        return await /**/api.post(`/api/`, project);
     }
     async function patch(project) {
-        return await /**/api.patch(`/${project.id}`, project);
+        return await /**/api.patch(`/api/${project.id}`, project);
     }
     async function remove(id) {
-        return await /**/api.patch(`/${id}`);
+        return await /**/api.patch(`/api/${id}`);
     }
 
     return [getMetas, post, patch, remove];
@@ -46,19 +46,19 @@ export function useDBProjectMeta() {
 export function useDBColumn() {
 
     async function getColumns(id) {
-        return await /**/api.get(`/project/${id}`);
+        return await /**/api.get(`/api/project/${id}`);
     }
     async function getTasks(id) {
-        return await /**/api.get(`/column/${id}`);
+        return await /**/api.get(`/api/column/${id}`);
     }
     async function post(column) {
-        return await /**/api.post(`/`, column);
+        return await /**/api.post(`/api/`, column);
     }
     async function patch(column) {
-        return await /**/api.patch(`/${column.id}`, column);
+        return await /**/api.patch(`/api/${column.id}`, column);
     }
     async function remove(id) {
-        return await /**/api.patch(`/${id}`);
+        return await /**/api.patch(`/api/${id}`);
     }
 
     return [getTasks, post, patch, remove];
@@ -67,13 +67,13 @@ export function useDBColumn() {
 export function useDBTask() {
 
     async function post(task) {
-        return await /**/api.post(`/`, task);
+        return await /**/api.post(`/api/`, task);
     }
     async function patch(task) {
-        return await /**/api.patch(`/${task.id}`, task);
+        return await /**/api.patch(`/api/${task.id}`, task);
     }
     async function remove(id) {
-        return await /**/api.patch(`/${id}`);
+        return await /**/api.patch(`/api/${id}`);
     }
 
     return [post, patch, remove];

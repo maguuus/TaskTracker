@@ -5,41 +5,41 @@ import { useDBUser } from '../DataBaseHook';
 import api from '../api';
 
 
-const projectMeta1 = {
-    id: 0,
-    name: "Project 1",
-    icon: '📁',
-    header: 'Head1',
-    subhead: 'Субголова',
-    imageAlt: 'Портрет  проекта',
-    title: 'Титул',
-    subtitle: 'Субтитул',
-    bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-};
+// const projectMeta1 = {
+//     id: 0,
+//     name: "Project 1",
+//     icon: '📁',
+//     header: 'Head1',
+//     subhead: 'Субголова',
+//     imageAlt: 'Портрет  проекта',
+//     title: 'Титул',
+//     subtitle: 'Субтитул',
+//     bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
+// };
 
-const projectMeta2 = {
-    id: 1,
-    name: "Project 2",
-    icon: '📁',
-    header: 'Head2',
-    subhead: 'Субголова',
-    imageAlt: 'Портрет  проекта',
-    title: 'Титул',
-    subtitle: 'Субтитул',
-    bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-};
+// const projectMeta2 = {
+//     id: 1,
+//     name: "Project 2",
+//     icon: '📁',
+//     header: 'Head2',
+//     subhead: 'Субголова',
+//     imageAlt: 'Портрет  проекта',
+//     title: 'Титул',
+//     subtitle: 'Субтитул',
+//     bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
+// };
 
-const projectMeta3 = {
-    id: 2,
-    name: "Project 3",
-    icon: '📁',
-    header: 'Head3',
-    subhead: 'Субголова',
-    imageAlt: 'Портрет  проекта',
-    title: 'Титул',
-    subtitle: 'Субтитул',
-    bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-};
+// const projectMeta3 = {
+//     id: 2,
+//     name: "Project 3",
+//     icon: '📁',
+//     header: 'Head3',
+//     subhead: 'Субголова',
+//     imageAlt: 'Портрет  проекта',
+//     title: 'Титул',
+//     subtitle: 'Субтитул',
+//     bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
+// };
 
 const mockUser = (email) => ({
     id: 1,
@@ -56,29 +56,13 @@ function Login() {
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
 
-    // useEffect(() => {
-    //     async function fetchMetas() {
-    //         if (!currentUser) return;
-
-    //         const metas = await getMetas(currentUser.id);
-    //         alert(JSON.stringify(metas));
-
-    //         if (JSON.stringify(metas) === JSON.stringify(currentUser.projects))
-    //             return;
-
-    //         setCurrentUser({ ...currentUser, projects: metas });
-    //     }
-
-    //     fetchMetas();
-    // }, [currentUser]); // to fix
-
     async function Submit(e) {
         e.preventDefault();
         //const loginResult = await register({ name: "dsds", email: "test@test", password: "test" });
         //alert(JSON.stringify(loginResult.data));
         if (email === "test@test") {
             // setCurrentUser(mockUser(email));
-            alert((await login('test@test', "test")).data);
+            alert((await register({name: "test", email: 'test@test', password: "test"})).data);
         }
     }
 
