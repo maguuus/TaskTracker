@@ -7,24 +7,22 @@ import { useUser } from '../context/UserContext.jsx';
 import { useProjectsMeta } from '../context/ProjectMetaHook.jsx';
 import { useDBProjectMeta } from '../DataBaseHook.jsx';
 
-const newProject = (projects) => ({
-    id: (projects.length == 0 ? 0 : (Math.max(...projects.map(p => p.id)) + 1)),
+const newProject = (ownerId) => ({
+    ownerId: ownerId,
     name: "New project",
-    icon: '📁',
-    header: 'Empty project',
+    description: 'Empty project',
 });
 
 function Home() {
 
     const [getMetas, post, patch, remove] = useDBProjectMeta();
 
-
     const navigate = useNavigate();
 
     const [currentProject, setCurrentProject] = useProject();
     const [currentUser, setCurrentUser] = useUser();
-
     const [createProjectMeta, updateProjectMeta, removeProjectMeta] = useProjectsMeta();
+
 
     function onProjectCardClicked(project) {
         setCurrentProject(project);
@@ -36,12 +34,12 @@ function Home() {
             if (!currentUser?.id) return;
 
             try {
-                const response = await getMetas(`/user/${id}`);
-                if (projects.length == 0) return;
+                const response = await getMetas(currentUser.id);
+                if (response.length == 0) return;
 
                 setCurrentUser(prevUser => ({
                     ...prevUser,
-                    projects: projects
+                    projects: response
                 }));
             }
             catch (error) {
@@ -72,13 +70,13 @@ function Home() {
                 <Button
                     variant='secondary'
                     className="border-2 mb-4"
-                    onClick={async () => { let p = newProject(currentUser.projects); p = await post(p); createProjectMeta(p) }}
+                    onClick={async () => { let p = await post(newProject(currentUser.id)); createProjectMeta(p); }}
                 >
                     +
                 </Button>
             </div>
             <Row>
-                {currentUser.projects
+                {currentUser.projects.length != 0
                     ? currentUser.projects.map((project) =>
                         <ProjectCard
                             key={project.id}

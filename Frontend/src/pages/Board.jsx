@@ -28,7 +28,7 @@ function Board() {
 
     useEffect(() => {
         if (currentProject?.id !== projectId)
-            setCurrentProject(FetchProjectMeta(projectId))
+            throw new Error("Should be same id's");
     }, []);
 
     if (currentProject?.id !== projectId)
@@ -36,7 +36,7 @@ function Board() {
 
     return (
         <ProjectBoard
-            header={currentProject ? currentProject.header : "unknown"}
+            name={currentProject ? currentProject.name : "unknown"}
             id={projectId} />
     );
 }

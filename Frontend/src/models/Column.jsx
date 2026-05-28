@@ -25,9 +25,10 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
     }
 
     function newTask(column) {
-        const id = column.tasks.length != 0 ? Math.max(...column.tasks.map(t => t.id)) + 1 : 0;
+        const id = column.tasks.length != 0 ? Math.max(...column.tasks.map(t => t.orderIndex)) + 1 : 0;
         const newTask = {
-            id: id,
+            columnId: column.id,
+            orderIndex: id,
             title: `Текст оглавление ${id}`,
             description: `Тело текста ${id}`
         }
@@ -53,7 +54,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                         variant='primary'
                         className="ms-auto py-0 px-2"
                         style={{ height: '24px', minWidth: '24px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-                        onClick={async () => { let t = newTask(column); t = await post(t); addTask(t); }}
+                        onClick={async () => { let t = await post(newTask(column)); addTask(t); }}
                     >
                         +
                     </Button>

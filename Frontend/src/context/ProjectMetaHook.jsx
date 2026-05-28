@@ -1,6 +1,5 @@
 import { useUser } from './UserContext';
 
-
 export function useProjectsMeta() {
     const [currentUser, setCurrentUser] = useUser();
 

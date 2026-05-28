@@ -56,13 +56,25 @@ function Login() {
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
 
-    async function Submit(e) {
+    async function onLogin(e) {
         e.preventDefault();
-        //const loginResult = await register({ name: "dsds", email: "test@test", password: "test" });
-        //alert(JSON.stringify(loginResult.data));
-        if (email === "test@test") {
-            // setCurrentUser(mockUser(email));
-            alert(JSON.stringify((await register({name: "test", email: 'test@test', password: "test"})).data, null, 2));
+        try {
+            let response = await login({ email: email, password: password });
+            setCurrentUser({...response, projects: []});
+        }
+        catch (e) {
+            alert(e);
+        }
+    }
+
+    async function onRegister(e) {
+        e.preventDefault();
+        try {
+            let response = await register({ email: email, password: password });
+            setCurrentUser({...response, projects: []});
+        }
+        catch (e) {
+            alert(e);
         }
     }
 
@@ -72,7 +84,7 @@ function Login() {
                 <Col>
                     <h3 className="text-center mb-3">Войдите в аккаунт: </h3>
 
-                    <Form onSubmit={Submit}>
+                    <Form>
                         <Form.Group className="mb-3 form-floating" controlId="formEmail">
                             <Form.Control
                                 type="email"
@@ -91,8 +103,11 @@ function Login() {
                             <Form.Label>Пропускающее слово</Form.Label>
                         </Form.Group>
 
-                        <Button variant="primary" type="submit" className="w-100">
-                            Подписаться в
+                        <Button variant="primary" onClick={onLogin} className="w-100">
+                            Залогиниться
+                        </Button>
+                        <Button variant="primary" onClick={onRegister} className="w-100">
+                            Зарегистрироваться
                         </Button>
                     </Form>
                 </Col>

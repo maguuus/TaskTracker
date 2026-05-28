@@ -13,14 +13,11 @@ async function requestDB(request) {
 export function useDBUser() {
 
     async function login(user) {
-        return await /**/api.post(`/api/auth/login`, user);
+        return (await api.post(`/api/auth/login`, user)).data;
     }
     async function register(user) {
-        return await /**/api.post(`/api/auth/register`, user);
+        return (await api.post(`/api/auth/register`, user)).data;
     }
-    // async function remove(id) {
-    //     return await /**/api.patch(`/projects/${id}`);
-    // }
 
     return [login, register];
 }
@@ -28,16 +25,16 @@ export function useDBUser() {
 export function useDBProjectMeta() {
 
     async function getMetas(id) {
-        return await /**/api.get(`/api/user/${id}`);
+        return (await api.get(`/api/projects/user/${id}`)).data;
     }
     async function post(project) {
-        return await /**/api.post(`/api/`, project);
+        return (await api.post(`/api/projects/`, project)).data;
     }
     async function patch(project) {
-        return await /**/api.patch(`/api/${project.id}`, project);
+        return (await api.patch(`/api/projects/${project.id}`, project)).data;
     }
-    async function remove(id) {
-        return await /**/api.patch(`/api/${id}`);
+    async function remove(project) {
+        return (await api.delete(`/api/projects/${project.id}`)).data;
     }
 
     return [getMetas, post, patch, remove];
@@ -46,34 +43,34 @@ export function useDBProjectMeta() {
 export function useDBColumn() {
 
     async function getColumns(id) {
-        return await /**/api.get(`/api/project/${id}`);
+        return (await api.get(`/api/columns/project/${id}`)).data;
     }
     async function getTasks(id) {
-        return await /**/api.get(`/api/column/${id}`);
+        return (await api.get(`/api/tasks/column/${id}`)).data;
     }
     async function post(column) {
-        return await /**/api.post(`/api/`, column);
+        return (await api.post(`/api/columns/`, column)).data;
     }
     async function patch(column) {
-        return await /**/api.patch(`/api/${column.id}`, column);
+        return (await api.patch(`/api/columns/${column.id}`, column)).data;
     }
-    async function remove(id) {
-        return await /**/api.patch(`/api/${id}`);
+    async function remove(column) {
+        return (await api.delete(`/api/columns/${column.id}`)).data;
     }
 
-    return [getTasks, post, patch, remove];
+    return [getColumns, getTasks, post, patch, remove];
 }
 
 export function useDBTask() {
 
     async function post(task) {
-        return await /**/api.post(`/api/`, task);
+        return (await api.post(`/api/tasks/`, task)).data;
     }
     async function patch(task) {
-        return await /**/api.patch(`/api/${task.id}`, task);
+        return (await api.patch(`/api/tasks/${task.id}`, task)).data;
     }
-    async function remove(id) {
-        return await /**/api.patch(`/api/${id}`);
+    async function remove(task) {
+        return (await api.delete(`/api/tasks/${task.id}`)).data;
     }
 
     return [post, patch, remove];
