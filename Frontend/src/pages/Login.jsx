@@ -62,7 +62,7 @@ function Login() {
         //alert(JSON.stringify(loginResult.data));
         if (email === "test@test") {
             // setCurrentUser(mockUser(email));
-            alert((await register({name: "test", email: 'test@test', password: "test"})).data);
+            alert(JSON.stringify((await register({name: "test", email: 'test@test', password: "test"})).data, null, 2));
         }
     }
 

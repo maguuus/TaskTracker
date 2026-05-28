@@ -10,7 +10,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins(builder.Configuration["CORS_ORIGIN"] ?? "http://localhost:5173")
+            // policy.WithOrigins(builder.Configuration["CORS_ORIGIN"] ?? "http://localhost:5173")
+            policy.SetIsOriginAllowed(origin => true)
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
@@ -22,7 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Регистрация сервисов
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-//builder.Services.AddScoped<ITokenService, TokenService>();
+// builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IColumnService, ColumnService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
@@ -52,7 +53,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
