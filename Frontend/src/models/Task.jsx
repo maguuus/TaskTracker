@@ -2,11 +2,8 @@ import { Card, Button } from 'react-bootstrap';
 import { useState } from 'react';
 
 function Task({ task, onTaskUpdate, onTaskDelete }) {
-    const { ...rest } = task;
-
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
-
     const [editMode, setEditMode] = useState(false);
 
     function toggleEditMode() {
@@ -19,55 +16,61 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
     }
 
     return (
-        <Card className="border-primary shadow-sm p-3 mb-5 bg-white rounded ">
-            <Card.Body>
-                <h5>
-                    {editMode
-                        ? (<form>
-                            <label>
-                                <input type="text" value={title} onChange={e => setTitle(e.target.value)} />
-                            </label>
-                        </form>)
-                        : title}
+        <Card className="position-relative border-0 shadow-sm mb-3 bg-white" style={{ borderRadius: '12px' }}>
+            {/* Крестик удаления (onTaskDelete) в углу */}
+            <button 
+                type="button" 
+                className="btn-close position-absolute" 
+                style={{ top: '12px', right: '12px', fontSize: '0.8rem' }}
+                onClick={onTaskDelete}
+                aria-label="Close"
+            ></button>
+
+            <Card.Body className="p-3">
+                {/* Заголовок */}
+                <h5 className="fw-bold mb-1 pe-4 text-start">
+                    {editMode ? (
+                        <input type="text" className="form-control form-control-sm" value={title} onChange={e => setTitle(e.target.value)} />
+                    ) : (
+                        title
+                    )}
                 </h5>
-                <h6>
-                    {editMode
-                        ? (<form>
-                            <label>
-                                <input type="text" value={description} onChange={e => setDescription(e.target.value)} />
-                            </label>
-                        </form>)
-                        : description}</h6>
-                <button
-                    className="btn btn-success rounded-pill position-absolute top-2 start-2"
-                    style={{
-                        top: '8px',
-                        left: '8px',
-                        fontSize: '0.65rem',
-                        padding: '2px 8px'
-                    }}
-                >
-                    {"#работа"}
-                </button>
-                {/* Кнопки */}
-                <div className="d-flex gap-3 mt-4 justify-content-end">
-                    <button
-                        className="btn-close position-absolute top-0 end-0 mt-3 me-4"
-                        aria-label="Close"
-                        onClick={onTaskDelete}
-                    ></button>
-                    <Button variant="info d-inline-flex focus-ring focus-ring-info py-1 px-2 text-decoration-none border rounded-2"
-                        size="sm"
-                        onClick={toggleEditMode}>
-                        Редактировать
+
+                {/* Описание */}
+                <p className="text-muted small mb-3 text-start">
+                    {editMode ? (
+                        <textarea className="form-control form-control-sm" value={description} onChange={e => setDescription(e.target.value)} />
+                    ) : (
+                        description
+                    )}
+                </p>
+
+                {/* Кнопки действий (Светлая и Темная) */}
+                <div className="d-flex gap-2 justify-content-end">
+                    {/* Кнопка Редактирования/Сохранения */}
+                    <Button 
+                        variant="light" 
+                        size="sm" 
+                        className="px-3 border text-secondary"
+                        style={{ borderRadius: '6px', fontSize: '0.8rem', backgroundColor: '#e0e0e0' }}
+                        onClick={toggleEditMode}
+                    >
+                        {editMode ? "Save" : "Button"}
                     </Button>
-                    <Button variant="secondary  d-inline-flex focus-ring focus-ring-secondary py-1 px-2 text-decoration-none border rounded-2" size="sm">
-                        Детали
+                    
+                    {/* Любая дополнительная кнопка (или системная) */}
+                    <Button 
+                        variant="dark" 
+                        size="sm" 
+                        className="px-3"
+                        style={{ borderRadius: '6px', fontSize: '0.8rem', backgroundColor: '#212529' }}
+                    >
+                        Button
                     </Button>
                 </div>
             </Card.Body>
         </Card>
-    )
+    );
 }
 
 export default Task;
