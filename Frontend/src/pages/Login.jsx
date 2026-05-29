@@ -10,7 +10,6 @@ function Login() {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     
-    // Toggle state to control showing/hiding password visually
     const [showPassword, setShowPassword] = useState(false);
 
     async function handleAuth(e, authMethod) {
@@ -40,10 +39,8 @@ function Login() {
                 }}
             >
                 <Form style={{ width: '85%' }}>
-                    {/* Username / Email Input */}
                     <InputGroup className="mb-3 overflow-hidden rounded-2 border-0 bg-white">
                         <InputGroup.Text className="bg-white border-0 text-muted pe-1 ps-3">
-                            {/* Simple inline SVG icon representing user icon */}
                             <svg xmlns="http://w3.org" width="14" height="14" fill="currentColor" className="bi bi-person-fill" viewBox="0 0 16 16">
                                 <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
                             </svg>
@@ -58,7 +55,6 @@ function Login() {
                         />
                     </InputGroup>
 
-                    {/* Password Input */}
                     <InputGroup className="mb-4 overflow-hidden rounded-2 border-0 bg-white">
                         <Form.Control
                             type={showPassword ? 'text' : 'password'}
@@ -73,7 +69,6 @@ function Login() {
                             onClick={() => setShowPassword(!showPassword)}
                             style={{ cursor: 'pointer' }}
                         >
-                            {/* Simple eye icon for visibility control */}
                             <svg xmlns="http://w3.org" width="14" height="14" fill="currentColor" className="bi bi-eye-fill" viewBox="0 0 16 16">
                                 <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
                                 <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
@@ -81,7 +76,6 @@ function Login() {
                         </InputGroup.Text>
                     </InputGroup>
 
-                    {/* Submit Buttons Stack matching the centered capsule button look */}
                     <div className="d-flex flex-column gap-2 align-items-center">
                         <Button 
                             onClick={(e) => handleAuth(e, login)} 
