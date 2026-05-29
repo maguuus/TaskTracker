@@ -102,7 +102,7 @@ function ProjectBoard({ name }) {
 
     return (
         <Container fluid className="py-5" style={{ backgroundColor: '#C1F0C4', minHeight: '100vh' }}>
-            {/* Шапка доски без ID */}
+            {/* Шапка*/}
             <div className="text-center mb-5">
                 <h1 className="fw-bold mb-3" style={{ color: '#212121' }}>{name || "Проекты"}</h1>
                 <Button 
@@ -135,12 +135,12 @@ function ProjectBoard({ name }) {
                             aria-label="Delete Column"
                         ></button>
 
-                        {/* Заголовок колонки с флекс-контейнером для кнопки плюса */}
+                        {/* Заголовок колонки  */}
                         <div className="d-flex align-items-center justify-content-center gap-2 mb-4">
                             <h3 className="fw-bold m-0" style={{ color: column.textColor }}>
                                 {column.title} <span className="opacity-75" style={{ fontSize: '1.1rem' }}>({column.items.length})</span>
                             </h3>
-                            {/* Круглая компактная кнопка Плюс для добавления карточек в эту колонку */}
+                            {/*  кнопка Плюc */}
                             <Button 
                                 variant="light"
                                 className="rounded-circle d-flex align-items-center justify-content-center p-0 border shadow-sm"
