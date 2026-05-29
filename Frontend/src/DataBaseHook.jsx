@@ -18,8 +18,12 @@ export function useDBUser() {
     async function register(user) {
         return (await api.post(`/api/auth/register`, user)).data;
     }
+    
+    async function getMe() {
+        return await api.get('/api/user/me');
+    }
 
-    return [login, register];
+    return [login, register, getMe];
 }
 
 export function useDBProjectMeta() {

@@ -49,7 +49,7 @@ const mockUser = (email) => ({
 
 function Login() {
 
-    const [login, register] = useDBUser();
+    const [login, register, getMe] = useDBUser();
 
     const [currentUser, setCurrentUser] = useUser();
 
@@ -60,7 +60,12 @@ function Login() {
         e.preventDefault();
         try {
             let response = await login({ email: email, password: password });
-            setCurrentUser({...response, projects: []});
+            const token = response.accessToken;
+            
+            localStorage.setItem('token', token);
+            
+            let profileResponse = await getMe();
+            setCurrentUser({...profileResponse, projects: []});
         }
         catch (e) {
             alert(e);
@@ -71,7 +76,13 @@ function Login() {
         e.preventDefault();
         try {
             let response = await register({ email: email, password: password });
-            setCurrentUser({...response, projects: []});
+            const token = response.accessToken;
+
+            localStorage.setItem('token', token);
+
+            let profileResponse = await getMe();
+
+            setCurrentUser({...profileResponse, projects: []});
         }
         catch (e) {
             alert(e);

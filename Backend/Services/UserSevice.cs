@@ -4,17 +4,18 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Services;
 
-public class UserService: IUserService
+public class UserService(AppDbContext context) : IUserService
 {
-    private readonly AppDbContext context;
-    public UserService(AppDbContext context)
-    {
-        this.context = context;
-    }
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
+
+    public async Task<User?> GetByIdAsync(Guid id)
+    {
+        return await context.Users.FindAsync(id);
+    }
+
     public async Task<bool> IsEmailTakenAsync(string email)
     {
         return await context.Users.AnyAsync(u => u.Email == email);
