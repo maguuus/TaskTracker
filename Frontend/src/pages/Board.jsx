@@ -170,7 +170,7 @@ function ProjectBoard({ name }) {
     );
 }
 
-//  карточка
+// Карточка без нижних кнопок
 function TaskCard({ task, onDelete }) {
     return (
         <Card className="border-0 shadow-sm mb-3 rounded-3 position-relative" style={{ backgroundColor: '#FFFFFF' }}>
@@ -181,18 +181,10 @@ function TaskCard({ task, onDelete }) {
                 aria-label="Close"
             ></button>
             
-            <Card.Body className="pt-3 pb-2 px-3">
+            <Card.Body className="pt-3 pb-3 px-3">
                 <Card.Title className="fs-6 fw-bold mb-1">{task.title}</Card.Title>
-                <Card.Text className="text-muted small mb-3">{task.body}</Card.Text>
-                
-                <div className="d-flex justify-content-end gap-2">
-                    <Button variant="light" size="sm" className="border text-dark px-3 rounded-2" style={{ fontSize: '0.75rem', backgroundColor: '#EBEBEB' }}>
-                        Button
-                    </Button>
-                    <Button variant="dark" size="sm" className="px-3 rounded-2" style={{ fontSize: '0.75rem', backgroundColor: '#212121' }}>
-                        Button
-                    </Button>
-                </div>
+                {/* Отступ mb-3 заменен на mb-0, так как под текстом больше ничего нет */}
+                <Card.Text className="text-muted small mb-0">{task.body}</Card.Text>
             </Card.Body>
         </Card>
     );

@@ -21,28 +21,46 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
             <button 
                 type="button" 
                 className="btn-close position-absolute" 
-                style={{ top: '12px', right: '12px', fontSize: '0.8rem' }}
+                style={{ top: '12px', right: '12px', fontSize: '0.8rem', zIndex: 10 }}
                 onClick={onTaskDelete}
                 aria-label="Close"
             ></button>
 
-            <Card.Body className="p-3">
+            <Card.Body 
+                className="p-3"
+                onDoubleClick={() => { if (!editMode) setEditMode(true); }}
+                onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget)) {
+                        setEditMode(false);
+                        onTaskUpdate({ ...task, title: title, description: description });
+                    }
+                }}
+            >
                 {/* Заголовок */}
-                <h5 className="fw-bold mb-1 pe-4 text-start">
+                <div className="fw-bold mb-1 pe-4 text-start" style={{ fontSize: '1rem' }}>
                     {editMode ? (
-                        <input type="text" className="form-control form-control-sm" value={title} onChange={e => setTitle(e.target.value)} />
+                        <input 
+                            type="text" 
+                            className="form-control form-control-sm" 
+                            value={title} 
+                            onChange={e => setTitle(e.target.value)}
+                            autoFocus
+                        />
                     ) : (
                         title
                     )}
-                </h5>
-                {/* Описание */}
-                <p className="text-muted small mb-3 text-start">
+                </div>
+
+                <div className="text-muted small mb-0 text-start">
                     {editMode ? (
-                        <textarea className="form-control form-control-sm" value={description} onChange={e => setDescription(e.target.value)} />
+                        <textarea 
+                            className="form-control form-control-sm mt-2" 
+                            value={description} 
+                            onChange={e => setDescription(e.target.value)} 
+                        />
                     ) : (
                         description
                     )}
-                </p>
                 </div>
             </Card.Body>
         </Card>
