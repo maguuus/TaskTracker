@@ -1,34 +1,30 @@
 using Backend.DTO;
 using Backend.Models;
 using Backend.Data;
+using Backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Services;
-public class AuthService: IAuthService
+public class AuthService(IUserService userService, ITokenService tokenService) : IAuthService
 {
-    private IUserService _userService;
-    //private readonly ITokenService _tokenService;
-    public AuthService(IUserService userService)
+    public async Task<TokenResponseDto> RegisterAsync(UserRegisterDto dto)
     {
-        _userService = userService;
-    }
-    public async Task<UserResponseDto> RegisterAsync(UserRegisterDto dto)
-    {
-        var user = await _userService.CreateUserAsync(dto);
-        // TODO: JWT token generation?
-        return new UserResponseDto(user.Id, user.Name, user.Email);
+        var user = await userService.CreateUserAsync(dto);
+        var token = tokenService.GenerateToken(user);
+        
+        return new TokenResponseDto(token);
     }
     
-    public async Task<UserResponseDto> LoginAsync(UserLoginDto dto)
+    public async Task<TokenResponseDto> LoginAsync(UserLoginDto dto)
     {
-        var user = await _userService.GetByEmailAsync(dto.Email);
+        var user = await userService.GetByEmailAsync(dto.Email);
         
         if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
         {
             throw new UnauthorizedAccessException("Invalid email or password");
         }
         
-        // TODO: JWT token generation
+        var token = tokenService.GenerateToken(user);
         
-        return new UserResponseDto(user.Id, user.Name, user.Email);
+        return new TokenResponseDto(token);
     }
 }

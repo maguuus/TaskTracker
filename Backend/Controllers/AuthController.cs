@@ -12,12 +12,12 @@ namespace Backend.Controllers;
 public class AuthController(IAuthService authService): ControllerBase
 {
     [HttpPost("register")]
-    public async Task<ActionResult<UserResponseDto>> Register(UserRegisterDto registerDto)
+    public async Task<ActionResult<TokenResponseDto>> Register(UserRegisterDto registerDto)
     {
         try
         {
-            var userResponseDto = await authService.RegisterAsync(registerDto);
-            return Ok(userResponseDto);
+            var tokenResponseDto = await authService.RegisterAsync(registerDto);
+            return Ok(tokenResponseDto);
         }
         catch(InvalidOperationException ex)
         {
@@ -26,11 +26,11 @@ public class AuthController(IAuthService authService): ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<UserResponseDto>> Login(UserLoginDto loginDto)
+    public async Task<ActionResult<TokenResponseDto>> Login(UserLoginDto loginDto)
     {
         try{
-            var userResponseDto = await authService.LoginAsync(loginDto);
-            return Ok(userResponseDto);
+            var tokenResponseDto = await authService.LoginAsync(loginDto);
+            return Ok(tokenResponseDto);
         }
         catch(UnauthorizedAccessException ex)
         {
