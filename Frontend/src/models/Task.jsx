@@ -1,4 +1,4 @@
-import { Card, Button, Modal, Form, Badge } from 'react-bootstrap';
+import {Card, Button, Modal, Form, Badge, Col, Row} from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 
 function Task({ task, onTaskUpdate, onTaskDelete }) {
@@ -10,11 +10,23 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
     const [tags, setTags] = useState(task.tags || []);
     const [tagInput, setTagInput] = useState('');
 
+    const [priority, setPriority] = useState(task.priority || '');
+    const [urgency, setUrgency] = useState(task.urgency || '');
+
+    const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        return new Date(dateString).toISOString().split('T')[0];
+    };
+    const [dueDate, setDueDate] = useState(formatDateForInput(task.dueDate));
+    
     useEffect(() => {
         setTitle(task.title || '');
         setDescription(task.description || '');
         setIcon(task.icon || '');
         setTags(task.tags || []);
+        setPriority(task.priority || '');
+        setUrgency(task.urgency || '');
+        setDueDate(formatDateForInput(task.dueDate));
     }, [task]);
 
     function handleTagKeyDown(e) {
@@ -34,19 +46,37 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
 
     function handleSave(e) {
         e.preventDefault();
+        const formattedDate = dueDate ? new Date(dueDate).toISOString() : null;
+
         onTaskUpdate({
             ...task,
             title: title,
             description: description,
             icon: icon,
-            tags: tags
+            tags: tags,
+            priority: priority,
+            urgency: urgency,
+            dueDate: formattedDate
         });
         setShowModal(false);
     }
 
+    const getBorderColor = () => {
+        switch(task.priority) {
+            case 'Критический': return 'danger';
+            case 'Высокий': return 'warning';
+            case 'Средний': return 'primary';
+            case 'Низкий': return 'info';
+            default: return 'light';
+        }
+    };
+
+    const displayDate = task.dueDate ? new Date(task.dueDate).toLocaleDateString('ru-RU') : null;
+    const isOverdue = task.dueDate && new Date(task.dueDate) < new Date();
+    
     return (
         <>
-            <Card className="border-primary shadow-sm p-3 mb-3 bg-white rounded">
+            <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white rounded`} style={{ borderLeftWidth: '5px !important' }}>
                 <Card.Body className="p-0 position-relative">
 
                     <button
@@ -77,6 +107,17 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         )}
                     </div>
 
+                    {(task.priority || task.dueDate) && (
+                        <div className="d-flex justify-content-between text-muted small mb-3 fw-bold">
+                            {task.priority && <span>⚡ {task.priority}</span>}
+                            {displayDate && (
+                                <span className={isOverdue ? 'text-danger' : 'text-primary'}>
+                                    📅 {displayDate}
+                                </span>
+                            )}
+                        </div>
+                    )}                    
+                    
                     <div className="d-flex justify-content-end">
                         <Button
                             variant="secondary d-inline-flex focus-ring focus-ring-secondary py-1 px-2 text-decoration-none border rounded-2"
@@ -112,8 +153,44 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                             />
                         </div>
                     </Modal.Header>
-
+                    
                     <Modal.Body>
+                        <Row className="mb-4 bg-light p-3 rounded mx-0">
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Приоритет</Form.Label>
+                                    <Form.Select value={priority} onChange={(e) => setPriority(e.target.value)} className="border-0 shadow-sm">
+                                        <option value="">Не задан</option>
+                                        <option value="Низкий">Низкий</option>
+                                        <option value="Средний">Средний</option>
+                                        <option value="Высокий">Высокий</option>
+                                        <option value="Критический">Критический 🚨</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Срочность</Form.Label>
+                                    <Form.Select value={urgency} onChange={(e) => setUrgency(e.target.value)} className="border-0 shadow-sm">
+                                        <option value="">Не задана</option>
+                                        <option value="Несрочно">Несрочно</option>
+                                        <option value="Срочно">Срочно</option>
+                                        <option value="Очень срочно">Очень срочно ⏳</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Дедлайн</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={dueDate}
+                                        onChange={(e) => setDueDate(e.target.value)}
+                                        className="border-0 shadow-sm"
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
                         <Form.Group className="mb-4">
                             <Form.Label className="fw-bold text-muted small text-uppercase">Описание</Form.Label>
                             <Form.Control
