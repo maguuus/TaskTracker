@@ -8,9 +8,9 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UserController(IUserService userService): ControllerBase
 {
-    [Authorize]
     [HttpGet("me")]
     public async Task<ActionResult<UserResponseDto>> GetProfile()
     {
@@ -26,4 +26,29 @@ public class UserController(IUserService userService): ControllerBase
         }
         return Ok(new UserResponseDto(user.Id, user.Name, user.Email));
     }
+
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordDto dto)
+    {
+        try
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized("Invalid token");
+            }
+
+            await userService.ChangePasswordAsync(userId, dto);
+            return Ok("Пароль успешно изменен.");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+
 }

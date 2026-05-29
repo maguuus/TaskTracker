@@ -44,6 +44,25 @@ public class UserService(AppDbContext context) : IUserService
 
         return user;
     }
+
+    public async Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordDto dto)
+    {
+        var user = await context.Users.FindAsync(userId);
+        if (user is null)
+        {
+            throw new InvalidOperationException("User not found");
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.OldPassword, user.PasswordHash))
+        {
+            throw new InvalidOperationException("Invalid old password");
+        }
+        
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        await context.SaveChangesAsync();
+        
+        return true;
+}
     //Task<UserResponseDto> UpdateUserAsync(Guid id, UserUpdateDto updateDto);
     //Task<bool> DeleteUserAsync(Guid id){}
 }

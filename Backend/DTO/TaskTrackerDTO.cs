@@ -13,6 +13,7 @@ public record ColumnUpdateDto(string Title, int OrderIndex);
 public record ColumnResponseDto(Guid Id, string Title, int OrderIndex, Guid ProjectId);
 
 public record TokenResponseDto(string AccessToken);
+public record ChangePasswordDto(string OldPassword, string NewPassword);
 
 public record TaskCreateDto(
     string Title, 
@@ -51,3 +52,4 @@ public record TaskResponseDto(
     DateTime UpdatedAt, 
     DateTime? DueDate, 
     DateTime? PlannedStartAt);
+    

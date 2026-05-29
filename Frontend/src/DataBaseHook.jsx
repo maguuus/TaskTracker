@@ -23,7 +23,11 @@ export function useDBUser() {
         return (await api.get('/api/user/me')).data;
     }
 
-    return [login, register, getMe];
+    async function changePassword(dto) {
+        return await api.post('/api/user/change-password', dto);
+    }
+
+    return [login, register, getMe, changePassword];
 }
 
 export function useDBProjectMeta() {

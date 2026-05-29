@@ -34,7 +34,7 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                 <Card.Header>
                     <div className="d-flex align-items-center mb-2">
                         <span style={{ fontSize: '1.8rem', marginRight: '0.8rem' }}>
-                            {project.icon || "noIcon"}
+                            {project.icon || "📁"}
                         </span>
                         {editMode ?
                             <form>
