@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Container, Button, Card } from 'react-bootstrap';
 
 function ProjectBoard({ name }) {
-    // Состояние колонок и задач
+
     const [columns, setColumns] = useState([
         {
             id: 'todo',
@@ -39,7 +39,6 @@ function ProjectBoard({ name }) {
         }
     ]);
 
-    // Функция для удаления задачи
     const handleDeleteTask = (columnId, taskId) => {
         setColumns(prevColumns =>
             prevColumns.map(col => {
@@ -51,7 +50,6 @@ function ProjectBoard({ name }) {
         );
     };
 
-    // Функция для добавления новой задачи (карточки)
     const handleAddTask = (columnId) => {
         const taskTitle = prompt("Введите название задачи:", "Новая задача");
         if (!taskTitle) return;
@@ -70,7 +68,6 @@ function ProjectBoard({ name }) {
         );
     };
 
-    // Функция для добавления новой колонки
     const handleAddColumn = () => {
         const colTitle = prompt("Введите название новой колонки:");
         if (!colTitle) return;
@@ -93,7 +90,6 @@ function ProjectBoard({ name }) {
         setColumns(prev => [...prev, newColumn]);
     };
 
-    // Функция для удаления колонки
     const handleDeleteColumn = (columnId) => {
         if (window.confirm("Удалить эту колонку вместе с задачами?")) {
             setColumns(prev => prev.filter(col => col.id !== columnId));
@@ -174,7 +170,7 @@ function ProjectBoard({ name }) {
     );
 }
 
-// Компонент карточки
+//  карточка
 function TaskCard({ task, onDelete }) {
     return (
         <Card className="border-0 shadow-sm mb-3 rounded-3 position-relative" style={{ backgroundColor: '#FFFFFF' }}>
