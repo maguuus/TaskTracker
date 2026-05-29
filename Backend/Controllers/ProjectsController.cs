@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using Backend.Data;
 using Backend.DTO;
 using Backend.Models;
 using Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,19 +12,33 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ProjectsController(IProjectService projectService) : ControllerBase
 {
     [HttpGet("user/{userId:guid}")]
     public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> GetProjectsByUser(Guid userId)
     {
-        var projects = await projectService.GetProjectsByUserAsync(userId);      
+        var tokenUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId.ToString() != tokenUserId)
+        {
+            return Forbid("Access denied. You can only view your own projects.");
+        }
+        var projects = await projectService.GetProjectsByUserAsync(userId); 
         return Ok(projects);
     }
     
     [HttpPost]
     public async Task<ActionResult<ProjectResponseDto>> CreateProject(ProjectCreateDto projectDto)
     {
-        var projectResponseDto = await projectService.CreateProjectAsync(projectDto);
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("Invalid token.");
+        }
+        
+        var secureDto = projectDto with { OwnerId = userId };
+
+        var projectResponseDto = await projectService.CreateProjectAsync(secureDto);
             
         return Ok(projectResponseDto);
     }

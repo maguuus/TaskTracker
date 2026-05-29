@@ -68,7 +68,8 @@ function Login() {
             setCurrentUser({...profileResponse, projects: []});
         }
         catch (e) {
-            alert(e);
+            const errorMessage = e.response?.data || "Ошибка сети или неверные данные";
+            alert("Ошибка: " + errorMessage);
         }
     }
 
@@ -85,7 +86,8 @@ function Login() {
             setCurrentUser({...profileResponse, projects: []});
         }
         catch (e) {
-            alert(e);
+            const errorMessage = e.response?.data || "Ошибка сети или неверные данные";
+            alert("Ошибка: " + errorMessage);
         }
     }
 

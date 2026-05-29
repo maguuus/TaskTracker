@@ -60,7 +60,7 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                         {project.subtitle || ""}
                     </Card.Subtitle>
 
-                    <Card.Text>
+                    <Card.Text as="div">
                         {editMode ?
                             <form>
                                 <label>

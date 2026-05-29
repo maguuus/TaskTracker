@@ -20,7 +20,7 @@ export function useDBUser() {
     }
     
     async function getMe() {
-        return await api.get('/api/user/me');
+        return (await api.get('/api/user/me')).data;
     }
 
     return [login, register, getMe];
