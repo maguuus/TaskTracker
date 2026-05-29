@@ -61,7 +61,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                     </Badge>
                 </h3>
                 
-                {/* Панель управления колонкой (кнопки скрыты аккуратно под заголовком) */}
+                {/* Панель управления колонкой */}
                 <div className="d-flex justify-content-center gap-1 mt-2">
                     <Button variant='primary' size="sm" onClick={async () => { let t = await post(newTask(column)); addTask(t); }}>+</Button>
                     <Button variant='outline-secondary' size="sm" onClick={toggleEditMode}>Edit</Button>
