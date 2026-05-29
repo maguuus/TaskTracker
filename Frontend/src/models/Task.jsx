@@ -17,7 +17,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
 
     return (
         <Card className="position-relative border-0 shadow-sm mb-3 bg-white" style={{ borderRadius: '12px' }}>
-            {/* Крестик удаления (onTaskDelete) в углу */}
+            {/* Крестик удаления */}
             <button 
                 type="button" 
                 className="btn-close position-absolute" 
@@ -35,7 +35,6 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         title
                     )}
                 </h5>
-
                 {/* Описание */}
                 <p className="text-muted small mb-3 text-start">
                     {editMode ? (
@@ -44,29 +43,6 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         description
                     )}
                 </p>
-
-                {/* Кнопки действий (Светлая и Темная) */}
-                <div className="d-flex gap-2 justify-content-end">
-                    {/* Кнопка Редактирования/Сохранения */}
-                    <Button 
-                        variant="light" 
-                        size="sm" 
-                        className="px-3 border text-secondary"
-                        style={{ borderRadius: '6px', fontSize: '0.8rem', backgroundColor: '#e0e0e0' }}
-                        onClick={toggleEditMode}
-                    >
-                        {editMode ? "Save" : "Button"}
-                    </Button>
-                    
-                    {/* Любая дополнительная кнопка (или системная) */}
-                    <Button 
-                        variant="dark" 
-                        size="sm" 
-                        className="px-3"
-                        style={{ borderRadius: '6px', fontSize: '0.8rem', backgroundColor: '#212529' }}
-                    >
-                        Button
-                    </Button>
                 </div>
             </Card.Body>
         </Card>
