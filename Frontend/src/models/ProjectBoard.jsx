@@ -60,19 +60,22 @@ function ProjectBoard({ name, id, ...rest }) {
             setColumns([]);
             const fetched = await getColumns(id);
 
-            const promises = fetched.forEach(async (column) => {
+            const promises = fetched.map(async (column) => {
                 const tasks = await getTasks(column.id);
-                if (cancelled) return;
-                addColumn({ ...column, tasks: tasks });
+                return { ...column, tasks: tasks };
             });
 
-            await promises;
+            const columnsWithTasks = await Promise.all(promises);
+            if (!cancelled) {
+                columnsWithTasks.sort((a, b) => a.orderIndex - b.orderIndex);
+                setColumns(columnsWithTasks);
+            }
         }
 
         fetchColumns();
 
         return () => { cancelled = true; };
-    }, []);
+    }, [id]);
 
     if (!columns)
         return <h1>Loading Columns for {name}...</h1>

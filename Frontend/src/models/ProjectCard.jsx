@@ -1,6 +1,6 @@
 import { Col, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDBProjectMeta } from '../DataBaseHook';
 
 function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
@@ -11,7 +11,12 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
 
     const [name, setName] = useState(project.name);
     const [description, setDescription] = useState(project.description);
-
+    
+    useEffect(() => {
+        setName(project.name);
+        setDescription(project.description);
+    }, [project]);
+    
     async function onToggleEdit() {
         if (editMode) {
             const newProject = { ...project, name: name, description: description };

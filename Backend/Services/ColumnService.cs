@@ -4,13 +4,8 @@ using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Services;
 
-public class ColumnService: IColumnService
+public class ColumnService(AppDbContext context) : IColumnService
 {
-    private readonly AppDbContext context;
-    public ColumnService(AppDbContext context)
-    {
-        this.context = context;
-    }
     public async Task<IEnumerable<ColumnResponseDto>> GetColumnsByProjectAsync(Guid projectId)
     {
         var columns = await context.Columns
