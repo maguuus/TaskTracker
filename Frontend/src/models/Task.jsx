@@ -7,8 +7,8 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
     const [title, setTitle] = useState(task.title || '');
     const [description, setDescription] = useState(task.description || '');
     const [icon, setIcon] = useState(task.icon || '');
-    const [tags, setTags] = useState(task.tags || []);
-    const [tagInput, setTagInput] = useState('');
+    // const [tags, setTags] = useState(task.tags || []);
+    // const [tagInput, setTagInput] = useState('');
 
     const [priority, setPriority] = useState(task.priority || '');
     const [urgency, setUrgency] = useState(task.urgency || '');
@@ -23,26 +23,26 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
         setTitle(task.title || '');
         setDescription(task.description || '');
         setIcon(task.icon || '');
-        setTags(task.tags || []);
+        // setTags(task.tags || []);
         setPriority(task.priority || '');
         setUrgency(task.urgency || '');
         setDueDate(formatDateForInput(task.dueDate));
     }, [task]);
 
-    function handleTagKeyDown(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const newTag = tagInput.trim();
-            if (newTag && !tags.includes(newTag)) {
-                setTags([...tags, newTag]);
-            }
-            setTagInput('');
-        }
-    }
+    // function handleTagKeyDown(e) {
+    //     if (e.key === 'Enter') {
+    //         e.preventDefault();
+    //         const newTag = tagInput.trim();
+    //         if (newTag && !tags.includes(newTag)) {
+    //             setTags([...tags, newTag]);
+    //         }
+    //         setTagInput('');
+    //     }
+    // }
 
-    function removeTag(tagToRemove) {
-        setTags(tags.filter(t => t !== tagToRemove));
-    }
+    // function removeTag(tagToRemove) {
+    //     setTags(tags.filter(t => t !== tagToRemove));
+    // }
 
     function handleSave(e) {
         e.preventDefault();
@@ -53,7 +53,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
             title: title,
             description: description,
             icon: icon,
-            tags: tags,
+            // tags: tags,
             priority: priority,
             urgency: urgency,
             dueDate: formattedDate
@@ -95,7 +95,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         {task.description || "Нет описания"}
                     </div>
 
-                    <div className="d-flex flex-wrap gap-1 mb-3">
+                    {/* <div className="d-flex flex-wrap gap-1 mb-3">
                         {task.tags && task.tags.length > 0 ? (
                             task.tags.map((tag, idx) => (
                                 <Badge bg="success" key={idx} className="fw-normal rounded-pill">
@@ -105,7 +105,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         ) : (
                             <Badge bg="success" className="fw-normal rounded-pill">#работа</Badge>
                         )}
-                    </div>
+                    </div> */}
 
                     {(task.priority || task.dueDate) && (
                         <div className="d-flex justify-content-between text-muted small mb-3 fw-bold">
@@ -203,7 +203,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                             />
                         </Form.Group>
 
-                        <Form.Group className="mb-3">
+                        {/* <Form.Group className="mb-3">
                             <Form.Label className="fw-bold text-muted small text-uppercase">Теги</Form.Label>
                             <div className="d-flex flex-wrap gap-2 mb-2">
                                 {tags.map((tag, index) => (
@@ -225,7 +225,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                                 onKeyDown={handleTagKeyDown}
                                 placeholder="Введите тег и нажмите Enter..."
                             />
-                        </Form.Group>
+                        </Form.Group> */}
                     </Modal.Body>
 
                     <Modal.Footer className="border-0 pt-0">
