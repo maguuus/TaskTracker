@@ -4,6 +4,6 @@ using Backend.Models;
 namespace Backend.Services;
 public interface IAuthService
 {
-    Task<UserResponseDto> RegisterAsync(UserRegisterDto dto);
-    Task<UserResponseDto> LoginAsync(UserLoginDto dto);
+    Task<TokenResponseDto> RegisterAsync(UserRegisterDto dto);
+    Task<TokenResponseDto> LoginAsync(UserLoginDto dto);
 }

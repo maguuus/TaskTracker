@@ -3,12 +3,14 @@ using Backend.DTO;
 using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ColumnsController(IColumnService columnService) : ControllerBase
 {
 

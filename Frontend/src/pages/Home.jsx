@@ -5,76 +5,54 @@ import ProjectCard from '../models/ProjectCard.jsx';
 import { useProject } from '../context/ProjectContext.jsx';
 import { useUser } from '../context/UserContext.jsx';
 import { useProjectsMeta } from '../context/ProjectMetaHook.jsx';
-import api from '../api/index.js';
+import { useDBProjectMeta } from '../DataBaseHook.jsx';
 
-const newProject = (projects) => ({
-        id: (projects.length == 0 ? 0 : (Math.max(...projects.map(p => p.id)) + 1)),
-        name: "New project",
-        icon: '📁',
-        header: 'Empty project',
-    });
+const newProject = (ownerId) => ({
+    ownerId: ownerId,
+    name: "New project",
+    description: 'Empty project',
+});
 
 function Home() {
+
+    const [getMetas, post, patch, remove] = useDBProjectMeta();
 
     const navigate = useNavigate();
 
     const [currentProject, setCurrentProject] = useProject();
     const [currentUser, setCurrentUser] = useUser();
-
     const [createProjectMeta, updateProjectMeta, removeProjectMeta] = useProjectsMeta();
+
 
     function onProjectCardClicked(project) {
         setCurrentProject(project);
         navigate(`/${project.id}/board/`);
-    }
-
-    async function LoadUserProjectsMeta(id) {
-        try {
-            const response = await api.get(`/user/${id}`);
-            return response.data;
-        }
-        catch (error) {
-            return []
-        }
     }
 
     useEffect(() => {
         async function fetchProjects() {
             if (!currentUser?.id) return;
 
-            const projects = await LoadUserProjectsMeta(currentUser.id);
+            try {
+                const response = await getMetas(currentUser.id);
+                if (response.length == 0) return;
 
-            if (projects.length != 0)
                 setCurrentUser(prevUser => ({
                     ...prevUser,
-                    projects
+                    projects: response
                 }));
+            }
+            catch (error) {
+                throw error;
+            }
         }
+
         fetchProjects();
     }, [currentUser?.id]);
 
     function onProjectCardClicked(project) {
         setCurrentProject(project);
         navigate(`/${project.id}/board/`);
-    }
-
-    function UserProjects() {
-
-        return (
-            <Row>
-                {currentUser.projects
-                    ? currentUser.projects.map((project) =>
-                        <ProjectCard
-                            key={project.id}
-                            project={project}
-                            onChoose={() => onProjectCardClicked(project)}
-                            onDelete={() => removeProjectMeta(project)}
-                            onUpdate={updateProjectMeta}
-                        />)
-                    : `Создайте новый проект!`
-                }
-            </Row>
-        )
     }
 
     if (!currentUser)
@@ -92,12 +70,24 @@ function Home() {
                 <Button
                     variant='secondary'
                     className="border-2 mb-4"
-                    onClick={() => createProjectMeta(newProject(currentUser.projects))}
+                    onClick={async () => { let p = await post(newProject(currentUser.id)); createProjectMeta(p); }}
                 >
                     +
                 </Button>
             </div>
-            <UserProjects />
+            <Row>
+                {currentUser.projects.length != 0
+                    ? currentUser.projects.map((project) =>
+                        <ProjectCard
+                            key={project.id}
+                            project={project}
+                            onChoose={() => onProjectCardClicked(project)}
+                            onDelete={async () => { await remove(project); removeProjectMeta(project); }}
+                            onUpdate={async (p) => { await patch(p); updateProjectMeta(p); }}
+                        />)
+                    : `Создайте новый проект!`
+                }
+            </Row>
         </Container>
     );
 }

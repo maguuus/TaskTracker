@@ -4,17 +4,18 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Services;
 
-public class UserService: IUserService
+public class UserService(AppDbContext context) : IUserService
 {
-    private readonly AppDbContext context;
-    public UserService(AppDbContext context)
-    {
-        this.context = context;
-    }
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
+
+    public async Task<User?> GetByIdAsync(Guid id)
+    {
+        return await context.Users.FindAsync(id);
+    }
+
     public async Task<bool> IsEmailTakenAsync(string email)
     {
         return await context.Users.AnyAsync(u => u.Email == email);
@@ -43,6 +44,25 @@ public class UserService: IUserService
 
         return user;
     }
+
+    public async Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordDto dto)
+    {
+        var user = await context.Users.FindAsync(userId);
+        if (user is null)
+        {
+            throw new InvalidOperationException("User not found");
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.OldPassword, user.PasswordHash))
+        {
+            throw new InvalidOperationException("Invalid old password");
+        }
+        
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        await context.SaveChangesAsync();
+        
+        return true;
+}
     //Task<UserResponseDto> UpdateUserAsync(Guid id, UserUpdateDto updateDto);
     //Task<bool> DeleteUserAsync(Guid id){}
 }

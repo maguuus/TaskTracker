@@ -12,11 +12,16 @@ public record ColumnCreateDto(string? Title, int OrderIndex, Guid ProjectId);
 public record ColumnUpdateDto(string Title, int OrderIndex);
 public record ColumnResponseDto(Guid Id, string Title, int OrderIndex, Guid ProjectId);
 
+public record TokenResponseDto(string AccessToken);
+public record ChangePasswordDto(string OldPassword, string NewPassword);
+
 public record TaskCreateDto(
     string Title, 
     string? Description, 
     string? Priority, 
     string? Urgency, 
+    string? Icon,
+    List<string>? Tags,
     Guid ColumnId, 
     int OrderIndex, 
     DateTime? DueDate, 
@@ -25,7 +30,9 @@ public record TaskCreateDto(
 public record TaskUpdateDto(string Title, 
     string? Description, 
     string? Priority, 
-    string? Urgency, 
+    string? Urgency,
+    string? Icon,
+    List<string>? Tags,
     int OrderIndex, 
     Guid ColumnId, 
     DateTime? DueDate, 
@@ -36,10 +43,13 @@ public record TaskResponseDto(
     string Title,
     string? Description,
     string? Priority, 
-    string? Urgency, 
+    string? Urgency,
+    string? Icon,
+    List<string>? Tags,
     int OrderIndex, 
     Guid ColumnId, 
     DateTime CreatedAt, 
     DateTime UpdatedAt, 
     DateTime? DueDate, 
     DateTime? PlannedStartAt);
+    

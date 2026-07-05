@@ -5,7 +5,10 @@ import { useProject } from './context/ProjectContext';
 import Home from './pages/Home';
 import Board from './pages/Board';
 import Login from './pages/Login';
+import Profile from './pages/Profile';
 
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { GuestRoute } from './components/GuestRoute';
 import { useUser } from './context/UserContext';
 
 const mock = {
@@ -16,26 +19,36 @@ const mock = {
 
 function App() {
 
-    const [currentUser, setCurrentUser] = useUser();
-    if (!currentUser)
-        setCurrentUser(mock);
-
     const [ currentProject ] = useProject();
     let tryToBoard = `${currentProject ? `${currentProject.id}/board` : `/`}`;
 
     return (
         <BrowserRouter>
-            <nav className="container-fluid bg-dark text-light pt-3">
-                {"Task Tracker: "}
-                <NavLink to="/">Home</NavLink> {"| "}
-                <NavLink to="/login">Login</NavLink> {"| "}
-                <NavLink to={tryToBoard}>Board</NavLink>
+            <nav className="container-fluid bg-dark text-light pt-3 pb-3 mb-4 d-flex gap-3">
+                <span>Task Tracker</span>
+                <NavLink to="/" className="text-light">Главная</NavLink>
+                <NavLink to="/login" className="text-light">Вход</NavLink>
+                <NavLink to="/profile" className="text-light">Профиль</NavLink>
+                <NavLink to={tryToBoard} className="text-light">Доска</NavLink>
             </nav>
 
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/:projectId/board" element={<Board />} />
+                <Route path="/login" element={
+                    <GuestRoute>
+                        <Login />
+                    </GuestRoute>
+                } />
+                <Route path="/profile" element={
+                    <ProtectedRoute>
+                        <Profile />
+                    </ProtectedRoute>
+                } />
+                <Route path="/:projectId/board" element={
+                    <ProtectedRoute>
+                        <Board />
+                    </ProtectedRoute>
+                } />
             </Routes>
         </BrowserRouter>
     );

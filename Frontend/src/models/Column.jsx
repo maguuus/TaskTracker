@@ -3,28 +3,32 @@ import { useColumns } from '../context/BoardContext';
 import { useColumn } from '../context/BoardHooks';
 import Task from './Task';
 import { useState } from 'react';
+import { useDBTask } from '../DataBaseHook';
 
 
 function Column({ column, onColumnUpdate, onColumnDelete }) {
+
+    const [post, patch, remove] = useDBTask();
 
     const [addTask, updateTask, removeTask] = useColumn(column.id);
 
     const [title, setTitle] = useState(column.title);
     const [editMode, setEditMode] = useState(false);
 
-    function toggleEditMode() {
+    async function toggleEditMode() {
         if (editMode === false) {
             setEditMode(true);
             return;
         }
+        await onColumnUpdate({ ...column, title: title });
         setEditMode(false);
-        onColumnUpdate({ ...column, title: title });
     }
 
     function newTask(column) {
-        const id = column.tasks.length != 0 ? Math.max(...column.tasks.map(t => t.id)) + 1 : 0;
+        const id = column.tasks.length != 0 ? Math.max(...column.tasks.map(t => t.orderIndex)) + 1 : 0;
         const newTask = {
-            id: id,
+            columnId: column.id,
+            orderIndex: id,
             title: `Текст оглавление ${id}`,
             description: `Тело текста ${id}`
         }
@@ -50,7 +54,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                         variant='primary'
                         className="ms-auto py-0 px-2"
                         style={{ height: '24px', minWidth: '24px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-                        onClick={() => addTask(newTask(column))}
+                        onClick={async () => { let t = await post(newTask(column)); addTask(t); }}
                     >
                         +
                     </Button>
@@ -78,8 +82,8 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                     <Task
                         key={task.id}
                         task={task}
-                        onTaskUpdate={updateTask}
-                        onTaskDelete={() => removeTask(task)}
+                        onTaskUpdate={async (t) => { await patch(t); updateTask(t); }}
+                        onTaskDelete={async () => { await remove(task); removeTask(task); }}
                     />
                 ))}
             </Card.Body>

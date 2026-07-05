@@ -4,19 +4,13 @@ using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Services;
 
-public class ProjectService: IProjectService
+public class ProjectService(AppDbContext context) : IProjectService
 {
-    private readonly AppDbContext context;
-    public ProjectService(AppDbContext context)
-    {
-        this.context = context;
-    }
-
     public async Task<IEnumerable<ProjectResponseDto>> GetProjectsByUserAsync(Guid userId)
     {
         var projects = await context.Projects
             .Where(p => p.OwnerId == userId)
-            .Select(p => new ProjectResponseDto(p.Id, p.Name, p.OwnerId, p.CreatedAt, null))
+            .Select(p => new ProjectResponseDto(p.Id, p.Name, p.OwnerId, p.CreatedAt, p.Description))
             .ToListAsync();
         
         return projects;
@@ -27,13 +21,14 @@ public class ProjectService: IProjectService
         {
             Id = Guid.NewGuid(),
             Name = projectDto.Name,
+            Description = projectDto.Description,
             OwnerId = projectDto.OwnerId,
             CreatedAt = DateTime.UtcNow
         };
         
         context.Projects.Add(project);
         await context.SaveChangesAsync();
-        return new ProjectResponseDto(project.Id, project.Name, project.OwnerId, project.CreatedAt, null);
+        return new ProjectResponseDto(project.Id, project.Name, project.OwnerId, project.CreatedAt, project.Description);
     }
     public async Task<bool> UpdateProjectAsync(Guid id, ProjectUpdateDto projectDto)
     {
@@ -42,7 +37,7 @@ public class ProjectService: IProjectService
             throw new InvalidOperationException("Project not found");
         
         project.Name = projectDto.Name;
-        // project.Description = projectDto.Description - когда добавим Description
+        project.Description = projectDto.Description;
         
         await context.SaveChangesAsync();
         return true;

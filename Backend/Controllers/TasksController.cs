@@ -2,6 +2,7 @@ using Backend.Data;
 using Backend.DTO;
 using Backend.Models;
 using Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TasksController(ITaskService taskService) : ControllerBase
 {
     [HttpGet("column/{columnId:guid}")]
