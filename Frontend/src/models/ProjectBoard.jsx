@@ -81,16 +81,19 @@ function ProjectBoard({ name, id, ...rest }) {
         return <h1>Loading Columns for {name}...</h1>
 
     return (
-        <Container fluid className="mt-4">
-            <h2 className="mb-4">Проект <mark>{name}</mark>:</h2>
+        <Container fluid className="py-5" style={{ backgroundColor: '#C1F0C4', minHeight: '100vh' }}>
+            <div className="text-center mb-5">
+                <h1 className="fw-bold mb-3" style={{ color: '#212121' }}>Проект <mark>{name}</mark></h1>
 
-            <Button
-                variant='secondary'
-                className="border-2 mb-4"
-                onClick={async () => { let c = await post(newColumn()); addColumn({...c, tasks: []}); }}
-            >
-                +
-            </Button>
+                <Button
+                    variant="dark"
+                    className="rounded-pill px-4 shadow-sm"
+                    style={{ backgroundColor: '#212121' }}
+                    onClick={async () => { let c = await post(newColumn()); addColumn({...c, tasks: []}); }}
+                >
+                    + Добавить колонку
+                </Button>
+            </div>
 
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem' }}>
                 <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }}>
