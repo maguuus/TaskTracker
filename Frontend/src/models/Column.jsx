@@ -15,6 +15,13 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
     const [title, setTitle] = useState(column.title);
     const [editMode, setEditMode] = useState(false);
 
+    const getColumnBg = (title) => {
+        const t = title.toLowerCase();
+        if (t.includes('do') || t.includes('дел')) return '#fdeca6';
+        if (t.includes('progress') || t.includes('ход')) return '#ebd0ff';
+        return '#ffd2d2';
+    };
+
     async function toggleEditMode() {
         if (editMode === false) {
             setEditMode(true);
@@ -36,48 +43,37 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
     }
 
     return (
-        <Card style={{ backgroundColor: 'lightblue', height: 'calc(100vh - 150px)', display: 'flex', flexDirection: 'column' }}>
-            <Card.Header className="bg-light">
-                <h5 className="mb-0 d-flex align-items-center justify-content-between w-100">
-                    {editMode
-                        ? (<form>
-                            <label>
-                                <input type="text" size="5" value={title} onChange={e => setTitle(e.target.value)} />
-                            </label>
-                        </form>)
-                        : column.title}
+        <Card style={{
+            backgroundColor: getColumnBg(column.title),
+            height: 'calc(100vh - 150px)',
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: '50px',
+            border: 'none',
+            padding: '20px 10px',
+            boxShadow: 'none'
+        }}>
+            <Card.Header className="bg-transparent border-0 text-center py-2">
+                <h3 className="mb-0 d-flex align-items-center justify-content-center w-100 fw-normal" style={{ color: '#2e7d32' }}>
+                    {editMode ? (
+                        <input type="text" size="8" value={title} onChange={e => setTitle(e.target.value)} />
+                    ) : (
+                        column.title
+                    )}
 
-                    <Badge bg="secondary" className="ms-2">
+                    <Badge bg="secondary" className="ms-2 fs-6 rounded-circle">
                         {column.tasks.length}
                     </Badge>
-                    <Button
-                        variant='primary'
-                        className="ms-auto py-0 px-2"
-                        style={{ height: '24px', minWidth: '24px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-                        onClick={async () => { let t = await post(newTask(column)); addTask(t); }}
-                    >
-                        +
-                    </Button>
-                    <Button
-                        variant='primary'
-                        className="ms-auto py-0 px-2"
-                        style={{ height: '24px', minWidth: '24px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-                        onClick={toggleEditMode}
-                    >
-                        Edit
-                    </Button>
-                    <Button
-                        variant='dark'
-                        className="ms-auto py-0 px-2"
-                        style={{ height: '24px', minWidth: '24px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-                        onClick={onColumnDelete}
-                    >
-                        -
-                    </Button>
-                </h5>
+                </h3>
+
+                <div className="d-flex justify-content-center gap-1 mt-2">
+                    <Button variant='primary' size="sm" onClick={async () => { let t = await post(newTask(column)); addTask(t); }}>+</Button>
+                    <Button variant='outline-secondary' size="sm" onClick={toggleEditMode}>Edit</Button>
+                    <Button variant='dark' size="sm" onClick={onColumnDelete}>-</Button>
+                </div>
             </Card.Header>
 
-            <Card.Body style={{ overflowY: 'auto', padding: '0.75rem' }}>
+            <Card.Body style={{ overflowY: 'auto', padding: '10px' }}>
                 {column.tasks.map((task) => (
                     <Task
                         key={task.id}

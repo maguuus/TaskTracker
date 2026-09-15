@@ -24,11 +24,11 @@ function App() {
 
     return (
         <BrowserRouter>
-            <nav className="container-fluid bg-dark text-light pt-3 pb-3 mb-4 d-flex gap-3">
-                <span>Task Tracker</span>
-                <NavLink to="/" className="text-light">Главная</NavLink>
-                <NavLink to="/login" className="text-light">Вход</NavLink>
-                <NavLink to="/profile" className="text-light">Профиль</NavLink>
+            <nav className="container-fluid bg-dark text-light pt-3">
+                {"Task Tracker: "}
+                <NavLink to="/" className="text-light">Главная</NavLink> {"| "}
+                <NavLink to="/login" className="text-light">Вход</NavLink> {"| "}
+                <NavLink to="/profile" className="text-light">Профиль</NavLink> {"| "}
                 <NavLink to={tryToBoard} className="text-light">Доска</NavLink>
             </nav>
 
