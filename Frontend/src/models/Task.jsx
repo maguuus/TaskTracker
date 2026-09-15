@@ -76,14 +76,14 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
     
     return (
         <>
-            <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white rounded`} style={{ borderLeftWidth: '5px !important' }}>
+            <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white`} style={{ borderLeftWidth: '5px !important', borderRadius: '12px' }}>
                 <Card.Body className="p-0 position-relative">
 
                     <button
-                        className="btn-close position-absolute top-0 end-0"
+                        className="btn-close position-absolute"
                         aria-label="Close"
                         onClick={onTaskDelete}
-                        style={{ width: '0.5rem', height: '0.5rem' }}
+                        style={{ top: '12px', right: '12px', width: '0.5rem', height: '0.5rem' }}
                     ></button>
 
                     <div className="d-flex align-items-center mb-2 pe-4">
