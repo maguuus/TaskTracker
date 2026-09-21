@@ -42,6 +42,20 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
         return newTask;
     }
 
+    const handleDragOver = (e) => e.preventDefault();
+
+    const handleDrop = async (e) => {
+        e.preventDefault();
+        if (window.__draggedTaskInstance && window.__draggedTaskInstance.columnId !== column.id) {
+            const updatedTask = {
+                ...window.__draggedTaskInstance,
+                columnId: column.id
+            };
+            await patch(updatedTask);
+            window.location.reload(); 
+        }
+    };
+
     return (
         <Card style={{
             backgroundColor: getColumnBg(column.title),
@@ -73,14 +87,20 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                 </div>
             </Card.Header>
 
-            <Card.Body style={{ overflowY: 'auto', padding: '10px' }}>
+            <Card.Body 
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                style={{ overflowY: 'auto', padding: '10px' }}
+            >
                 {column.tasks.map((task) => (
+                    <div key={task.id} onDragStart={() => { window.__draggedTaskInstance = task; }}>
                     <Task
                         key={task.id}
                         task={task}
                         onTaskUpdate={async (t) => { await patch(t); updateTask(t); }}
                         onTaskDelete={async () => { await remove(task); removeTask(task); }}
                     />
+                    </div>
                 ))}
             </Card.Body>
         </Card>

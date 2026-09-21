@@ -76,7 +76,16 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
     
     return (
         <>
-            <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white`} style={{ borderLeftWidth: '5px !important', borderRadius: '12px' }}>
+            <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white`} style={{ borderLeftWidth: '5px !important', borderRadius: '12px' }}
+                draggable="true" 
+                onDragStart={(e) => {                   
+                    e.dataTransfer.setData("text/plain", task.id);
+                    e.currentTarget.style.opacity = '0.5';
+                }}
+                onDragEnd={(e) => {
+                    e.currentTarget.style.opacity = '1';
+                }}
+            >
                 <Card.Body className="p-0 position-relative">
 
                     <button
