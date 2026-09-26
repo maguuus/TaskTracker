@@ -28,67 +28,96 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
         setEditMode(true)
     }
 
+    const avatarLetter = (name || "A").charAt(0).toUpperCase();
+
     return (
-        <Col md={4} className="mb-4">
-            <Card style={{ height: '100%' }}>
-                <Card.Header>
-                    <div className="d-flex align-items-center mb-2">
-                        <span style={{ fontSize: '1.8rem', marginRight: '0.8rem' }}>
-                            {project.icon || "📁"}
-                        </span>
-                        {editMode ?
-                            <form>
-                                <label>
-                                    <input type="text" value={name} onChange={e => setName(e.target.value)} />
-                                </label>
-                            </form>
-                            :
-                            <h4>{name}</h4>
-                        }
-                    </div>
+        <Card
+            className="border-0 shadow-sm w-100 rounded-4 overflow-hidden position-relative"
+            style={{ backgroundColor: '#FFFFFF', maxWidth: '280px', height: '100%' }}
+        >
+            <button
+                onClick={onDelete}
+                className="btn-close position-absolute top-0 end-0 m-3"
+                style={{ fontSize: '0.65rem', zIndex: 10 }}
+                aria-label="Delete project"
+            ></button>
 
-                    <h6 className="text-muted mb-3">{project.subhead || ""}</h6>
+            <div className="d-flex align-items-center p-3 pb-2">
+                <div
+                    className="d-flex align-items-center justify-content-center rounded-circle fw-bold me-2 flex-shrink-0"
+                    style={{ backgroundColor: '#EBE4FA', color: '#5E17EB', width: '32px', height: '32px', fontSize: project.icon ? '1rem' : '0.8rem' }}
+                >
+                    {project.icon || avatarLetter}
+                </div>
+                <div className="lh-sm overflow-hidden">
+                    {editMode ?
+                        <form>
+                            <label>
+                                <input type="text" value={name} onChange={e => setName(e.target.value)} className="form-control form-control-sm" />
+                            </label>
+                        </form>
+                        :
+                        <div className="fw-bold text-dark text-truncate" style={{ fontSize: '0.85rem' }}>{name}</div>
+                    }
+                    <div className="text-muted text-truncate" style={{ fontSize: '0.65rem' }}>{project.subhead || ""}</div>
+                </div>
+            </div>
 
-                </Card.Header>
+            <div
+                className="d-flex align-items-center justify-content-center border-0 mx-0"
+                style={{ backgroundColor: '#EBEBEB', height: '140px' }}
+            >
+                <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-25">
+                    <path d="M50 15L75 55H25L50 15Z" fill="#707070" />
+                    <rect x="52" y="48" width="24" height="24" rx="4" fill="#707070" />
+                    <path d="M36 68C36 74.6274 30.6274 80 24 80C17.3726 80 12 74.6274 12 68C12 61.3726 17.3726 56 24 56C30.6274 56 36 61.3726 36 68Z" fill="#707070" />
+                </svg>
+            </div>
 
-                <Card.Img
-                    variant="top"
-                    src={null}
-                    alt={project.imageAlt || null}
-                    style={{ marginBottom: '1rem' }}
-                />
+            <Card.Body className="p-3 d-flex flex-column">
+                <Card.Title className="fw-bold mb-0 text-dark text-truncate" style={{ fontSize: '0.85rem' }}>
+                    {project.title || ""}
+                </Card.Title>
 
-                <Card.Body>
-                    <Card.Title>{project.title || ""}</Card.Title>
+                <Card.Subtitle className="text-muted mb-2 fw-medium text-truncate" style={{ fontSize: '0.7rem' }}>
+                    {project.subtitle || ""}
+                </Card.Subtitle>
 
-                    <Card.Subtitle className="mb-2 text-muted">
-                        {project.subtitle || ""}
-                    </Card.Subtitle>
-
-                    <Card.Text as="div">
-                        {editMode ?
-                            <form>
-                                <label>
-                                    <input type="text" value={description || ""} onChange={e => setDescription(e.target.value)} />
-                                </label>
-                            </form>
-                            : description || ""
-                        }
+                {editMode ?
+                    <form>
+                        <label>
+                            <input type="text" value={description || ""} onChange={e => setDescription(e.target.value)} className="form-control form-control-sm" />
+                        </label>
+                    </form>
+                    :
+                    <Card.Text className="text-muted mb-3 text-wrap text-start" style={{ fontSize: '0.75rem', lineHeight: '1.3', height: '50px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+                        {description || ""}
                     </Card.Text>
+                }
 
-                    <div className="d-flex justify-content-between mt-3">
+                <div className="d-flex justify-content-end gap-2 mt-auto pt-2">
+                    <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        className="rounded-pill px-3 border text-muted fw-medium"
+                        style={{ fontSize: '0.7rem', borderColor: '#D3D3D3' }}
+                        onClick={onToggleEdit}
+                    >
+                        {editMode ? "Сохранить" : "Изменить"}
+                    </Button>
 
-                    </div>
-                </Card.Body>
-
-                <Card.Footer className="d-flex justify-content-end gap-3">
-                    <Button variant="danger" onClick={onDelete}>Удалить</Button>
-                    <Button variant="light" onClick={onToggleEdit}>Изменить</Button>
-                    <Button variant="primary" onClick={onChoose}>Перейти</Button>
-                </Card.Footer>
-
-            </Card>
-        </Col >
+                    <Button
+                        variant="dark"
+                        size="sm"
+                        className="rounded-pill px-3 border-0 text-white fw-medium"
+                        style={{ backgroundColor: '#5E17EB', fontSize: '0.7rem' }}
+                        onClick={onChoose}
+                    >
+                        Перейти
+                    </Button>
+                </div>
+            </Card.Body>
+        </Card>
     )
 }
 
