@@ -52,7 +52,7 @@ function ProjectBoard({ name, id, ...rest }) {
     const [showSettings, setShowSettings] = useState(false);
 
     return (
-        <Container fluid className="py-5 position-relative" style={{ backgroundColor: '#C1F0C4', minHeight: '100vh' }}>
+        <Container fluid className="py-5 position-relative" style={{ backgroundColor: '#bee0c6', minHeight: '100vh' }}>
             <div className="text-center mb-5">
                 <h1 className="fw-bold mb-3" style={{ color: '#212121' }}>Проект <mark>{name}</mark></h1>
 
@@ -111,14 +111,15 @@ function ProjectContributors({ showSettings, setShowSettings }) {
     const contributors = null;
     return (
         <Modal show={showSettings} onHide={() => setShowSettings(false)} centered data-bs-theme="light">
-            <Modal.Body className="p-4 text-white" style={{ backgroundColor: '#57fd7bb2', borderRadius: '0.8rem' }}>
+            <Modal.Body className="p-4" style={{ backgroundColor: '#ffffff', borderRadius: '1.2rem', color: '#212121' }}>
+                
                 {/* Шапка с кнопкой закрытия */}
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h5 className="m-0">Настройки проекта</h5>
+                    <h5 className="m-0 fw-bold" style={{ color: '#212121' }}>Настройки проекта</h5>
                     <Button
                         variant="dark"
                         className="d-flex align-items-center justify-content-center p-0"
-                        style={{ width: '36px', height: '36px', backgroundColor: '#212121', borderRadius: '0.5rem' }}
+                        style={{ width: '36px', height: '36px', backgroundColor: '#212121', borderRadius: '0.6rem' }}
                         onClick={() => setShowSettings(false)}
                         aria-label="Закрыть"
                     >
@@ -127,21 +128,36 @@ function ProjectContributors({ showSettings, setShowSettings }) {
                 </div>
 
                 {/* Роль текущего пользователя */}
-                <p className="mb-4 text-white">
-                    Вы в этом проекте: <strong className="text-white">Владелец</strong>
+                <p className="mb-4 text-secondary small">
+                    Вы в этом проекте: <span className="badge fw-semibold ms-1" style={{ backgroundColor: '#c1f0c4', color: '#196f3d' }}>Владелец</span>
                 </p>
 
                 {/* Форма приглашения */}
                 <Form onSubmit={(e) => e.preventDefault()} className="mb-4">
-                    <Form.Label className="small text-white">Пригласить участника</Form.Label>
+                    {/* ЗАМЕНИЛИ text-white НА text-secondary */}
+                    <Form.Label className="small text-secondary fw-semibold mb-2">Пригласить участника</Form.Label>
                     <InputGroup>
                         <Form.Control
                             placeholder="Почта пользователя:"
                             value={inviteValue}
                             onChange={handleInviteChange}
-                            style={{ backgroundColor: '#0a0b0d', borderColor: '#333', color: '#fff' }}
+                            style={{ 
+                                backgroundColor: '#ffffff', 
+                                borderColor: '#212121', 
+                                color: '#212121',
+                                borderRadius: '0.6rem 0 0 0.6rem' 
+                            }}
                         />
-                        <Button variant="light" onClick={handleInviteClick}>
+                        <Button 
+                            variant="dark" 
+                            onClick={handleInviteClick}
+                            style={{ 
+                                backgroundColor: '#212121', 
+                                borderColor: '#212121',
+                                borderRadius: '0 0.6rem 0.6rem 0',
+                                color: '#ffffff'
+                            }}
+                        >
                             Пригласить
                         </Button>
                     </InputGroup>
@@ -149,15 +165,15 @@ function ProjectContributors({ showSettings, setShowSettings }) {
 
                 {/* Список контрибьюторов */}
                 <div>
-                    <div className="small text-white mb-2">Контрибьюторы</div>
-                    <ListGroup style={{ maxVertHeight: '200px', overflowY: 'auto' }}>
+                    <div className="small text-secondary fw-semibold mb-2">Контрибьюторы</div>
+                    <ListGroup style={{ maxHeight: '200px', overflowY: 'auto' }}>
                         {contributors?.map((c, i) => (
                             <ListGroup.Item
                                 key={i}
-                                className="d-flex justify-content-between align-items-center bg-transparent border-secondary px-0 py-2 text-white small"
+                                className="d-flex justify-content-between align-items-center bg-transparent border-light-subtle px-0 py-2 text-dark small"
                             >
                                 <div className="text-truncate me-2">{c.address}</div>
-                                <Badge bg="white" pill>{c.role}</Badge>
+                                <Badge bg="dark" className="fw-normal">{c.role}</Badge>
                             </ListGroup.Item>
                         ))}
                     </ListGroup>

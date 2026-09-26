@@ -76,7 +76,13 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
     
     return (
         <>
-            <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white`} style={{ borderLeftWidth: '5px !important', borderRadius: '12px' }}
+            <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white`}
+                style={{ 
+                    borderLeftWidth: '5px !important', 
+                    borderRadius: '12px',
+                    cursor: 'move',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                }}
                 draggable="true" 
                 onDragStart={(e) => {                   
                     e.dataTransfer.setData("text/plain", task.id);
@@ -84,6 +90,14 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                 }}
                 onDragEnd={(e) => {
                     e.currentTarget.style.opacity = '1';
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.boxShadow = '0 .5rem 1rem rgba(0,0,0,.15)'; // Тень становится глубже
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'; // Возвращается на место
+                    e.currentTarget.style.boxShadow = '0 .125rem .25rem rgba(0,0,0,.075)'; // Тень становится обычной
                 }}
             >
                 <Card.Body className="p-0 position-relative">
