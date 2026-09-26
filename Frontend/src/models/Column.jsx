@@ -53,20 +53,41 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
         return newTask;
     }
 
+
+    const [columns, setColumns] = useColumns(); 
+
     const handleDragOver = (e) => e.preventDefault();
 
-    const handleDrop = async (e) => { // !! Использовать dataTransfer и атрибут draggable, отойти от window.location.reload
+    const handleDrop = async (e) => {
         e.preventDefault();
+        
         if (window.__draggedTaskInstance && window.__draggedTaskInstance.columnId !== column.id) {
+            const taskToMove = window.__draggedTaskInstance;
             const updatedTask = {
-                ...window.__draggedTaskInstance,
+                ...taskToMove,
                 columnId: column.id
             };
             await patch(updatedTask);
-            onColumnUpdate(column);
-            window.location.reload(); // ломает т.к. перезагрузка сбивает react router, нужно починить nginx
+            setColumns(prevColumns => {
+                return prevColumns.map(col => {
+                    if (col.id === taskToMove.columnId) {
+                        return {
+                            ...col,
+                            tasks: col.tasks.filter(t => t.id !== taskToMove.id)
+                        };
+                    }
+                    if (col.id === column.id) {
+                        return {
+                            ...col,
+                            tasks: [...col.tasks, updatedTask]
+                        };
+                    }
+                    return col;
+                });
+            });
         }
     };
+
 
     return (
         <Card style={{
