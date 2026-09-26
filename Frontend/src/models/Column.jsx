@@ -62,7 +62,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
             height: 'calc(100vh - 150px)',
             display: 'flex',
             flexDirection: 'column',
-            borderRadius: '50px',
+            borderRadius: '20px',
             border: 'none',
             padding: '20px 10px',
             boxShadow: 'none'

@@ -52,7 +52,7 @@ function ProjectBoard({ name, id, ...rest }) {
     const [showSettings, setShowSettings] = useState(false);
 
     return (
-        <Container fluid className="py-5" style={{ backgroundColor: '#C1F0C4', minHeight: '100vh' }}>
+        <Container fluid className="py-5 position-relative" style={{ backgroundColor: '#C1F0C4', minHeight: '100vh' }}>
             <div className="text-center mb-5">
                 <h1 className="fw-bold mb-3" style={{ color: '#212121' }}>Проект <mark>{name}</mark></h1>
 
@@ -68,49 +68,50 @@ function ProjectBoard({ name, id, ...rest }) {
 
             <Button
                 variant="dark"
-                className="py-5 position-relative align-items-center justify-content-center shadow-sm"
+                className="position-absolute d-flex align-items-center justify-content-center shadow-sm"
                 style={{
-                    top: '1rem',
-                    right: '1rem',
+                    top: '1.5rem',
+                    right: '1.5rem',
                     width: '48px',
                     height: '48px',
                     backgroundColor: '#212121',
                     borderRadius: '0.5rem',
                     zIndex: 10,
                 }}
-                onClick={(e) => { e.stopPropagation(e); setShowSettings(true); }}
+                onClick={(e) => { e.stopPropagation(); setShowSettings(true); }}
                 aria-label="Настройки"
             >
-                <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>⚙️</span>
+                ⚙️
             </Button>
 
-
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem' }}>
-                <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }}>
+                <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }} className="justify-content-start align-items-stretch">
                     {columns.map((column) =>
-                        <Col key={column.id} style={{ minWidth: '350px', width: '350px' }} className="me-3">
+                        <Col key={column.id} style={{ minWidth: '350px', width: '350px', flexGrow: 0 }} className="me-3 h-100">
                             <Column
                                 column={column}
                                 onColumnUpdate={async (c) => { await patch(c); updateColumn(c); }}
                                 onColumnDelete={async () => { await remove(column); removeColumn(column); }}
                             />
-                        </Col>)}
+                        </Col>
+                    )}
                 </Row>
             </div>
 
-            <ProjectSettings showSettings={showSettings} setShowSettings={setShowSettings} />
-        </Container >
+            <ProjectContributors showSettings={showSettings} setShowSettings={setShowSettings} />
+        </Container>
     );
 }
 
-function ProjectSettings({ showSettings, setShowSettings }) {
+// TODO: Correct all colors
+function ProjectContributors({ showSettings, setShowSettings }) {
     const [inviteValue, setInviteValue] = useState("");
-    const handleInviteChange = () => {};
-    const handleInviteClick = () => {};
+    const handleInviteChange = () => { };
+    const handleInviteClick = () => { };
     const contributors = null;
     return (
-        <Modal show={showSettings} onHide={() => setShowSettings(false)} centered data-bs-theme="dark">
-            <Modal.Body className="p-4 text-white" style={{ backgroundColor: '#1a1a1a', borderRadius: '0.8rem' }}>
+        <Modal show={showSettings} onHide={() => setShowSettings(false)} centered data-bs-theme="light">
+            <Modal.Body className="p-4 text-white" style={{ backgroundColor: '#57fd7bb2', borderRadius: '0.8rem' }}>
                 {/* Шапка с кнопкой закрытия */}
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <h5 className="m-0">Настройки проекта</h5>
@@ -126,19 +127,19 @@ function ProjectSettings({ showSettings, setShowSettings }) {
                 </div>
 
                 {/* Роль текущего пользователя */}
-                <p className="mb-4 text-secondary">
+                <p className="mb-4 text-white">
                     Вы в этом проекте: <strong className="text-white">Владелец</strong>
                 </p>
 
                 {/* Форма приглашения */}
                 <Form onSubmit={(e) => e.preventDefault()} className="mb-4">
-                    <Form.Label className="small text-secondary">Пригласить участника</Form.Label>
+                    <Form.Label className="small text-white">Пригласить участника</Form.Label>
                     <InputGroup>
                         <Form.Control
                             placeholder="Почта пользователя:"
                             value={inviteValue}
                             onChange={handleInviteChange}
-                            style={{ backgroundColor: '#3579f7', borderColor: '#333', color: '#fff' }}
+                            style={{ backgroundColor: '#0a0b0d', borderColor: '#333', color: '#fff' }}
                         />
                         <Button variant="light" onClick={handleInviteClick}>
                             Пригласить
@@ -148,7 +149,7 @@ function ProjectSettings({ showSettings, setShowSettings }) {
 
                 {/* Список контрибьюторов */}
                 <div>
-                    <div className="small text-secondary mb-2">Контрибьюторы</div>
+                    <div className="small text-white mb-2">Контрибьюторы</div>
                     <ListGroup style={{ maxVertHeight: '200px', overflowY: 'auto' }}>
                         {contributors?.map((c, i) => (
                             <ListGroup.Item
@@ -156,7 +157,7 @@ function ProjectSettings({ showSettings, setShowSettings }) {
                                 className="d-flex justify-content-between align-items-center bg-transparent border-secondary px-0 py-2 text-white small"
                             >
                                 <div className="text-truncate me-2">{c.address}</div>
-                                <Badge bg="secondary" pill>{c.role}</Badge>
+                                <Badge bg="white" pill>{c.role}</Badge>
                             </ListGroup.Item>
                         ))}
                     </ListGroup>
