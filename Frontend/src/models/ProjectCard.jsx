@@ -1,4 +1,4 @@
-import { Col, Card, Button } from 'react-bootstrap';
+import { Col, Card, Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDBProjectMeta } from '../DataBaseHook';
@@ -11,12 +11,12 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
 
     const [name, setName] = useState(project.name);
     const [description, setDescription] = useState(project.description);
-    
+
     useEffect(() => {
         setName(project.name);
         setDescription(project.description);
     }, [project]);
-    
+
     async function onToggleEdit() {
         if (editMode) {
             const newProject = { ...project, name: name, description: description };
@@ -28,6 +28,18 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
         setEditMode(true)
     }
 
+
+    function handleEnterKey(e) {
+        if (e.key === "Enter")
+            onToggleEdit();
+    }
+
+    function handleDeleteClick() {
+        if (window.confirm("Вы уверены, что хотите удалить этот проект?")) {
+            onDelete();
+        }
+    };
+
     const avatarLetter = (name || "A").charAt(0).toUpperCase();
 
     return (
@@ -36,7 +48,7 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
             style={{ backgroundColor: '#FFFFFF', maxWidth: '280px', height: '100%' }}
         >
             <button
-                onClick={onDelete}
+                onClick={handleDeleteClick}
                 className="btn-close position-absolute top-0 end-0 m-3"
                 style={{ fontSize: '0.65rem', zIndex: 10 }}
                 aria-label="Delete project"
@@ -50,12 +62,16 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                     {project.icon || avatarLetter}
                 </div>
                 <div className="lh-sm overflow-hidden">
-                    {editMode ?
-                        <form>
-                            <label>
-                                <input type="text" value={name} onChange={e => setName(e.target.value)} className="form-control form-control-sm" />
-                            </label>
-                        </form>
+                    {editMode ? (
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            onKeyDown={handleEnterKey}
+                            className="form-control form-control-sm"
+                            autoFocus
+                        />
+                    )
                         :
                         <div className="fw-bold text-dark text-truncate" style={{ fontSize: '0.85rem' }}>{name}</div>
                     }
@@ -83,13 +99,15 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                     {project.subtitle || ""}
                 </Card.Subtitle>
 
-                {editMode ?
-                    <form>
-                        <label>
-                            <input type="text" value={description || ""} onChange={e => setDescription(e.target.value)} className="form-control form-control-sm" />
-                        </label>
-                    </form>
-                    :
+                {editMode ? (
+                    <input
+                        type="text"
+                        value={description || ""}
+                        onChange={e => setDescription(e.target.value)}
+                        onKeyDown={handleEnterKey}
+                        className="form-control form-control-sm mt-2"
+                    />
+                ) :
                     <Card.Text className="text-muted mb-3 text-wrap text-start" style={{ fontSize: '0.75rem', lineHeight: '1.3', height: '50px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
                         {description || ""}
                     </Card.Text>
@@ -117,7 +135,7 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                     </Button>
                 </div>
             </Card.Body>
-        </Card>
+        </Card >
     )
 }
 
