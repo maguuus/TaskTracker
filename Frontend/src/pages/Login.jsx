@@ -135,7 +135,7 @@ function Login() {
                             className="border-0 shadow-none text-white font-weight-bold px-4 py-1 small rounded-pill btn-sm"
                             style={{ backgroundColor: '#EC7A91', fontSize: '0.8rem' }}
                         >
-                            Залогиниться
+                            Log in
                         </Button>
 
                         <Button
@@ -144,7 +144,7 @@ function Login() {
                             className="text-decoration-none p-0 border-0 shadow-none font-weight-bold text-white opacity-75 small"
                             style={{ fontSize: '0.7rem' }}
                         >
-                            Зарегистрироваться
+                            Register
                         </Button>
                     </div>
                 </Form>
