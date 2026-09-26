@@ -52,8 +52,8 @@ function ProjectBoard({ name, id, ...rest }) {
     const [showSettings, setShowSettings] = useState(false);
 
     return (
-        <Container fluid className="py-5 position-relative" style={{ backgroundColor: '#bee0c6', minHeight: '100vh' }}>
-            <div className="text-center mb-5">
+        <Container fluid className="pt-4 px-4 position-relative" style={{ backgroundColor: '#bee0c6', minHeight: '100vh' }}>
+            <div className="text-center mb-3">
                 <h1 className="fw-bold mb-3" style={{ color: '#212121' }}>Проект <mark>{name}</mark></h1>
 
                 <Button

@@ -96,7 +96,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
     return (
         <Card style={{
             backgroundColor: getColumnBg(column.title),
-            height: 'calc(100vh - 150px)',
+            height: 'calc(100vh - 200px)',
             display: 'flex',
             flexDirection: 'column',
             borderRadius: '24px',
