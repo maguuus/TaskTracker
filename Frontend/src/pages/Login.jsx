@@ -111,7 +111,7 @@ function Login() {
                     <InputGroup className="mb-4 overflow-hidden rounded-2 border-0 bg-white">
                         <Form.Control
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••••••"
+                            placeholder="Your password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="border-0 shadow-none ps-3 py-2 text-muted-50 small"

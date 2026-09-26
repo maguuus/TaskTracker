@@ -63,7 +63,8 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                 columnId: column.id
             };
             await patch(updatedTask);
-            window.location.reload();
+            onColumnUpdate(column);
+            window.location.reload(); // ломает т.к. перезагрузка сбивает react router, нужно починить nginx
         }
     };
 
