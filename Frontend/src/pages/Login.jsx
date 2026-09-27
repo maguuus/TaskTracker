@@ -1,45 +1,8 @@
 import { Container, Form, Button, InputGroup } from 'react-bootstrap'
 import { useEffect, useState } from 'react'
-import { useUser } from '../context/UserContext'
+import useUser from '../context/UserContext'
 import { useDBUser } from '../hooks/DataBaseHook';
 import api from '../api';
-
-
-// const projectMeta1 = {
-//     id: 0,
-//     name: "Project 1",
-//     icon: '📁',
-//     header: 'Head1',
-//     subhead: 'Субголова',
-//     imageAlt: 'Портрет  проекта',
-//     title: 'Титул',
-//     subtitle: 'Субтитул',
-//     bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-// };
-
-// const projectMeta2 = {
-//     id: 1,
-//     name: "Project 2",
-//     icon: '📁',
-//     header: 'Head2',
-//     subhead: 'Субголова',
-//     imageAlt: 'Портрет  проекта',
-//     title: 'Титул',
-//     subtitle: 'Субтитул',
-//     bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-// };
-
-// const projectMeta3 = {
-//     id: 2,
-//     name: "Project 3",
-//     icon: '📁',
-//     header: 'Head3',
-//     subhead: 'Субголова',
-//     imageAlt: 'Портрет  проекта',
-//     title: 'Титул',
-//     subtitle: 'Субтитул',
-//     bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-// };
 
 const mockUser = (email) => ({
     id: 1,

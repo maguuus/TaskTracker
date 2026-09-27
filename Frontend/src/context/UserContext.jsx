@@ -14,6 +14,8 @@ export function UserProvider({ children }) {
     );
 }
 
-export function useUser() {
+function useUser() {
     return useContext(UserContext);
 }
+
+export default useUser;

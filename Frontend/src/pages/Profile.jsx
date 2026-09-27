@@ -1,13 +1,13 @@
-import {Container, Card, Button, Form, Alert} from 'react-bootstrap';
-import { useUser } from '../context/UserContext';
+import { Container, Card, Button, Form, Alert } from 'react-bootstrap';
+import useUser from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import {useState} from "react";
-import {useDBUser} from "../DataBaseHook.jsx";
+import { useState } from "react";
+import { useDBUser } from "../hooks/DataBaseHook";
 
 function Profile() {
     const [currentUser, setCurrentUser] = useUser();
     const navigate = useNavigate();
-    
+
     const [, , , changePassword] = useDBUser();
 
     const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -15,7 +15,7 @@ function Profile() {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState({ text: '', type: '' });
-    
+
     function onLogout() {
         localStorage.removeItem("token");
         setCurrentUser(null);
@@ -42,13 +42,13 @@ function Profile() {
         }
     }
 
-        return (
+    return (
         <div style={{ backgroundColor: '#fcfaf2', minHeight: '100vh', width: '100vw', paddingTop: '4rem', margin: 0 }}>
             <Container style={{ maxWidth: '600px' }}>
-                <Card 
-                    className="border-0 shadow-sm" 
-                    style={{ 
-                        backgroundColor: '#e4d9c9', 
+                <Card
+                    className="border-0 shadow-sm"
+                    style={{
+                        backgroundColor: '#e4d9c9',
                         borderRadius: '24px',
                         color: '#333333'
                     }}
@@ -76,8 +76,8 @@ function Profile() {
                             >
                                 {showPasswordForm ? 'Отменить' : 'Сменить пароль'}
                             </Button>
-                            <Button 
-                                variant="danger" 
+                            <Button
+                                variant="danger"
                                 className="rounded-pill px-4"
                                 onClick={onLogout}
                             >
@@ -125,9 +125,9 @@ function Profile() {
                                     />
                                 </Form.Group>
 
-                                <Button 
-                                    variant="dark" 
-                                    type="submit" 
+                                <Button
+                                    variant="dark"
+                                    type="submit"
                                     className="w-100 rounded-pill py-2 mt-2"
                                     style={{ backgroundColor: '#212121', border: 'none' }}
                                 >
