@@ -1,4 +1,4 @@
-import { Col, Card, Badge, Button } from 'react-bootstrap';
+import { Col, Card, Badge, Button, Dropdown } from 'react-bootstrap';
 import { useColumns } from '../context/BoardContext';
 import { useColumn } from '../context/BoardHooks';
 import Task from './Task';
@@ -17,9 +17,13 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
 
     const getColumnBg = (title) => {
         const t = title.toLowerCase();
-        if (t.includes('do') || t.includes('дел')) return '#fdeca6';
-        if (t.includes('progress') || t.includes('ход')) return '#ebd0ff';
-        return '#ffd2d2';
+        if (t.includes('do') || t.includes('дел')) {
+            return '#FFDE6A';
+        }
+        if (t.includes('progress') || t.includes('ход')) {
+            return '#FFA6B4';
+        }
+        return '#C79EFF'; 
     };
 
     async function toggleEditMode() {
@@ -31,32 +35,98 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
         setEditMode(false);
     }
 
+    function handleEnterKey(e) {
+        if (e.key === "Enter")
+            toggleEditMode();
+    }
+
+    function handleDeleteClick() {
+        if (window.confirm("Вы уверены, что хотите удалить эту колонку?")) {
+            onColumnDelete();
+        }
+    };
+
     function newTask(column) {
         const id = column.tasks.length != 0 ? Math.max(...column.tasks.map(t => t.orderIndex)) + 1 : 0;
         const newTask = {
             columnId: column.id,
             orderIndex: id,
-            title: `Текст оглавление ${id}`,
-            description: `Тело текста ${id}`
+            title: `Task head ${id + 1}`,
+            description: `Task body ${id + 1}`
         }
         return newTask;
     }
 
+
+    const [columns, setColumns] = useColumns(); 
+
+    const handleDragOver = (e) => e.preventDefault();
+
+    const handleDrop = async (e) => {
+        e.preventDefault();
+        
+        if (window.__draggedTaskInstance && window.__draggedTaskInstance.columnId !== column.id) {
+            const taskToMove = window.__draggedTaskInstance;
+            const updatedTask = {
+                ...taskToMove,
+                columnId: column.id
+            };
+            await patch(updatedTask);
+            setColumns(prevColumns => {
+                return prevColumns.map(col => {
+                    if (col.id === taskToMove.columnId) {
+                        return {
+                            ...col,
+                            tasks: col.tasks.filter(t => t.id !== taskToMove.id)
+                        };
+                    }
+                    if (col.id === column.id) {
+                        return {
+                            ...col,
+                            tasks: [...col.tasks, updatedTask]
+                        };
+                    }
+                    return col;
+                });
+            });
+        }
+    };
+
+
     return (
         <Card style={{
             backgroundColor: getColumnBg(column.title),
-            height: 'calc(100vh - 150px)',
+            height: 'calc(100vh - 200px)',
             display: 'flex',
             flexDirection: 'column',
-            borderRadius: '50px',
+            borderRadius: '24px',
             border: 'none',
-            padding: '20px 10px',
-            boxShadow: 'none'
+            padding: '20px 14px',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)'
         }}>
             <Card.Header className="bg-transparent border-0 text-center py-2">
-                <h3 className="mb-0 d-flex align-items-center justify-content-center w-100 fw-normal" style={{ color: '#2e7d32' }}>
+                <Dropdown className="position-absolute" style={{ top: '0.5rem', right: '0.5rem' }} align="end">
+                    <Dropdown.Toggle
+                        variant="link"
+                        className="text-secondary p-0 border-0 shadow-none no-caret"
+                        style={{ fontSize: '1.2rem', textDecoration: 'none' }}
+                    >
+                        ⋮
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu variant="dark">
+                        <Dropdown.Item onClick={toggleEditMode}>
+                            {editMode ? 'Сохранить' : 'Переименовать'}
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={handleDeleteClick} className="text-danger">
+                            Удалить
+                        </Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
+
+                <h3 className="mb-0 d-flex align-items-center justify-content-center w-100 fw-normal" style={{ color: '#212121' }}>
                     {editMode ? (
-                        <input type="text" size="8" value={title} onChange={e => setTitle(e.target.value)} />
+                        <input type="text" size="8" value={title} onChange={e => setTitle(e.target.value)} onKeyDown={handleEnterKey} />
                     ) : (
                         column.title
                     )}
@@ -67,20 +137,37 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                 </h3>
 
                 <div className="d-flex justify-content-center gap-1 mt-2">
-                    <Button variant='primary' size="sm" onClick={async () => { let t = await post(newTask(column)); addTask(t); }}>+</Button>
-                    <Button variant='outline-secondary' size="sm" onClick={toggleEditMode}>Edit</Button>
-                    <Button variant='dark' size="sm" onClick={onColumnDelete}>-</Button>
+                    <Button 
+                    variant='light'
+                    className="rounded-circle shadow-sm border d-flex align-items-center justify-content-center mx-auto" 
+                    style={{ 
+                        width: '36px', 
+                        height: '36px', 
+                        fontSize: '1.2rem', 
+                        color: '#2e7d32', 
+                        borderColor: '#2e7d32' 
+                    }} 
+                    onClick={async () => { let t = await post(newTask(column)); addTask(t); }}
+                >
+                    +
+                </Button>
                 </div>
             </Card.Header>
 
-            <Card.Body style={{ overflowY: 'auto', padding: '10px' }}>
+            <Card.Body
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                style={{ overflowY: 'auto', padding: '10px' }}
+            >
                 {column.tasks.map((task) => (
-                    <Task
-                        key={task.id}
-                        task={task}
-                        onTaskUpdate={async (t) => { await patch(t); updateTask(t); }}
-                        onTaskDelete={async () => { await remove(task); removeTask(task); }}
-                    />
+                    <div key={task.id} onDragStart={() => { window.__draggedTaskInstance = task; }}>
+                        <Task
+                            key={task.id}
+                            task={task}
+                            onTaskUpdate={async (t) => { await patch(t); updateTask(t); }}
+                            onTaskDelete={async () => { await remove(task); removeTask(task); }}
+                        />
+                    </div>
                 ))}
             </Card.Body>
         </Card>

@@ -78,8 +78,8 @@ function Login() {
     return (
         <Container
             fluid
-            className="d-flex align-items-center justify-content-center"
-            style={{ backgroundColor: '#FBCED5', minHeight: '100vh', width: '100vw' }}
+            className="d-flex align-items-start justify-content-center"
+            style={{ backgroundColor: '#FBCED5', minHeight: '100vh', width: '100vw', paddingTop: '150px'}}
         >
             <div
                 className="p-5 text-center d-flex flex-column justify-content-center align-items-center shadow-sm"
@@ -111,7 +111,7 @@ function Login() {
                     <InputGroup className="mb-4 overflow-hidden rounded-2 border-0 bg-white">
                         <Form.Control
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••••••"
+                            placeholder="Your password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="border-0 shadow-none ps-3 py-2 text-muted-50 small"
@@ -135,7 +135,7 @@ function Login() {
                             className="border-0 shadow-none text-white font-weight-bold px-4 py-1 small rounded-pill btn-sm"
                             style={{ backgroundColor: '#EC7A91', fontSize: '0.8rem' }}
                         >
-                            Залогиниться
+                            Log in
                         </Button>
 
                         <Button
@@ -144,7 +144,7 @@ function Login() {
                             className="text-decoration-none p-0 border-0 shadow-none font-weight-bold text-white opacity-75 small"
                             style={{ fontSize: '0.7rem' }}
                         >
-                            Зарегистрироваться
+                            Register
                         </Button>
                     </div>
                 </Form>
