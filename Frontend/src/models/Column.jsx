@@ -1,10 +1,14 @@
-import { Col, Card, Badge, Button, Dropdown } from 'react-bootstrap';
+import { Card, Badge, Button, Dropdown } from 'react-bootstrap';
 import { useColumns } from '../context/BoardContext';
 import { useColumn } from '../context/BoardHooks';
 import Task from './Task';
 import { useState } from 'react';
 import { useDBTask } from '../hooks/DataBaseHook';
 
+/**
+ * @param {Object} props
+ * @param {Column} props.column
+*/
 
 function Column({ column, onColumnUpdate, onColumnDelete }) {
 
@@ -126,7 +130,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
 
                 <h3 className="mb-0 d-flex align-items-center justify-content-center w-100 fw-normal" style={{ color: '#212121' }}>
                     {editMode ? (
-                        <input type="text" size="8" value={title} onChange={e => setTitle(e.target.value)} onKeyDown={handleEnterKey} />
+                        <input type="text" size={8} value={title} onChange={e => setTitle(e.target.value)} onKeyDown={handleEnterKey} />
                     ) : (
                         column.title
                     )}
@@ -164,7 +168,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                         <Task
                             key={task.id}
                             task={task}
-                            onTaskUpdate={async (t) => { await patch(t); updateTask(t); }}
+                            onTaskUpdate={async (/** @type {Task} */ t) => { await patch(t); updateTask(t); }}
                             onTaskDelete={async () => { await remove(task); removeTask(task); }}
                         />
                     </div>

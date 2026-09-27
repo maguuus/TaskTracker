@@ -1,6 +1,11 @@
 import {Card, Button, Modal, Form, Badge, Col, Row} from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 
+/**
+ * @param {Object} props
+ * @param {Task} props.task
+ */
+
 function Task({ task, onTaskUpdate, onTaskDelete }) {
     const [showModal, setShowModal] = useState(false);
 
@@ -159,7 +164,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         <div className="d-flex w-100 gap-2 align-items-center">
                             <Form.Control
                                 type="text"
-                                maxLength="2"
+                                maxLength={2}
                                 value={icon}
                                 onChange={(e) => setIcon(e.target.value)}
                                 placeholder="🚀"

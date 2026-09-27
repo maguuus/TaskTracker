@@ -1,10 +1,12 @@
 import { Modal, Form, Badge, InputGroup, ListGroup, Button } from 'react-bootstrap';
 import { useState } from 'react';
+import { useProject } from '../context/ProjectContext';
+import { useProjectMembers } from '../hooks/ProjectMemberHook';
 
 function ProjectContributors({ showSettings, setShowSettings }) {
+    const [currentProject, ] = useProject();
+    const [getProjectMembers, addProjectMember, removeProjectMember] = useProjectMembers();
     const [inviteValue, setInviteValue] = useState("");
-    const handleInviteClick = () => { };
-    const handleRemoveClick = () => { };
     /** @type {ProjectMember[]} */
     const contributors = [];
     return (
@@ -27,12 +29,11 @@ function ProjectContributors({ showSettings, setShowSettings }) {
 
                 {/* Роль текущего пользователя */}
                 <p className="mb-4 text-secondary small">
-                    Вы в этом проекте: <span className="badge fw-semibold ms-1" style={{ backgroundColor: '#c1f0c4', color: '#196f3d' }}>Владелец</span>
+                    Вы в этом проекте: <span className="badge fw-semibold ms-1" style={{ backgroundColor: '#c1f0c4', color: '#196f3d' }}>Владелец</span> {/* check role somehow idk*/}
                 </p>
 
                 {/* Форма приглашения */}
                 <Form onSubmit={(e) => e.preventDefault()} className="mb-4">
-                    {/* ЗАМЕНИЛИ text-white НА text-secondary */}
                     <Form.Label className="small text-secondary fw-semibold mb-2">Пригласить участника</Form.Label>
                     <InputGroup>
                         <Form.Control
@@ -48,7 +49,7 @@ function ProjectContributors({ showSettings, setShowSettings }) {
                         />
                         <Button
                             variant="dark"
-                            onClick={handleInviteClick}
+                            onClick={() => addProjectMember(currentProject, {email: inviteValue})}
                             style={{
                                 backgroundColor: '#212121',
                                 borderColor: '#212121',
@@ -75,7 +76,7 @@ function ProjectContributors({ showSettings, setShowSettings }) {
                                 <Badge bg="dark" className="fw-normal">{c.role}</Badge>
                                 <Button
                                     variant="dark"
-                                    onClick={handleRemoveClick}
+                                    onClick={() => removeProjectMember(c)}
                                     style={{
                                         backgroundColor: '#d11515',
                                         borderColor: '#212121',

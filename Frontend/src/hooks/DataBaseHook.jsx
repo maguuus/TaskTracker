@@ -1,15 +1,5 @@
 import api from '../api/index.js';
 
-async function requestDB(request) {
-    try {
-        const response = await request();
-        return response.data;
-    }
-    catch (error) {
-        throw error;
-    }
-}
-
 export function useDBUser() {
 
     async function login(user) {
@@ -35,13 +25,13 @@ export function useDBProjectMeta() {
     async function getMetas(id) {
         return (await api.get(`/api/projects/user/${id}`)).data;
     }
-    async function post(project) {
+    async function post(/** @type {Project} */ project) {
         return (await api.post(`/api/projects/`, project)).data;
     }
-    async function patch(project) {
+    async function patch(/** @type {Project} */ project) {
         return (await api.patch(`/api/projects/${project.id}`, project)).data;
     }
-    async function remove(project) {
+    async function remove(/** @type {Project} */ project) {
         return (await api.delete(`/api/projects/${project.id}`)).data;
     }
 
@@ -59,10 +49,10 @@ export function useDBColumn() {
     async function post(column) {
         return (await api.post(`/api/columns/`, column)).data;
     }
-    async function patch(column) {
+    async function patch(/** @type {Column} */ column) {
         return (await api.patch(`/api/columns/${column.id}`, column)).data;
     }
-    async function remove(column) {
+    async function remove(/** @type {Column} */ column) {
         return (await api.delete(`/api/columns/${column.id}`)).data;
     }
 
@@ -74,10 +64,10 @@ export function useDBTask() {
     async function post(task) {
         return (await api.post(`/api/tasks/`, task)).data;
     }
-    async function patch(task) {
+    async function patch(/** @type {Task} */ task) {
         return (await api.patch(`/api/tasks/${task.id}`, task)).data;
     }
-    async function remove(task) {
+    async function remove(/** @type {Task} */ task) {
         return (await api.delete(`/api/tasks/${task.id}`)).data;
     }
 
