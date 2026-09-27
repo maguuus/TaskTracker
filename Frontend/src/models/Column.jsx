@@ -17,9 +17,13 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
 
     const getColumnBg = (title) => {
         const t = title.toLowerCase();
-        if (t.includes('do') || t.includes('дел')) return '#fdeca6';
-        if (t.includes('progress') || t.includes('ход')) return '#ebd0ff';
-        return '#ffd2d2';
+        if (t.includes('do') || t.includes('дел')) {
+            return '#FFDE6A';
+        }
+        if (t.includes('progress') || t.includes('ход')) {
+            return '#FFA6B4';
+        }
+        return '#C79EFF'; 
     };
 
     async function toggleEditMode() {
@@ -92,13 +96,13 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
     return (
         <Card style={{
             backgroundColor: getColumnBg(column.title),
-            height: 'calc(100vh - 150px)',
+            height: 'calc(100vh - 200px)',
             display: 'flex',
             flexDirection: 'column',
-            borderRadius: '20px',
+            borderRadius: '24px',
             border: 'none',
-            padding: '20px 10px',
-            boxShadow: 'none'
+            padding: '20px 14px',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)'
         }}>
             <Card.Header className="bg-transparent border-0 text-center py-2">
                 <Dropdown className="position-absolute" style={{ top: '0.5rem', right: '0.5rem' }} align="end">
@@ -120,7 +124,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                     </Dropdown.Menu>
                 </Dropdown>
 
-                <h3 className="mb-0 d-flex align-items-center justify-content-center w-100 fw-normal" style={{ color: '#2e7d32' }}>
+                <h3 className="mb-0 d-flex align-items-center justify-content-center w-100 fw-normal" style={{ color: '#212121' }}>
                     {editMode ? (
                         <input type="text" size="8" value={title} onChange={e => setTitle(e.target.value)} onKeyDown={handleEnterKey} />
                     ) : (
@@ -133,7 +137,20 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                 </h3>
 
                 <div className="d-flex justify-content-center gap-1 mt-2">
-                    <Button variant='primary' size="sm" onClick={async () => { let t = await post(newTask(column)); addTask(t); }}>+</Button>
+                    <Button 
+                    variant='light'
+                    className="rounded-circle shadow-sm border d-flex align-items-center justify-content-center mx-auto" 
+                    style={{ 
+                        width: '36px', 
+                        height: '36px', 
+                        fontSize: '1.2rem', 
+                        color: '#2e7d32', 
+                        borderColor: '#2e7d32' 
+                    }} 
+                    onClick={async () => { let t = await post(newTask(column)); addTask(t); }}
+                >
+                    +
+                </Button>
                 </div>
             </Card.Header>
 
