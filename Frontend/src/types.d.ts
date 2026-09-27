@@ -23,7 +23,7 @@ interface User {
 interface Column {
     id: string;
     title: string;
-    // orderIndex: number;
+    orderIndex: number;
     tasks: Task[];
 }
 

@@ -14,6 +14,13 @@ export function ProjectProvider({ children }) {
     );
 }
 
+/** 
+ * @returns {[
+ * Project,
+ * (newProject: Project) => void
+ * ]}
+ */
+
 export function useProject() {
     return useContext(ProjectContext);
 }

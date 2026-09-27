@@ -1,14 +1,35 @@
 import { Modal, Form, Badge, InputGroup, ListGroup, Button } from 'react-bootstrap';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useProject } from '../context/ProjectContext';
 import { useProjectMembers } from '../hooks/ProjectMemberHook';
 
 function ProjectContributors({ showSettings, setShowSettings }) {
-    const [currentProject, ] = useProject();
+    const [currentProject,] = useProject();
     const [getProjectMembers, addProjectMember, removeProjectMember] = useProjectMembers();
     const [inviteValue, setInviteValue] = useState("");
+
     /** @type {ProjectMember[]} */
-    const contributors = [];
+    const initialContributors = [];
+    const [contributors, setContributors] = useState(initialContributors);
+
+    const [trigger, setTrigger] = useState(0);
+
+    useEffect(() => { // TODO хочется, чтобы бэк возвращал обновленный список пользователей после изменения.
+        async function fetchMembers() {
+            try {
+                const data = await getProjectMembers(currentProject);
+                setContributors(data);
+            } catch (error) {
+                console.error("Ошибка при загрузке участников проекта:", error);
+            }
+        }
+
+        if (currentProject?.id) {
+            fetchMembers();
+        }
+
+    }, [currentProject, trigger]);
+
     return (
         <Modal show={showSettings} onHide={() => setShowSettings(false)} centered data-bs-theme="light">
             <Modal.Body className="p-4" style={{ backgroundColor: '#ffffff', borderRadius: '1.2rem', color: '#212121' }}>
@@ -49,7 +70,7 @@ function ProjectContributors({ showSettings, setShowSettings }) {
                         />
                         <Button
                             variant="dark"
-                            onClick={() => addProjectMember(currentProject, {email: inviteValue})}
+                            onClick={() => { addProjectMember(currentProject, { email: inviteValue }); setTrigger(p => p + 1); }}
                             style={{
                                 backgroundColor: '#212121',
                                 borderColor: '#212121',
@@ -76,7 +97,7 @@ function ProjectContributors({ showSettings, setShowSettings }) {
                                 <Badge bg="dark" className="fw-normal">{c.role}</Badge>
                                 <Button
                                     variant="dark"
-                                    onClick={() => removeProjectMember(c)}
+                                    onClick={() => { removeProjectMember(c); setTrigger(p => p + 1); }}
                                     style={{
                                         backgroundColor: '#d11515',
                                         borderColor: '#212121',
