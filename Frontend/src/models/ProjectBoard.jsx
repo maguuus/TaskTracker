@@ -87,7 +87,7 @@ function ProjectBoard({ name, id, ...rest }) {
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem' }}>
                 <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }} className="justify-content-start align-items-stretch">
                     {columns.map((column) =>
-                        <Col key={column.id} style={{ minWidth: '350px', width: '350px', flexGrow: 0 }} className="me-3 h-100">
+                        <Col key={column.id} style={{ minWidth: '410px', width: '410px', flexGrow: 0 }} className="me-2 h-100">
                             <Column
                                 column={column}
                                 onColumnUpdate={async (c) => { await patch(c); updateColumn(c); }}

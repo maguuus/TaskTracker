@@ -78,8 +78,8 @@ function Login() {
     return (
         <Container
             fluid
-            className="d-flex align-items-center justify-content-center"
-            style={{ backgroundColor: '#FBCED5', minHeight: '100vh', width: '100vw' }}
+            className="d-flex align-items-start justify-content-center"
+            style={{ backgroundColor: '#FBCED5', minHeight: '100vh', width: '100vw', paddingTop: '150px'}}
         >
             <div
                 className="p-5 text-center d-flex flex-column justify-content-center align-items-center shadow-sm"
