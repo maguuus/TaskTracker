@@ -3,7 +3,7 @@ import { useColumns } from '../context/BoardContext';
 import { useColumn } from '../context/BoardHooks';
 import Task from './Task';
 import { useState } from 'react';
-import { useDBTask } from '../DataBaseHook';
+import { useDBTask } from '../hooks/DataBaseHook';
 
 
 function Column({ column, onColumnUpdate, onColumnDelete }) {

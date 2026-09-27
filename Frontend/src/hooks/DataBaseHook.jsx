@@ -1,4 +1,4 @@
-import api from './api/index.js';
+import api from '../api/index.js';
 
 async function requestDB(request) {
     try {

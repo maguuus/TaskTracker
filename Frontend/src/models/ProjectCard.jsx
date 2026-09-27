@@ -1,7 +1,7 @@
 import { Col, Card, Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { useDBProjectMeta } from '../DataBaseHook';
+import { useDBProjectMeta } from '../hooks/DataBaseHook';
 
 function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
 

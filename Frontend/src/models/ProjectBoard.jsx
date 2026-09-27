@@ -3,7 +3,7 @@ import Column from './Column';
 import { useColumns } from '../context/BoardContext';
 import { useBoard } from '../context/BoardHooks';
 import { useEffect } from 'react';
-import { useDBColumn } from '../DataBaseHook';
+import { useDBColumn } from '../hooks/DataBaseHook';
 import { useState } from 'react';
 import { Modal, Form, Badge, InputGroup, ListGroup } from 'react-bootstrap';
 

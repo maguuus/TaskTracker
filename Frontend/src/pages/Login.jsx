@@ -1,7 +1,7 @@
 import { Container, Form, Button, InputGroup } from 'react-bootstrap'
 import { useEffect, useState } from 'react'
 import { useUser } from '../context/UserContext'
-import { useDBUser } from '../DataBaseHook';
+import { useDBUser } from '../hooks/DataBaseHook';
 import api from '../api';
 
 
