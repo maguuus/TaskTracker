@@ -8,4 +8,5 @@ public class User
     public string Name{get;set;}
     //// Навигационные свойства для связей
     public ICollection<Project>? OwnedProjects { get; set; }
+    public ICollection<ProjectMember>? ProjectMemberships { get; set; } = new List<ProjectMember>();
 }

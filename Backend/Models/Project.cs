@@ -11,4 +11,6 @@ public class Project
     // Навигационные свойства для связей
     public ICollection<Column>? Columns { get; set; }
     public User? Owner { get; set; }
+
+    public ICollection<ProjectMember>? Members { get; set; } = new List<ProjectMember>();
 }
