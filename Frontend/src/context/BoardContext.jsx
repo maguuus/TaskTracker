@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useMemo } from 'react';
 
-const BoardContext = createContext();
+const BoardContext = createContext(null);
 
 export function BoardProvider({ children }) {
     const [columns, setColumns] = useState([]);
@@ -13,6 +13,14 @@ export function BoardProvider({ children }) {
         </BoardContext.Provider>
     );
 }
+
+/**
+ * @returns {[
+ * Column[],
+ * (columns: Column[]) => void
+ * ]}
+ * Setting new columns triggers updating App's root
+ */
 
 export function useColumns() {
     return useContext(BoardContext);
