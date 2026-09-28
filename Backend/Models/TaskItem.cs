@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Backend.Models;
 
 public class TaskItem
@@ -13,7 +15,10 @@ public class TaskItem
         
     public DateTime? DueDate { get; set; }
     public DateTime CreatedAt { get; set; }
+    
+    [ConcurrencyCheck]
     public DateTime UpdatedAt { get; set; }
+    
     public DateTime? PlannedStartAt { get; set; }
         
     public int OrderIndex { get; set; }

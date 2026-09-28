@@ -15,16 +15,20 @@ import api from '../api/index.js';
 export function useProjectMembers() {
 
     async function getProjectMembers(/** @type {Project} */ project) {
-        return api.get(`/api/projects/${project.id}/members`);
+        return (await api.get(`/api/projects/${project.id}/members`)).data;
     }
 
     async function addProjectMember(/** @type {Project} */ project, /** @type {AddProjectMemberDto} */ user) {
-        return api.post(`/api/projects/${project.id}/members`, user)
+        return (await api.post(`/api/projects/${project.id}/members`, user)).data;
     }
 
     async function removeProjectMember(/** @type {Project} */ project, /** @type {ProjectMember} */ member) {
-        return api.delete(`api/projects/${project.id}/${member.id}`);
+        return (await api.delete(`/api/projects/${project.id}/members/${member.userId || member.id}`)).data;
     }
 
-    return [getProjectMembers, addProjectMember, removeProjectMember];
+    async function updateMemberRole(project, memberId, newRole) {
+        return (await api.patch(`/api/projects/${project.id}/members/${memberId}`, { role: newRole })).data;
+    }
+
+    return [getProjectMembers, addProjectMember, removeProjectMember, updateMemberRole];
 }

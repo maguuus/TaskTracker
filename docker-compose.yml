@@ -17,6 +17,8 @@ services:
       interval: 2s
       timeout: 5s
       retries: 15
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     networks:
       - backend
 
@@ -25,6 +27,7 @@ services:
     build:
       context: ./Backend
     environment:
+#      SPNETCORE_ENVIRONMENT: "Development"
       ConnectionStrings__DefaultConnection: "Host=${POSTGRES_HOST:-postgres-db};Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
       CORS_ORIGIN: *frontend-url
       Jwt__Key: ${JWT_KEY}
