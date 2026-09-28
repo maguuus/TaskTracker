@@ -1,7 +1,7 @@
 // @ts-check
 import { Navigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react'
-import { useProject } from '../context/ProjectContext.jsx';
+import useProject from '../context/ProjectContext.jsx';
 import ProjectBoard from '../models/ProjectBoard.jsx';
 
 function Board() {

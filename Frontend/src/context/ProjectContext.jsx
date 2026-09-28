@@ -21,6 +21,6 @@ export function ProjectProvider({ children }) {
  * ]}
  */
 
-export function useProject() {
+export default function useProject() {
     return useContext(ProjectContext);
 }

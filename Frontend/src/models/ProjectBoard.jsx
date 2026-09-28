@@ -1,12 +1,12 @@
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import Column from './Column';
-import { useColumns } from '../context/BoardContext';
+import useColumns from '../context/BoardContext';
 import { useBoard } from '../context/BoardHooks';
 import { useEffect } from 'react';
 import { useDBColumn } from '../hooks/DataBaseHook';
 import { useState } from 'react';
 import ProjectContributors from '../components/ProjectContributorsPanel';
-import {useProject} from "../context/ProjectContext.jsx";
+import useProject from "../context/ProjectContext.jsx";
 
 
 function ProjectBoard({ name, id, ...rest }) {

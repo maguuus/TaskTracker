@@ -1,5 +1,5 @@
 import { Card, Badge, Button, Dropdown } from 'react-bootstrap';
-import { useColumns } from '../context/BoardContext';
+import useColumns from '../context/BoardContext';
 import { useColumn } from '../context/BoardHooks';
 import Task from './Task';
 import { useState } from 'react';

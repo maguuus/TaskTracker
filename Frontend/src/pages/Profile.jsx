@@ -3,6 +3,7 @@ import useUser from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { useDBUser } from "../hooks/DataBaseHook";
+import useProject from '../context/ProjectContext';
 
 function Profile() {
     const [currentUser, setCurrentUser] = useUser();
@@ -15,10 +16,12 @@ function Profile() {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState({ text: '', type: '' });
+    const [, setCurrentProject] = useProject(); // Проект остается в памяти даже для нового пользователя
 
     function onLogout() {
         localStorage.removeItem("token");
         setCurrentUser(null);
+        setCurrentProject(null);
         navigate('/login');
     }
 

@@ -1,6 +1,6 @@
 import { Modal, Form, Badge, InputGroup, ListGroup, Button } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
-import { useProject } from '../context/ProjectContext';
+import useProject from '../context/ProjectContext';
 import { useProjectMembers } from '../hooks/ProjectMemberHook';
 import useUser from "../context/UserContext.jsx";
 

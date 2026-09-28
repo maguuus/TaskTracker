@@ -22,6 +22,6 @@ export function BoardProvider({ children }) {
  * Setting new columns triggers updating App's root
  */
 
-export function useColumns() {
+export default function useColumns() {
     return useContext(BoardContext);
 }

@@ -2,7 +2,7 @@ import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import ProjectCard from '../models/ProjectCard.jsx';
-import { useProject } from '../context/ProjectContext.jsx';
+import useProject from '../context/ProjectContext.jsx';
 import useUser from '../context/UserContext.jsx';
 import { useProjectsMeta } from '../context/ProjectMetaHook.jsx';
 import { useDBProjectMeta } from '../hooks/DataBaseHook.jsx';

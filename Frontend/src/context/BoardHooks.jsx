@@ -1,4 +1,4 @@
-import { useColumns } from './BoardContext';
+import useColumns from './BoardContext';
 
 export function useBoard() {
     const [columns, setColumns] = useColumns();
