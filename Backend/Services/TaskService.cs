@@ -75,6 +75,8 @@ public class TaskService(AppDbContext context) : ITaskService
         {
             task.OrderIndex = taskDto.OrderIndex;//а типо нафиг это нужно? мы же никак не меняем
         }
+        
+        context.Entry(task).Property(t => t.UpdatedAt).OriginalValue = taskDto.UpdatedAt;
 
         task.Title = taskDto.Title;
         task.Description = taskDto.Description;

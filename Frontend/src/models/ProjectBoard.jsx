@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useDBColumn } from '../hooks/DataBaseHook';
 import { useState } from 'react';
 import ProjectContributors from '../components/ProjectContributorsPanel';
+import {useProject} from "../context/ProjectContext.jsx";
 
 
 function ProjectBoard({ name, id, ...rest }) {
@@ -15,6 +16,9 @@ function ProjectBoard({ name, id, ...rest }) {
     const [columns, setColumns] = useColumns();
     const [addColumn, updateColumn, removeColumn] = useBoard();
 
+    const [currentProject] = useProject();
+    const isViewer = currentProject?.role === "Viewer";
+    
     const newColumn = () => ({
         orderIndex: (columns[columns.length - 1]?.orderIndex ?? -1) + 1,
         title: `New Column`,
@@ -56,14 +60,16 @@ function ProjectBoard({ name, id, ...rest }) {
             <div className="text-center mb-3">
                 <h1 className="fw-bold mb-3" style={{ color: '#212121' }}>Проект <mark>{name}</mark></h1>
 
-                <Button
-                    variant="dark"
-                    className="rounded-pill px-4 shadow-sm"
-                    style={{ backgroundColor: '#212121' }}
-                    onClick={async () => { let c = await post(newColumn()); addColumn({ ...c, tasks: [] }); }}
-                >
-                    + Добавить колонку
-                </Button>
+                {!isViewer && (
+                    <Button
+                        variant="dark"
+                        className="rounded-pill px-4 shadow-sm"
+                        style={{ backgroundColor: '#212121' }}
+                        onClick={async () => { let c = await post(newColumn()); addColumn({ ...c, tasks: [] }); }}
+                    >
+                        + Добавить колонку
+                    </Button>
+                )}
             </div>
 
             <Button

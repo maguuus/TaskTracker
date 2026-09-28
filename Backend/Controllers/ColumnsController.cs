@@ -1,8 +1,10 @@
+using System.Security.Claims;
 using Backend.Data;
 using Backend.DTO;
 using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,14 +13,20 @@ namespace Backend.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ColumnsController(IColumnService columnService) : ControllerBase
+public class ColumnsController(IColumnService columnService, IProjectAccessService accessService) : ControllerBase
 {
+    private Guid CurrentUserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpGet("project/{projectId:guid}")]
     public async Task<ActionResult<IEnumerable<ColumnResponseDto>>> GetColumnsByProject(Guid projectId)
     {
+        if (!await accessService.CanViewProjectAsync(CurrentUserId, projectId))
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, "У вас нет доступа к этому проекту.");
+        }
+        
         var columns = await columnService.GetColumnsByProjectAsync(projectId);
-        return Ok(columns);
+        return Ok(columns);    
     }
     
     
@@ -26,35 +34,43 @@ public class ColumnsController(IColumnService columnService) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ColumnResponseDto>> CreateColumn(ColumnCreateDto columnDto)
     {
-        try{
+        if (!await accessService.CanEditProjectContentAsync(CurrentUserId, columnDto.ProjectId))
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, "Только Owner или Member могут добавлять колонки.");
+        }
+
+        try
+        {
             var columnResponseDto = await columnService.CreateColumnAsync(columnDto);
-            
             return Ok(columnResponseDto);
         }
-        catch(InvalidOperationException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        catch(InvalidOperationException ex) { return NotFound(ex.Message); }
     }
 
     [HttpPatch("{id:guid}")]
     public async Task<IActionResult> UpdateColumn(Guid id, ColumnUpdateDto columnDto)
     {
+        if (!await accessService.CanEditColumnAsync(CurrentUserId, id))
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, "Только Owner или Member могут редактировать колонки.");
+        }
+
         try
         {
             await columnService.UpdateColumnAsync(id, columnDto);
             return NoContent();
         }
-        catch (InvalidOperationException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        catch (InvalidOperationException ex) { return NotFound(ex.Message); }
     }
     
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteColumn(Guid id)
     {
+        if (!await accessService.CanEditColumnAsync(CurrentUserId, id))
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, "Только Owner или Member могут удалять колонки.");
+        }
         try
         {
             await columnService.DeleteColumnAsync(id);
@@ -62,7 +78,7 @@ public class ColumnsController(IColumnService columnService) : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return NotFound();
+            return NotFound(ex.Message);
         }
     }
 }

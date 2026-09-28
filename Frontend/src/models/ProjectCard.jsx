@@ -2,11 +2,12 @@ import { Col, Card, Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDBProjectMeta } from '../hooks/DataBaseHook';
+import useUser from "../context/UserContext.jsx";
 
 function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
-
-    const [getMetas, post, patch, remove] = useDBProjectMeta();
-
+    const [currentUser] = useUser();
+    const isOwner = project.role === "Owner" || project.ownerId === currentUser?.id;
+    
     const [editMode, setEditMode] = useState(false);
 
     const [name, setName] = useState(project.name);
@@ -18,48 +19,78 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
     }, [project]);
 
     async function onToggleEdit() {
+        if (!isOwner) return;
+
         if (editMode) {
-            const newProject = { ...project, name: name, description: description };
-            await onUpdate(newProject);
+            const updated = { ...project, name: name.trim(), description: description.trim() };
+            await onUpdate(updated);
             setEditMode(false);
             return;
         }
-
-        setEditMode(true)
+        setEditMode(true);
     }
 
-
-    function handleEnterKey(e) {
-        if (e.key === "Enter")
+    function handleKeyDown(e) {
+        if (e.key === "Enter") {
             onToggleEdit();
+        } else if (e.key === "Escape") {
+            setName(project.name);
+            setDescription(project.description);
+            setEditMode(false);
+        }
     }
 
     function handleDeleteClick() {
-        if (window.confirm("Вы уверены, что хотите удалить этот проект?")) {
+        if (window.confirm(`Вы уверены, что хотите удалить проект "${project.name}"?`)) {
             onDelete();
+        }
+    }
+
+    const getRoleBadge = (roleName) => {
+        switch (roleName) {
+            case 'Owner':
+                return { bg: '#E8F5E9', color: '#2E7D32', text: 'Владелец' };
+            case 'Member':
+                return { bg: '#E3F2FD', color: '#1565C0', text: 'Участник' };
+            case 'Viewer':
+            default:
+                return { bg: '#F5F5F5', color: '#616161', text: 'Наблюдатель' };
         }
     };
 
+    const role = project.role || (isOwner ? "Owner" : "Member");
+    const roleBadge = getRoleBadge(role);
     const avatarLetter = (name || "A").charAt(0).toUpperCase();
 
     return (
         <Card
             className="border-0 shadow-sm w-100 rounded-4 overflow-hidden position-relative"
             style={{ backgroundColor: '#FFFFFF', maxWidth: '280px', height: '100%' }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.08)';
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+            }}
         >
-            <button
-                onClick={handleDeleteClick}
-                className="btn-close position-absolute top-0 end-0 m-3"
-                style={{ fontSize: '0.65rem', zIndex: 10 }}
-                aria-label="Delete project"
-            ></button>
+            {isOwner && (
+                <button
+                    onClick={handleDeleteClick}
+                    className="btn-close position-absolute top-0 end-0 m-3"
+                    style={{ fontSize: '0.65rem', zIndex: 10 }}
+                    aria-label="Удалить проект"
+                    title="Удалить проект"
+                ></button>
+            )}
 
             <div className="d-flex align-items-center p-3 pb-2">
                 <div
                     className="d-flex align-items-center justify-content-center rounded-circle fw-bold me-2 flex-shrink-0"
                     style={{ backgroundColor: '#EBE4FA', color: '#5E17EB', width: '32px', height: '32px', fontSize: project.icon ? '1rem' : '0.8rem' }}
                 >
-                    {project.icon || avatarLetter}
+                    {avatarLetter}
                 </div>
                 <div className="lh-sm overflow-hidden">
                     {editMode ? (
@@ -67,15 +98,24 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                             type="text"
                             value={name}
                             onChange={e => setName(e.target.value)}
-                            onKeyDown={handleEnterKey}
+                            onKeyDown={handleKeyDown}
                             className="form-control form-control-sm"
                             autoFocus
                         />
-                    )
-                        :
+                    ) : (
                         <div className="fw-bold text-dark text-truncate" style={{ fontSize: '0.85rem' }}>{name}</div>
-                    }
-                    <div className="text-muted text-truncate" style={{ fontSize: '0.65rem' }}>{project.subhead || ""}</div>
+                    )}
+                    <span
+                        className="badge fw-medium px-2 py-1 mt-1"
+                        style={{
+                            backgroundColor: roleBadge.bg,
+                            color: roleBadge.color,
+                            fontSize: '0.65rem',
+                            borderRadius: '6px'
+                        }}
+                    >
+                        {roleBadge.text}
+                    </span>
                 </div>
             </div>
 
@@ -104,26 +144,28 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                         type="text"
                         value={description || ""}
                         onChange={e => setDescription(e.target.value)}
-                        onKeyDown={handleEnterKey}
+                        onKeyDown={handleKeyDown}
                         className="form-control form-control-sm mt-2"
+                        placeholder="Краткое описание проекта..."
                     />
                 ) :
                     <Card.Text className="text-muted mb-3 text-wrap text-start" style={{ fontSize: '0.75rem', lineHeight: '1.3', height: '50px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
-                        {description || ""}
+                        {description || "Описание отсутствует."}
                     </Card.Text>
                 }
 
                 <div className="d-flex justify-content-end gap-2 mt-auto pt-2">
-                    <Button
-                        variant="outline-secondary"
-                        size="sm"
-                        className="rounded-pill px-3 border text-muted fw-medium"
-                        style={{ fontSize: '0.7rem', borderColor: '#D3D3D3' }}
-                        onClick={onToggleEdit}
-                    >
+                    {isOwner && (
+                        <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            className="rounded-pill px-3 border text-muted fw-medium"
+                            style={{ fontSize: '0.7rem', borderColor: '#D3D3D3' }}
+                            onClick={onToggleEdit}
+                        >
                         {editMode ? "Сохранить" : "Изменить"}
                     </Button>
-
+                    )}
                     <Button
                         variant="dark"
                         size="sm"
