@@ -19,7 +19,6 @@ export function BoardProvider({ children }) {
  * Column[],
  * (columns: Column[]) => void
  * ]}
- * Setting new columns triggers updating App's root
  */
 
 export default function useColumns() {
