@@ -1,26 +1,13 @@
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+// @ts-check
 import { Navigate, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react'
-import { useProject } from '../context/ProjectContext.jsx';
+import { useEffect } from 'react'
+import useProject from '../context/ProjectContext.jsx';
 import ProjectBoard from '../models/ProjectBoard.jsx';
-import { BoardProvider } from '../context/BoardContext.jsx';
-
-function FetchProjectMeta(projectId) {
-    return ({
-        id: projectId,
-        icon: '📁',
-        header: 'Head1',
-        subhead: 'Субголова',
-        imageAlt: 'Портрет  проекта',
-        title: 'Титул',
-        subtitle: 'Субтитул',
-        bodyText: 'Лорем ипсум долор сит амет, консектетур адиписцинг элит, сед ду элисмод темпор.',
-    });
-}
 
 function Board() {
 
     const { projectId } = useParams();
+
     const [currentProject, setCurrentProject] = useProject();
 
     if (!projectId)

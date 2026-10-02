@@ -61,6 +61,22 @@ public class TaskService(AppDbContext context) : ITaskService
         var task = await context.TaskItems.FindAsync(id);
         if (task == null) 
             throw new InvalidOperationException("Task not found");
+        if (taskDto.ColumnId != task.ColumnId)
+        {
+            if (!await context.Columns.AnyAsync(x => x.Id == taskDto.ColumnId))
+                throw new InvalidOperationException("Target column not found");
+            int maxOrderIndex = await context.TaskItems.
+                Where(t => t.ColumnId == taskDto.ColumnId).
+                Select(t => (int?)t.OrderIndex)
+                .MaxAsync() ?? -1;
+            task.OrderIndex = maxOrderIndex + 1;
+        }
+        else
+        {
+            task.OrderIndex = taskDto.OrderIndex;//а типо нафиг это нужно? мы же никак не меняем
+        }
+        
+        context.Entry(task).Property(t => t.UpdatedAt).OriginalValue = taskDto.UpdatedAt;
 
         task.Title = taskDto.Title;
         task.Description = taskDto.Description;
@@ -68,7 +84,6 @@ public class TaskService(AppDbContext context) : ITaskService
         task.Urgency = taskDto.Urgency;
         task.Icon = taskDto.Icon;
         task.Tags = taskDto.Tags;
-        task.OrderIndex = taskDto.OrderIndex;
         task.ColumnId = taskDto.ColumnId;
         task.DueDate = taskDto.DueDate;
         task.PlannedStartAt = taskDto.PlannedStartAt;

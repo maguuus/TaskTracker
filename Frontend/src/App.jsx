@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 
-import { useProject } from './context/ProjectContext';
+import useProject from './context/ProjectContext';
 import Home from './pages/Home';
 import Board from './pages/Board';
 import Login from './pages/Login';
@@ -9,7 +9,7 @@ import Profile from './pages/Profile';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { GuestRoute } from './components/GuestRoute';
-import { useUser } from './context/UserContext';
+import useUser from './context/UserContext';
 
 const mock = {
     id: 1,

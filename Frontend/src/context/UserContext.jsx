@@ -14,6 +14,13 @@ export function UserProvider({ children }) {
     );
 }
 
-export function useUser() {
+/** 
+ * @returns {[
+ * User | null,
+ * (newUser: User) => void
+ * ]}
+ */
+
+export default function useUser() {
     return useContext(UserContext);
 }

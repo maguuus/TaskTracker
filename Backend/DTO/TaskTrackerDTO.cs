@@ -1,3 +1,5 @@
+using Backend.Models;
+
 namespace Backend.DTO;
 
 public record UserRegisterDto(string? Name, string Email, string Password);
@@ -6,7 +8,8 @@ public record UserResponseDto(Guid Id, string Name, string Email);
 
 public record ProjectCreateDto(string Name, Guid OwnerId, string? Description);
 public record ProjectUpdateDto(string Name, string? Description);
-public record ProjectResponseDto(Guid Id, string Name, Guid OwnerId, DateTime CreatedAt, string? Description);
+public record ProjectResponseDto(Guid Id, string Name, Guid OwnerId, DateTime CreatedAt, string? Description, ProjectRole Role);
+
 
 public record ColumnCreateDto(string? Title, int OrderIndex, Guid ProjectId);
 public record ColumnUpdateDto(string Title, int OrderIndex);
@@ -36,7 +39,8 @@ public record TaskUpdateDto(string Title,
     int OrderIndex, 
     Guid ColumnId, 
     DateTime? DueDate, 
-    DateTime? PlannedStartAt);
+    DateTime? PlannedStartAt,
+    DateTime UpdatedAt);
 
 public record TaskResponseDto(
     Guid Id, 
@@ -53,3 +57,7 @@ public record TaskResponseDto(
     DateTime? DueDate, 
     DateTime? PlannedStartAt);
     
+    
+public record AddProjectMemberDto(string Email, ProjectRole Role = ProjectRole.Member);
+public record UpdateMemberRoleDto(ProjectRole Role);
+public record ProjectMemberDto(Guid Id, Guid UserId, string Email, string Name, ProjectRole Role);

@@ -1,6 +1,11 @@
 import {Card, Button, Modal, Form, Badge, Col, Row} from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 
+/**
+ * @param {Object} props
+ * @param {Task} props.task
+ */
+
 function Task({ task, onTaskUpdate, onTaskDelete }) {
     const [showModal, setShowModal] = useState(false);
 
@@ -76,7 +81,30 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
     
     return (
         <>
-            <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white`} style={{ borderLeftWidth: '5px !important', borderRadius: '12px' }}>
+            <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white`}
+                style={{ 
+                    borderLeftWidth: '5px !important', 
+                    borderRadius: '12px',
+                    cursor: 'move',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                }}
+                draggable="true" 
+                onDragStart={(e) => {                   
+                    e.dataTransfer.setData("text/plain", task.id);
+                    e.currentTarget.style.opacity = '0.5';
+                }}
+                onDragEnd={(e) => {
+                    e.currentTarget.style.opacity = '1';
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.boxShadow = '0 .5rem 1rem rgba(0,0,0,.15)'; // Тень становится глубже
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'; // Возвращается на место
+                    e.currentTarget.style.boxShadow = '0 .125rem .25rem rgba(0,0,0,.075)'; // Тень становится обычной
+                }}
+            >
                 <Card.Body className="p-0 position-relative">
 
                     <button
@@ -136,7 +164,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         <div className="d-flex w-100 gap-2 align-items-center">
                             <Form.Control
                                 type="text"
-                                maxLength="2"
+                                maxLength={2}
                                 value={icon}
                                 onChange={(e) => setIcon(e.target.value)}
                                 placeholder="🚀"

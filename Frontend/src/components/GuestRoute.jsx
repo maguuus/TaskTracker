@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
+import useUser from '../context/UserContext';
 
 export function GuestRoute({ children }) {
     const [currentUser] = useUser();

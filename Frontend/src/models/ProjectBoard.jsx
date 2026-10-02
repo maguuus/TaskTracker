@@ -1,44 +1,13 @@
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import Column from './Column';
-import { useColumns } from '../context/BoardContext';
+import useColumns from '../context/BoardContext';
 import { useBoard } from '../context/BoardHooks';
 import { useEffect } from 'react';
-import { useDBColumn } from '../DataBaseHook';
+import { useDBColumn } from '../hooks/DataBaseHook';
+import { useState } from 'react';
+import ProjectContributors from '../components/ProjectContributorsPanel';
+import useProject from "../context/ProjectContext.jsx";
 
-var id = 0;
-function makeTask() { // testing only
-    id++;
-
-    return {
-        id: id,
-        title: `Текст оглавление ${id}`,
-        description: `Тело текста ${id}`
-    };
-}
-
-// (testing only)
-const mockcolumns = [
-    {
-        orderIndex: 1,
-        title: "To Do",
-        tasks: [
-            makeTask(),
-            makeTask(),
-        ]
-    },
-    {
-        id: 2,
-        title: "In Progress",
-        tasks: Array(5).fill().map((_) => makeTask())
-    },
-    {
-        id: 3,
-        title: "On Review",
-        tasks: [
-            makeTask(),
-        ]
-    }
-];
 
 function ProjectBoard({ name, id, ...rest }) {
 
@@ -47,6 +16,9 @@ function ProjectBoard({ name, id, ...rest }) {
     const [columns, setColumns] = useColumns();
     const [addColumn, updateColumn, removeColumn] = useBoard();
 
+    const [currentProject] = useProject();
+    const isViewer = currentProject?.role === "Viewer";
+    
     const newColumn = () => ({
         orderIndex: (columns[columns.length - 1]?.orderIndex ?? -1) + 1,
         title: `New Column`,
@@ -80,31 +52,63 @@ function ProjectBoard({ name, id, ...rest }) {
     if (!columns)
         return <h1>Loading Columns for {name}...</h1>
 
+
+    const [showSettings, setShowSettings] = useState(false);
+
     return (
-        <Container fluid className="py-5" style={{ backgroundColor: '#C1F0C4', minHeight: '100vh' }}>
-            <div className="text-center mb-5">
+        <Container fluid className="pt-4 px-4 position-relative" style={{ backgroundColor: '#bee0c6', minHeight: '100vh' }}>
+            <div className="text-center mb-3">
                 <h1 className="fw-bold mb-3" style={{ color: '#212121' }}>Проект <mark>{name}</mark></h1>
 
-                <Button
-                    variant="dark"
-                    className="rounded-pill px-4 shadow-sm"
-                    style={{ backgroundColor: '#212121' }}
-                    onClick={async () => { let c = await post(newColumn()); addColumn({...c, tasks: []}); }}
-                >
-                    + Добавить колонку
-                </Button>
+                {!isViewer && (
+                    <Button
+                        variant="dark"
+                        className="rounded-pill px-4 shadow-sm"
+                        style={{ backgroundColor: '#212121' }}
+                        onClick={async () => { let c = await post(newColumn()); addColumn({ ...c, tasks: [] }); }}
+                    >
+                        + Добавить колонку
+                    </Button>
+                )}
             </div>
 
+            <Button
+                variant="dark"
+                className="position-absolute d-flex align-items-center justify-content-center shadow-sm"
+                style={{
+                    top: '1.5rem',
+                    right: '1.5rem',
+                    width: '48px',
+                    height: '48px',
+                    backgroundColor: '#212121',
+                    borderRadius: '0.5rem',
+                    zIndex: 10,
+                }}
+                onClick={(e) => { e.stopPropagation(); setShowSettings(true); }}
+                aria-label="Настройки"
+            >
+                ⚙️
+            </Button>
+
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem' }}>
-                <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }}>
+                <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }} className="justify-content-start align-items-stretch">
                     {columns.map((column) =>
-                        <Col key={column.id} style={{ minWidth: '350px', width: '350px' }} className="me-3">
-                            <Column column={column} onColumnUpdate={async (c) => { await patch(c); updateColumn(c); }} onColumnDelete={async () => { await remove(column); removeColumn(column); }} />
-                        </Col>)}
+                        <Col key={column.id} style={{ minWidth: '410px', width: '410px', flexGrow: 0 }} className="me-2 h-100">
+                            <Column
+                                column={column}
+                                onColumnUpdate={async (c) => { await patch(c); updateColumn(c); }}
+                                onColumnDelete={async () => { await remove(column); removeColumn(column); }}
+                            />
+                        </Col>
+                    )}
                 </Row>
             </div>
-        </Container >
+
+            <ProjectContributors showSettings={showSettings} setShowSettings={setShowSettings} />
+        </Container>
     );
 }
+
+
 
 export default ProjectBoard
