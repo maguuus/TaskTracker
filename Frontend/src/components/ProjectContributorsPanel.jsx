@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Badge, Button, Form, InputGroup, ListGroup, Modal } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
 import useProject from '../context/ProjectContext';
 import useUser from "../context/UserContext.jsx";
 import { useProjectMembers } from '../hooks/ProjectMemberHook';
 
 function ProjectContributors({ showSettings, setShowSettings }) {
-    const [currentProject,] = useProject();
+    const navigate = useNavigate();
+    const [currentProject, setCurrentProject] = useProject();
     const [currentUser] = useUser();
     const [getProjectMembers, addProjectMember, removeProjectMember] = useProjectMembers();
     /** @type {ProjectMember[]} */
@@ -42,7 +44,9 @@ function ProjectContributors({ showSettings, setShowSettings }) {
             try {
                 await removeProjectMember(currentProject, member);
                 if (isSelf) {
-                    window.location.href = "/";
+                    setCurrentProject(null);
+                    setShowSettings(false);
+                    navigate("/");
                 } else {
                     setTrigger(p => p + 1);
                 }

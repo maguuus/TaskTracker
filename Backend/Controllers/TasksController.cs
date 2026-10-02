@@ -60,8 +60,8 @@ public class TasksController(ITaskService taskService, IProjectAccessService acc
         }
         try
         {
-            await taskService.UpdateTaskAsync(id, taskDto);
-            return NoContent();
+            var updatedTask = await taskService.UpdateTaskAsync(id, taskDto);
+            return Ok(updatedTask);
         }
         catch (DbUpdateConcurrencyException)
         {

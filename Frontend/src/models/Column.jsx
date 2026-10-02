@@ -74,24 +74,35 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
                 ...taskToMove,
                 columnId: column.id
             };
-            await patch(updatedTask);
-            setColumns(prevColumns => {
-                return prevColumns.map(col => {
-                    if (col.id === taskToMove.columnId) {
-                        return {
-                            ...col,
-                            tasks: col.tasks.filter(t => t.id !== taskToMove.id)
-                        };
-                    }
-                    if (col.id === column.id) {
-                        return {
-                            ...col,
-                            tasks: [...col.tasks, updatedTask]
-                        };
-                    }
-                    return col;
+            try {
+                const savedTask = await patch(updatedTask);
+                const finalTask = savedTask || updatedTask;
+                window.__draggedTaskInstance = finalTask;
+                setColumns(prevColumns => {
+                    return prevColumns.map(col => {
+                        if (col.id === taskToMove.columnId) {
+                            return {
+                                ...col,
+                                tasks: col.tasks.filter(t => t.id !== taskToMove.id)
+                            };
+                        }
+                        if (col.id === column.id) {
+                            return {
+                                ...col,
+                                tasks: [...col.tasks, finalTask]
+                            };
+                        }
+                        return col;
+                    });
                 });
-            });
+            } catch (error) {
+                if (error.response?.status === 409) {
+                    alert("Задача была изменена другим участником. Доска будет обновлена.");
+                    window.location.reload();
+                } else {
+                    alert(error.response?.data || "Не удалось переместить задачу");
+                }
+            }
         }
     };
 
@@ -138,7 +149,7 @@ function ColumnCard({
     remove,
     removeTask
 }) {
-    return <Card style={{
+    return (<Card style={{
         backgroundColor: getColumnBg(column.title),
         height: 'calc(100vh - 200px)',
         display: 'flex',
@@ -198,20 +209,34 @@ function ColumnCard({
             </div>
         </Card.Header>
 
-        <Card.Body
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            style={{ overflowY: 'auto', padding: '10px' }}
-        >
-            {column.tasks.map((task) => (
-                <div key={task.id} onDragStart={() => { window.__draggedTaskInstance = task; }}>
-                    <Task
-                        key={task.id}
-                        task={task}
-                        onTaskUpdate={async (/** @type {Task} */ t) => { await patch(t); updateTask(t); }}
-                        onTaskDelete={async () => { await remove(task); removeTask(task); }} />
-                </div>
-            ))}
-        </Card.Body>
-    </Card>;
+            <Card.Body
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                style={{ overflowY: 'auto', padding: '10px' }}
+            >
+                {column.tasks.map((task) => (
+                    <div key={task.id} onDragStart={() => { window.__draggedTaskInstance = task; }}>
+                        <Task
+                            key={task.id}
+                            task={task}
+                            onTaskUpdate={async (/** @type {Task} */ t) => {
+                                try {
+                                    const saved = await patch(t);
+                                    updateTask(saved || t);
+                                } catch (error) {
+                                    if (error.response?.status === 409) {
+                                        alert("Задача была изменена другим участником прямо сейчас. Доска будет обновлена.");
+                                        window.location.reload();
+                                    } else {
+                                        alert(error.response?.data || "Ошибка при сохранении задачи");
+                                    }
+                                }
+                            }}
+                            onTaskDelete={async () => { await remove(task); removeTask(task); }}
+                        />
+                    </div>
+                ))}
+            </Card.Body>
+        </Card>
+    );
 }
