@@ -1,5 +1,5 @@
 import axios from "axios";
-import signalr from "@microsoft/signalr"
+import * as signalr from "@microsoft/signalr"
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
