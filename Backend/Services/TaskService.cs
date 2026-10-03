@@ -56,7 +56,7 @@ public class TaskService(AppDbContext context) : ITaskService
             task.DueDate, 
             task.PlannedStartAt);
     }
-    public async Task<bool> UpdateTaskAsync(Guid id, TaskUpdateDto taskDto)
+    public async Task<TaskResponseDto> UpdateTaskAsync(Guid id, TaskUpdateDto taskDto)
     {
         var task = await context.TaskItems.FindAsync(id);
         if (task == null) 
@@ -89,8 +89,25 @@ public class TaskService(AppDbContext context) : ITaskService
         task.PlannedStartAt = taskDto.PlannedStartAt;
         task.UpdatedAt = DateTime.UtcNow;
 
+        var now = DateTime.UtcNow;
+        task.UpdatedAt = new DateTime(now.Ticks - (now.Ticks % TimeSpan.TicksPerMillisecond), DateTimeKind.Utc);
+        
         await context.SaveChangesAsync();
-        return true;
+        
+        return new TaskResponseDto(
+            task.Id,
+            task.Title,
+            task.Description,
+            task.Priority,
+            task.Urgency,
+            task.Icon,
+            task.Tags,
+            task.OrderIndex,
+            task.ColumnId,
+            task.CreatedAt,
+            task.UpdatedAt,
+            task.DueDate,
+            task.PlannedStartAt);
     }
     public async Task<bool> DeleteTaskAsync(Guid id)
     {

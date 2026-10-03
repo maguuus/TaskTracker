@@ -5,6 +5,7 @@ interface Project { // CHECK!
     name: string;
     ownerId: string;
     timestamp: string;
+    role: string; // "Owner" | "Member" | "Guest"
 }
 
 interface ProjectMember {
@@ -35,5 +36,4 @@ interface Task {
     priority: string;
     urgency: string;
     dueDate: string;
-
 }

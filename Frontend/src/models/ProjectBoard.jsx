@@ -1,7 +1,7 @@
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import Column from './Column';
 import useColumns from '../context/BoardContext';
-import { useBoard } from '../context/BoardHooks';
+import { useBoard } from '../hooks/BoardHooks';
 import { useEffect } from 'react';
 import { useDBColumn } from '../hooks/DataBaseHook';
 import { useState } from 'react';
