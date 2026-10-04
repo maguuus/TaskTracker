@@ -161,12 +161,12 @@ function ColumnCard({
 }) {
     return (<Card style={{
         backgroundColor: getColumnBg(column.title),
-        height: 'calc(100vh - 200px)',
+        height: 'calc(110vh - 200px)',
         display: 'flex',
         flexDirection: 'column',
         borderRadius: '24px',
         border: 'none',
-        padding: '20px 14px',
+        padding: '13px 10px',
         boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)'
     }}>
         <Card.Header className="bg-transparent border-0 text-center py-2">
@@ -237,7 +237,12 @@ function ColumnCard({
                                     }
                                 }
                             }}
-                            onTaskDelete={async () => { await remove(task); removeTask(task); }}
+                            onTaskDelete={async () => { 
+                                if (window.confirm("Вы уверены, что хотите удалить эту задачу?")) {
+                                    await remove(task); 
+                                    removeTask(task); 
+                                }
+                            }}
                         />
                     </div>
                 ))}

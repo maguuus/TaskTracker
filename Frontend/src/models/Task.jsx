@@ -135,23 +135,6 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         {task.description || "Нет описания"}
                     </div>
 
-                    {/* <button
-                        className="btn-close position-absolute"
-                        aria-label="Close"
-                        onClick={onTaskDelete}
-                        style={{ top: '12px', right: '12px', width: '0.5rem', height: '0.5rem' }}
-                    ></button> */}
-
-                    {/* <div className="d-flex align-items-center mb-2 pe-5">
-                        {task.icon && <span className="fs-5 me-2">{task.icon}</span>}
-                        <h6 className="mb-0 fw-bold m-0 text-truncate">{task.title}</h6>
-                    </div>
-
-                    {/* Добавлен класс pe-5, чтобы описание не заезжало под кнопки */}
-                    {/* <div className="text-muted small mb-3 text-truncate pe-5">
-                        {task.description || "Нет описания"}
-                    </div> */}
-
                     {/* <div className="d-flex flex-wrap gap-1 mb-3">
                         {task.tags && task.tags.length > 0 ? (
                             task.tags.map((tag, idx) => (
