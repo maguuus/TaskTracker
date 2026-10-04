@@ -198,7 +198,7 @@ function TaskModal({ showModal,
     handleSave,
     icon,
     setIcon,
-    title,
+    title, // перенести внутрь TaskModal
     setTitle,
     priority,
     setPriority,

@@ -162,7 +162,6 @@ function ContributorsList({ contributors, currentUser, handleRemove }) {
         <ListGroup style={{ maxHeight: '200px', overflowY: 'auto' }}>
             {contributors.map((c, i) => {
                 const isSelf = c.userId === currentUser?.id || c.id === currentUser?.id;
-                // const badge = getRoleBadgeColor ? getRoleBadgeColor(c.role) : null;
                 return (
                     <ListGroup.Item
                         key={c.userId || c.id || i}
