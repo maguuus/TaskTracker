@@ -180,6 +180,9 @@ function ColumnCard({
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu variant="dark">
+                    <Dropdown.Item onClick={async () => { let t = await post(newTask(column)); addTask(t); }}>
+                        Добавить задачу
+                    </Dropdown.Item>
                     <Dropdown.Item onClick={handleDeleteClick} className="text-danger">
                         Удалить
                     </Dropdown.Item>
@@ -208,22 +211,7 @@ function ColumnCard({
                 </Badge>
             </h3>
 
-            <div className="d-flex justify-content-center gap-1 mt-2">
-                <Button
-                    variant='light'
-                    className="rounded-circle shadow-sm border d-flex align-items-center justify-content-center mx-auto"
-                    style={{
-                        width: '36px',
-                        height: '36px',
-                        fontSize: '1.2rem',
-                        color: '#2e7d32',
-                        borderColor: '#2e7d32'
-                    }}
-                    onClick={async () => { let t = await post(newTask(column)); addTask(t); }}
-                >
-                    +
-                </Button>
-            </div>
+            
         </Card.Header>
 
             <Card.Body

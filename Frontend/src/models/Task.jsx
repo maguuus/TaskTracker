@@ -107,21 +107,50 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
             >
                 <Card.Body className="p-0 position-relative">
 
-                    <button
+                    <div className="d-flex align-items-start justify-content-between mb-2">
+                        <div className="d-flex align-items-center text-truncate me-2">
+                            {task.icon && <span className="fs-5 me-2">{task.icon}</span>}
+                            <h6 className="mb-0 fw-bold m-0 text-truncate">{task.title}</h6>
+                        </div>
+
+                        <div className="d-flex align-items-center gap-2 flex-shrink-0">
+                            <Button
+                                variant="secondary d-inline-flex focus-ring focus-ring-secondary px-2 text-decoration-none border rounded-2"
+                                style={{ paddingTop: '3px', paddingBottom: '3px' }}
+                                size="sm"
+                                onClick={() => setShowModal(true)}
+                            >
+                                Детали
+                            </Button>
+                            <button
+                                className="btn-close"
+                                aria-label="Close"
+                                onClick={onTaskDelete}
+                                style={{ width: '0.5rem', height: '0.5rem' }}
+                            ></button>
+                        </div>
+                    </div>
+
+                    <div className="text-muted small mb-1 text-truncate">
+                        {task.description || "Нет описания"}
+                    </div>
+
+                    {/* <button
                         className="btn-close position-absolute"
                         aria-label="Close"
                         onClick={onTaskDelete}
                         style={{ top: '12px', right: '12px', width: '0.5rem', height: '0.5rem' }}
-                    ></button>
+                    ></button> */}
 
-                    <div className="d-flex align-items-center mb-2 pe-4">
+                    {/* <div className="d-flex align-items-center mb-2 pe-5">
                         {task.icon && <span className="fs-5 me-2">{task.icon}</span>}
-                        <h6 className="mb-0 fw-bold m-0">{task.title}</h6>
+                        <h6 className="mb-0 fw-bold m-0 text-truncate">{task.title}</h6>
                     </div>
 
-                    <div className="text-muted small mb-3 text-truncate">
+                    {/* Добавлен класс pe-5, чтобы описание не заезжало под кнопки */}
+                    {/* <div className="text-muted small mb-3 text-truncate pe-5">
                         {task.description || "Нет описания"}
-                    </div>
+                    </div> */}
 
                     {/* <div className="d-flex flex-wrap gap-1 mb-3">
                         {task.tags && task.tags.length > 0 ? (
@@ -136,7 +165,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                     </div> */}
 
                     {(task.priority || task.dueDate) && (
-                        <div className="d-flex justify-content-between text-muted small mb-3 fw-bold">
+                        <div className="d-flex justify-content-between text-muted small mb-1 fw-bold">
                             {task.priority && <span>⚡ {task.priority}</span>}
                             {displayDate && (
                                 <span className={isOverdue ? 'text-danger' : 'text-primary'}>
@@ -146,7 +175,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         </div>
                     )}
 
-                    <div className="d-flex justify-content-end">
+                    {/* <div className="d-flex justify-content-end">
                         <Button
                             variant="secondary d-inline-flex focus-ring focus-ring-secondary py-1 px-2 text-decoration-none border rounded-2"
                             size="sm"
@@ -154,7 +183,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         >
                             Детали
                         </Button>
-                    </div>
+                    </div> */}
                 </Card.Body>
             </Card>
 
