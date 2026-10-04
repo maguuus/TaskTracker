@@ -4,7 +4,7 @@ using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Services;
 
-public class ProjectService(AppDbContext context) : IProjectService
+public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNotifier) : IProjectService
 {
     public async Task<IEnumerable<ProjectResponseDto>> GetProjectsByUserAsync(Guid userId)
     {
@@ -37,7 +37,10 @@ public class ProjectService(AppDbContext context) : IProjectService
             Role = ProjectRole.Owner
         });
         await context.SaveChangesAsync();
-        return new ProjectResponseDto(project.Id, project.Name, project.OwnerId, project.CreatedAt, project.Description, ProjectRole.Owner);
+
+        var response = new ProjectResponseDto(project.Id, project.Name, project.OwnerId, project.CreatedAt, project.Description, ProjectRole.Owner);
+        await realtimeNotifier.NotifyStateChangedAsync("project", "created", new { project = response });
+        return response;
     }
     public async Task<bool> UpdateProjectAsync(Guid id, ProjectUpdateDto projectDto)
     {
@@ -49,6 +52,7 @@ public class ProjectService(AppDbContext context) : IProjectService
         project.Description = projectDto.Description;
         
         await context.SaveChangesAsync();
+        await realtimeNotifier.NotifyStateChangedAsync("project", "updated", new { projectId = id, project = projectDto });
         return true;
     }
     
@@ -61,6 +65,7 @@ public class ProjectService(AppDbContext context) : IProjectService
         context.Projects.Remove(project);
         await context.SaveChangesAsync();
 
+        await realtimeNotifier.NotifyStateChangedAsync("project", "deleted", new { projectId = id });
         return true;
     }
     
@@ -100,7 +105,9 @@ public class ProjectService(AppDbContext context) : IProjectService
         context.ProjectMembers.Add(member);
         await context.SaveChangesAsync();
 
-        return new ProjectMemberDto(user.Id, user.Id, user.Email, user.Name, member.Role);
+        var payload = new ProjectMemberDto(user.Id, user.Id, user.Email, user.Name, member.Role);
+        await realtimeNotifier.NotifyStateChangedAsync("projectMember", "created", new { projectId, member = payload });
+        return payload;
     }
 
     public async Task<IEnumerable<ProjectMemberDto>> GetMembersAsync(Guid projectId, Guid currentUserId)
@@ -142,6 +149,7 @@ public class ProjectService(AppDbContext context) : IProjectService
 
         member.Role = dto.Role;
         await context.SaveChangesAsync();
+        await realtimeNotifier.NotifyStateChangedAsync("projectMember", "updated", new { projectId, memberId, role = dto.Role });
         return true;
     }
 
@@ -168,6 +176,7 @@ public class ProjectService(AppDbContext context) : IProjectService
 
         context.ProjectMembers.Remove(member);
         await context.SaveChangesAsync();
+        await realtimeNotifier.NotifyStateChangedAsync("projectMember", "deleted", new { projectId, memberId });
         return true;
     }
 }

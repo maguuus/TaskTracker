@@ -4,7 +4,7 @@ using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Services;
 
-public class ColumnService(AppDbContext context) : IColumnService
+public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotifier) : IColumnService
 {
     public async Task<IEnumerable<ColumnResponseDto>> GetColumnsByProjectAsync(Guid projectId)
     {
@@ -31,7 +31,9 @@ public class ColumnService(AppDbContext context) : IColumnService
         context.Columns.Add(column);
         await context.SaveChangesAsync();
 
-        return new ColumnResponseDto(column.Id, column.Title, column.OrderIndex, column.ProjectId);
+        var response = new ColumnResponseDto(column.Id, column.Title, column.OrderIndex, column.ProjectId);
+        await realtimeNotifier.NotifyStateChangedAsync("column", "created", new { column = response });
+        return response;
     }
     public async Task<bool> UpdateColumnAsync(Guid id, ColumnUpdateDto columnDto)
     {
@@ -42,6 +44,7 @@ public class ColumnService(AppDbContext context) : IColumnService
         column.Title = columnDto.Title;
         column.OrderIndex = columnDto.OrderIndex;
         await context.SaveChangesAsync();
+        await realtimeNotifier.NotifyStateChangedAsync("column", "updated", new { columnId = id, column = columnDto });
         return true;
     }
     public async Task<bool> DeleteColumnAsync(Guid id)
@@ -53,6 +56,7 @@ public class ColumnService(AppDbContext context) : IColumnService
         context.Columns.Remove(column);
         await context.SaveChangesAsync();
 
+        await realtimeNotifier.NotifyStateChangedAsync("column", "deleted", new { columnId = id });
         return true;
     }
 }
