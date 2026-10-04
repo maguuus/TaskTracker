@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useMemo } from 'react';
-import hub from '../api/index.js';
+import { hub } from '../api/index.js';
 
 const UserContext = createContext();
 
@@ -11,6 +11,7 @@ export function UserProvider({ children }) {
     useEffect(() => {
         if(!currentUser) return;
         hub.start().catch(console.error);
+        // Добавить отписку при переподключении
         return () => { hub.stop(); };
     }, [currentUser?.id]);
 
