@@ -32,16 +32,26 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
 
     async function toggleEditMode() {
         if (editMode === false) {
+            setTitle(column.title);
             setEditMode(true);
             return;
         }
-        await onColumnUpdate({ ...column, title: title });
+        if (title.trim() && title.trim() !== column.title) {
+            await onColumnUpdate({ ...column, title: title.trim() });
+        } else {
+            setTitle(column.title);
+        }
         setEditMode(false);
     }
 
-    function handleEnterKey(e) {
-        if (e.key === "Enter")
-            toggleEditMode();
+    async function handleKeyDown(e) {
+        if (e.key === "Enter") {
+            await toggleEditMode();
+        }
+        if (e.key === "Escape") {
+            setTitle(column.title);
+            setEditMode(false);
+        }
     }
 
     function handleDeleteClick() {
@@ -114,7 +124,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
             editMode={editMode}
             handleDeleteClick={handleDeleteClick}
             title={title} setTitle={setTitle}
-            handleEnterKey={handleEnterKey}
+            handleEnterKey={handleKeyDown}
             post={post} newTask={newTask}
             addTask={addTask}
             handleDragOver={handleDragOver}
@@ -170,9 +180,6 @@ function ColumnCard({
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu variant="dark">
-                    <Dropdown.Item onClick={toggleEditMode}>
-                        {editMode ? 'Сохранить' : 'Переименовать'}
-                    </Dropdown.Item>
                     <Dropdown.Item onClick={handleDeleteClick} className="text-danger">
                         Удалить
                     </Dropdown.Item>
@@ -181,9 +188,19 @@ function ColumnCard({
 
             <h3 className="mb-0 d-flex align-items-center justify-content-center w-100 fw-normal" style={{ color: '#212121' }}>
                 {editMode ? (
-                    <input type="text" size={8} value={title} onChange={e => setTitle(e.target.value)} onKeyDown={handleEnterKey} />
+                    <input 
+                        type="text" 
+                        size={8} 
+                        value={title} 
+                        onChange={e => setTitle(e.target.value)} 
+                        onKeyDown={handleEnterKey}
+                        onBlur={toggleEditMode}
+                        autoFocus
+                    />
                 ) : (
-                    column.title
+                    <span onClick={toggleEditMode} style={{ cursor: 'pointer' }}>
+                        {column.title}
+                    </span>
                 )}
 
                 <Badge bg="secondary" className="ms-2 fs-6 rounded-circle">
