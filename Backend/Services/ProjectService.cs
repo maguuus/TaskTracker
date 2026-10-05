@@ -13,7 +13,14 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
 
     public async Task<IEnumerable<ProjectResponseDto>> GetProjectsByUserAsync(Guid userId)
     {
-        return await context.Projects
+        if (userId == Guid.Empty)
+            throw new ArgumentException("ID добавленного пользователя не может быть пустым.", nameof(userId));
+
+        var userExists = await context.Users.AsNoTracking().AnyAsync(u => u.Id == userId);
+        if (!userExists)
+            throw new InvalidOperationException("User not found.");
+
+        return await context.Projects.AsNoTracking()
             .Where(p => p.OwnerId == userId || p.Members.Any(m => m.UserId == userId))
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => new ProjectResponseDto(p.Id, p.Name, p.OwnerId, p.CreatedAt, p.Description, p.OwnerId == userId 
@@ -76,6 +83,18 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
     
     public async Task<ProjectMemberDto> AddMemberAsync(Guid projectId, Guid currentUserId, AddProjectMemberDto dto)
     {
+        if (projectId == Guid.Empty)
+            throw new ArgumentException("Id проекта не может быть пустым.", nameof(projectId));
+
+        if (currentUserId == Guid.Empty)
+            throw new ArgumentException("Id текущего пользователя не может быть пустым.", nameof(currentUserId));
+
+        if (dto is null)
+            throw new ArgumentNullException(nameof(dto));
+
+        if (string.IsNullOrWhiteSpace(dto.Email))
+            throw new InvalidOperationException("Почта не может быть пустой.");
+
         var project = await context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
         if (project == null)
             throw new InvalidOperationException("Проект не найден.");

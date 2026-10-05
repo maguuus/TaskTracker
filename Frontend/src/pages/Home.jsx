@@ -5,6 +5,7 @@ import ProjectCard from '../models/ProjectCard.jsx';
 import useProject from '../context/ProjectContext.jsx';
 import useUser from '../context/UserContext.jsx';
 import { useMYProjectsMeta } from '../context/ProjectMetaHook.jsx';
+import { useDBProjectMeta } from '../hooks/DataBaseHook.jsx';
 import { hub } from '../api/index.js';
 
 const newProject = (ownerId) => ({
@@ -16,16 +17,18 @@ const newProject = (ownerId) => ({
 function Home() {
     const navigate = useNavigate();
 
+    const [getMetas, post, patch, remove] = useDBProjectMeta();
     const [currentProject, setCurrentProject] = useProject();
     const [currentUser, setCurrentUser] = useUser();
-    const [createProjectMeta, updateProjectMeta, removeProjectMeta, loadProjectMeta] = useMYProjectsMeta();
+    const [createProjectMeta, updateProjectMeta, removeProjectMeta, setProjectsMeta] = useMYProjectsMeta();
 
     useEffect(() => {
         async function fetchProjects() {
             if (!currentUser?.id) return;
 
             try {
-                await loadProjectMeta(); // Загружает в пользователя сам
+                const response = await getMetas(currentUser.id);
+                setProjectsMeta(response);
             }
             catch (error) {
                 throw error;
@@ -35,6 +38,7 @@ function Home() {
         fetchProjects();
     }, [currentUser?.id]);
 
+    // --- Обработка событий из вебсокета ---
     useEffect(() => {
         if (!currentUser?.id) return;
 
@@ -46,30 +50,22 @@ function Home() {
 
             if (entityType === 'project') {
                 if (action === 'created' && payload?.project) {
-                    setCurrentUser(prev => ({
-                        ...prev,
-                        projects: [...(prev?.projects ?? []), payload.project],
-                    }));
+                    createProjectMeta(payload.project);
                     return;
                 }
 
                 if (action === 'deleted' && payload?.projectId) {
-                    setCurrentUser(prev => ({
-                        ...prev,
-                        projects: (prev?.projects ?? []).filter(project => project.id !== payload.projectId),
-                    }));
+                    removeProjectMeta({ id: payload.projectId });
                     return;
                 }
 
                 if (action === 'updated' && payload?.projectId) {
-                    setCurrentUser(prev => ({ // Вернуть хук для взаимодействия в useMyProjectsMeta
-                        ...prev,
-                        projects: (prev?.projects ?? []).map(project =>
-                            project.id === payload.projectId
-                                ? { ...project, ...payload.project }
-                                : project
-                        ),
-                    }));
+                    const currentProjectRecord = (currentUser?.projects ?? []).find(project => project.id === payload.projectId);
+                    updateProjectMeta({
+                        ...(currentProjectRecord ?? {}),
+                        ...payload.project,
+                        id: payload.projectId,
+                    });
                     return;
                 }
             }
@@ -77,14 +73,22 @@ function Home() {
             if (entityType === 'projectMember') {
                 const memberId = payload?.memberId ?? payload?.member?.userId ?? payload?.member?.id;
                 const projectId = payload?.projectId;
-
+                
                 if ((action === 'created' || action === 'updated') && memberId === currentUser.id) {
-                    await loadProjectMeta(); // Скачивать один конкретный проект по id
+                    const refreshedProjects = await getMetas(currentUser.id);
+                    setProjectsMeta(refreshedProjects);
                     return;
                 }
 
-                if ((action === 'deleted' && memberId === currentUser.id) || (action === 'deleted' && projectId && !(currentUser.projects ?? []).some(project => project.id === projectId))) {
-                    await loadProjectMeta(); // Скачивать один конкретный проект по id
+                if (action === 'deleted' && memberId === currentUser.id) {
+                    const refreshedProjects = await getMetas(currentUser.id);
+                    setProjectsMeta(refreshedProjects);
+                    return;
+                }
+
+                if (action === 'deleted' && projectId && !(currentUser.projects ?? []).some(project => project.id === projectId)) {
+                    const refreshedProjects = await getMetas(currentUser.id);
+                    setProjectsMeta(refreshedProjects);
                     return;
                 }
             }
@@ -95,7 +99,9 @@ function Home() {
         return () => {
             hub.off('stateChanged', handleStateChanged);
         };
-    }, [currentUser?.id, currentUser?.projects, loadProjectMeta, setCurrentUser]);
+    }, [currentUser?.id, currentUser?.projects, createProjectMeta, updateProjectMeta, removeProjectMeta, getMetas, setCurrentUser]);
+    // --- Конец обработки событйи из веб сокета ---
+
 
     function onProjectCardClicked(project) {
         setCurrentProject(project);
@@ -121,7 +127,10 @@ function Home() {
                     variant="dark"
                     className="position-absolute end-0 rounded-circle d-flex align-items-center justify-content-center shadow-sm"
                     style={{ backgroundColor: '#5E17EB', borderColor: '#5E17EB', width: '45px', height: '45px', fontSize: '1.5rem', paddingBottom: '5px' }}
-                    onClick={async () => { await createProjectMeta(newProject(currentUser.id)); }}
+                    onClick={async () => {
+                        const savedProject = await post(newProject(currentUser.id));
+                        createProjectMeta(savedProject);
+                    }}
                 >
                     +
                 </Button>
@@ -134,8 +143,14 @@ function Home() {
                             <ProjectCard
                                 project={project}
                                 onChoose={() => onProjectCardClicked(project)}
-                                onDelete={async () => { await removeProjectMeta(project); }}
-                                onUpdate={async (p) => { await updateProjectMeta(p); }}
+                                onDelete={async () => {
+                                    await remove(project);
+                                    removeProjectMeta(project);
+                                }}
+                                onUpdate={async (p) => {
+                                    await patch(p);
+                                    updateProjectMeta(p);
+                                }}
                             />
                         </Col>)
                     : <div className="text-center text-white opacity-75 fs-5 mt-4">Создайте новый проект!</div>

@@ -1,33 +1,17 @@
-import { useDBProjectMeta } from '../hooks/DataBaseHook.jsx';
 import useUser from './UserContext';
 
 export function useMYProjectsMeta() {
     const [currentUser, setCurrentUser] = useUser();
-    const [getMetas, post, patch, remove] = useDBProjectMeta();
 
-    async function loadProjectMeta() {
-        if (!currentUser?.id) return [];
-
-        const response = await getMetas(currentUser.id);
-        setCurrentUser(prevUser => ({
-            ...prevUser,
-            projects: response,
-        }));
-
-        return response;
-    }
-
-    async function createProjectMeta(newProject) {
-        const savedProject = await post(newProject);
+    function createProjectMeta(newProject) {
         setCurrentUser(prev => ({
             ...prev,
-            projects: [...(prev?.projects ?? []), savedProject],
+            projects: [...(prev?.projects ?? []), newProject],
         }));
-        return savedProject;
+        return newProject;
     }
 
-    async function updateProjectMeta(updatedProject) {
-        await patch(updatedProject);
+    function updateProjectMeta(updatedProject) {
         setCurrentUser(prev => ({
             ...prev,
             projects: (prev?.projects ?? []).map(p => p.id === updatedProject.id ? updatedProject : p),
@@ -35,8 +19,7 @@ export function useMYProjectsMeta() {
         return updatedProject;
     }
 
-    async function removeProjectMeta(projectToDelete) {
-        await remove(projectToDelete);
+    function removeProjectMeta(projectToDelete) {
         setCurrentUser(prev => ({
             ...prev,
             projects: (prev?.projects ?? []).filter(p => p.id !== projectToDelete.id),
@@ -44,5 +27,13 @@ export function useMYProjectsMeta() {
         return projectToDelete;
     }
 
-    return [createProjectMeta, updateProjectMeta, removeProjectMeta, loadProjectMeta];
+    function setProjectsMeta(projects) {
+        setCurrentUser(prev => ({
+            ...prev,
+            projects: projects,
+        }));
+        return projects;
+    }
+
+    return [createProjectMeta, updateProjectMeta, removeProjectMeta, setProjectsMeta];
 }

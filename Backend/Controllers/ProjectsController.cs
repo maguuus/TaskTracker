@@ -26,8 +26,20 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
         {
             return Forbid("Вы можете просматривать только свои проекты.");
         }
-        var projects = await projectService.GetProjectsByUserAsync(userId); 
-        return Ok(projects);
+
+        try
+        {
+            var projects = await projectService.GetProjectsByUserAsync(userId);
+            return Ok(projects);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
     
     [HttpPost]
@@ -100,6 +112,10 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
         {
             var member = await projectService.AddMemberAsync(id, CurrentUserId, dto);
             return Ok(member);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
         }
         catch (UnauthorizedAccessException ex) { return StatusCode(StatusCodes.Status403Forbidden, ex.Message); }
         catch (InvalidOperationException ex) { return BadRequest(ex.Message); }
