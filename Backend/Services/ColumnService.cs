@@ -1,11 +1,16 @@
+using System.Security.Claims;
 using Backend.DTO;
 using Backend.Data;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Services;
 
-public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotifier) : IColumnService
+public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotifier, IHttpContextAccessor httpContextAccessor) : IColumnService
 {
+    private Guid? CurrentUserId => Guid.TryParse(httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)
+        ? userId
+        : null;
+
     public async Task<IEnumerable<ColumnResponseDto>> GetColumnsByProjectAsync(Guid projectId)
     {
         var columns = await context.Columns
@@ -32,7 +37,7 @@ public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotif
         await context.SaveChangesAsync();
 
         var response = new ColumnResponseDto(column.Id, column.Title, column.OrderIndex, column.ProjectId);
-        await realtimeNotifier.NotifyStateChangedAsync("column", "created", new { column = response });
+        await realtimeNotifier.NotifyStateChangedAsync("column", "created", new { column = response }, CurrentUserId);
         return response;
     }
     public async Task<bool> UpdateColumnAsync(Guid id, ColumnUpdateDto columnDto)
@@ -44,7 +49,7 @@ public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotif
         column.Title = columnDto.Title;
         column.OrderIndex = columnDto.OrderIndex;
         await context.SaveChangesAsync();
-        await realtimeNotifier.NotifyStateChangedAsync("column", "updated", new { columnId = id, column = columnDto });
+        await realtimeNotifier.NotifyStateChangedAsync("column", "updated", new { columnId = id, column = columnDto }, CurrentUserId);
         return true;
     }
     public async Task<bool> DeleteColumnAsync(Guid id)
@@ -56,7 +61,7 @@ public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotif
         context.Columns.Remove(column);
         await context.SaveChangesAsync();
 
-        await realtimeNotifier.NotifyStateChangedAsync("column", "deleted", new { columnId = id });
+        await realtimeNotifier.NotifyStateChangedAsync("column", "deleted", new { columnId = id }, CurrentUserId);
         return true;
     }
 }

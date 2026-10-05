@@ -5,7 +5,7 @@ namespace Backend.Services;
 
 public class RealtimeNotifier(IHubContext<TaskTrackerHub> hubContext) : IRealtimeNotifier
 {
-    public Task NotifyStateChangedAsync(string entityType, string action, object payload)
+    public Task NotifyStateChangedAsync(string entityType, string action, object payload, Guid? currentUserId = null)
     {
         var message = new
         {
@@ -15,11 +15,20 @@ public class RealtimeNotifier(IHubContext<TaskTrackerHub> hubContext) : IRealtim
             payload,
             timestamp = DateTime.UtcNow
         };
+
+        if (currentUserId is Guid userId)
+        {
+            var excludedConnectionIds = TaskTrackerHub.GetConnectionIdsForUser(userId.ToString()).ToList();
+            if (excludedConnectionIds.Count > 0)
+            {
+                return hubContext.Clients.AllExcept(excludedConnectionIds).SendAsync("stateChanged", message);
+            }
+        }
 
         return hubContext.Clients.All.SendAsync("stateChanged", message);
     }
 
-    public Task NotifyProjectStateChangedAsync(Guid projectId, string entityType, string action, object payload)
+    public Task NotifyProjectStateChangedAsync(Guid projectId, string entityType, string action, object payload, Guid? currentUserId = null)
     {
         var message = new
         {
@@ -27,9 +36,19 @@ public class RealtimeNotifier(IHubContext<TaskTrackerHub> hubContext) : IRealtim
             entityType,
             action,
             payload,
+            projectId,
             timestamp = DateTime.UtcNow
         };
 
-        return hubContext.Clients.Group($"project-{projectId}").SendAsync("stateChanged", message);
+        if (currentUserId is Guid userId)
+        {
+            var excludedConnectionIds = TaskTrackerHub.GetConnectionIdsForUser(userId.ToString()).ToList();
+            if (excludedConnectionIds.Count > 0)
+            {
+                return hubContext.Clients.AllExcept(excludedConnectionIds).SendAsync("stateChanged", message);
+            }
+        }
+
+        return hubContext.Clients.All.SendAsync("stateChanged", message);
     }
 }

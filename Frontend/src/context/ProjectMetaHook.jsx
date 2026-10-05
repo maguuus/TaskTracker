@@ -6,7 +6,7 @@ export function useMYProjectsMeta() {
     const [getMetas, post, patch, remove] = useDBProjectMeta();
 
     async function loadProjectMeta() {
-        if (!currentUser.id) return [];
+        if (!currentUser?.id) return [];
 
         const response = await getMetas(currentUser.id);
         setCurrentUser(prevUser => ({

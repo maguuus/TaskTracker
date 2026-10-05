@@ -1,10 +1,11 @@
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import ProjectCard from '../models/ProjectCard.jsx';
 import useProject from '../context/ProjectContext.jsx';
 import useUser from '../context/UserContext.jsx';
 import { useMYProjectsMeta } from '../context/ProjectMetaHook.jsx';
+import { hub } from '../api/index.js';
 
 const newProject = (ownerId) => ({
     ownerId: ownerId,
@@ -33,6 +34,68 @@ function Home() {
 
         fetchProjects();
     }, [currentUser?.id]);
+
+    useEffect(() => {
+        if (!currentUser?.id) return;
+
+        const handleStateChanged = async (message) => {
+            if (!message || message.type !== 'stateChanged') return;
+
+            const { entityType, action, payload } = message;
+            if (!['project', 'projectMember'].includes(entityType)) return;
+
+            if (entityType === 'project') {
+                if (action === 'created' && payload?.project) {
+                    setCurrentUser(prev => ({
+                        ...prev,
+                        projects: [...(prev?.projects ?? []), payload.project],
+                    }));
+                    return;
+                }
+
+                if (action === 'deleted' && payload?.projectId) {
+                    setCurrentUser(prev => ({
+                        ...prev,
+                        projects: (prev?.projects ?? []).filter(project => project.id !== payload.projectId),
+                    }));
+                    return;
+                }
+
+                if (action === 'updated' && payload?.projectId) {
+                    setCurrentUser(prev => ({ // Вернуть хук для взаимодействия в useMyProjectsMeta
+                        ...prev,
+                        projects: (prev?.projects ?? []).map(project =>
+                            project.id === payload.projectId
+                                ? { ...project, ...payload.project }
+                                : project
+                        ),
+                    }));
+                    return;
+                }
+            }
+
+            if (entityType === 'projectMember') {
+                const memberId = payload?.memberId ?? payload?.member?.userId ?? payload?.member?.id;
+                const projectId = payload?.projectId;
+
+                if ((action === 'created' || action === 'updated') && memberId === currentUser.id) {
+                    await loadProjectMeta(); // Скачивать один конкретный проект по id
+                    return;
+                }
+
+                if ((action === 'deleted' && memberId === currentUser.id) || (action === 'deleted' && projectId && !(currentUser.projects ?? []).some(project => project.id === projectId))) {
+                    await loadProjectMeta(); // Скачивать один конкретный проект по id
+                    return;
+                }
+            }
+        };
+
+        hub.on('stateChanged', handleStateChanged);
+
+        return () => {
+            hub.off('stateChanged', handleStateChanged);
+        };
+    }, [currentUser?.id, currentUser?.projects, loadProjectMeta, setCurrentUser]);
 
     function onProjectCardClicked(project) {
         setCurrentProject(project);
