@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Backend.Data;
 using Backend.DTO;
@@ -16,13 +17,27 @@ namespace Backend.Controllers;
 [Authorize]
 public class ProjectsController(IProjectService projectService, IProjectAccessService accessService) : ControllerBase
 {
-    private Guid CurrentUserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    
+    private Guid? GetCurrentUserId()
+    {
+        var rawUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(rawUserId))
+        {
+            rawUserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        }
+
+        return Guid.TryParse(rawUserId, out var userId) ? userId : null;
+    }
+
     [HttpGet("user/{userId:guid}")]
     public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> GetProjectsByUser(Guid userId)
     {
-        var tokenUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId != CurrentUserId)
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId is null)
+        {
+            return Unauthorized("Некорректный токен пользователя.");
+        }
+
+        if (userId != currentUserId.Value)
         {
             return Forbid("Вы можете просматривать только свои проекты.");
         }
@@ -41,27 +56,33 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
             return NotFound(ex.Message);
         }
     }
-    
+
     [HttpPost]
     public async Task<ActionResult<ProjectResponseDto>> CreateProject(ProjectCreateDto projectDto)
     {
-        // var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        // if (!Guid.TryParse(userIdString, out var userId))
-        // {
-        //     return Unauthorized("Invalid token.");
-        // }
-        
-        var secureDto = projectDto with { OwnerId = CurrentUserId };
-        
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId is null)
+        {
+            return Unauthorized("Некорректный токен пользователя.");
+        }
+
+        var secureDto = projectDto with { OwnerId = currentUserId.Value };
+
         var projectResponseDto = await projectService.CreateProjectAsync(secureDto);
-            
+
         return Ok(projectResponseDto);
     }
 
     [HttpPatch("{id:guid}")]
     public async Task<IActionResult> UpdateProject(Guid id, ProjectUpdateDto projectDto)
     {
-        if (!await accessService.IsProjectOwnerAsync(CurrentUserId, id))
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId is null)
+        {
+            return Unauthorized("Некорректный токен пользователя.");
+        }
+
+        if (!await accessService.IsProjectOwnerAsync(currentUserId.Value, id))
         {
             return StatusCode(StatusCodes.Status403Forbidden, "Только владелец может изменять параметры проекта.");
         }
@@ -74,12 +95,18 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
         {
             return NotFound(ex.Message);
         }
-    } 
-    
+    }
+
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteProject(Guid id)
     {
-        if (!await accessService.IsProjectOwnerAsync(CurrentUserId, id))
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId is null)
+        {
+            return Unauthorized("Некорректный токен пользователя.");
+        }
+
+        if (!await accessService.IsProjectOwnerAsync(currentUserId.Value, id))
         {
             return StatusCode(StatusCodes.Status403Forbidden, "Только владелец может удалить проект.");
         }
@@ -93,13 +120,19 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
             return NotFound();
         }
     }
-    
+
     [HttpGet("{id:guid}/members")]
     public async Task<ActionResult<IEnumerable<ProjectMemberDto>>> GetMembers(Guid id)
     {
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId is null)
+        {
+            return Unauthorized("Некорректный токен пользователя.");
+        }
+
         try
         {
-            var members = await projectService.GetMembersAsync(id, CurrentUserId);
+            var members = await projectService.GetMembersAsync(id, currentUserId.Value);
             return Ok(members);
         }
         catch (UnauthorizedAccessException ex) { return StatusCode(StatusCodes.Status403Forbidden, ex.Message); }
@@ -108,9 +141,15 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
     [HttpPost("{id:guid}/members")]
     public async Task<ActionResult<ProjectMemberDto>> AddMember(Guid id, [FromBody] AddProjectMemberDto dto)
     {
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId is null)
+        {
+            return Unauthorized("Некорректный токен пользователя.");
+        }
+
         try
         {
-            var member = await projectService.AddMemberAsync(id, CurrentUserId, dto);
+            var member = await projectService.AddMemberAsync(id, currentUserId.Value, dto);
             return Ok(member);
         }
         catch (ArgumentException ex)
@@ -124,9 +163,15 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
     [HttpPatch("{id:guid}/members/{memberId:guid}")]
     public async Task<IActionResult> UpdateMemberRole(Guid id, Guid memberId, [FromBody] UpdateMemberRoleDto dto)
     {
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId is null)
+        {
+            return Unauthorized("Некорректный токен пользователя.");
+        }
+
         try
         {
-            await projectService.UpdateMemberRoleAsync(id, CurrentUserId, memberId, dto);
+            await projectService.UpdateMemberRoleAsync(id, currentUserId.Value, memberId, dto);
             return NoContent();
         }
         catch (UnauthorizedAccessException ex) { return StatusCode(StatusCodes.Status403Forbidden, ex.Message); }
@@ -137,9 +182,15 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
     [HttpDelete("{id:guid}/{memberId:guid}")]
     public async Task<IActionResult> RemoveMember(Guid id, Guid memberId)
     {
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId is null)
+        {
+            return Unauthorized("Некорректный токен пользователя.");
+        }
+
         try
         {
-            await projectService.RemoveMemberAsync(id, CurrentUserId, memberId);
+            await projectService.RemoveMemberAsync(id, currentUserId.Value, memberId);
             return NoContent();
         }
         catch (UnauthorizedAccessException ex) { return StatusCode(StatusCodes.Status403Forbidden, ex.Message); }
