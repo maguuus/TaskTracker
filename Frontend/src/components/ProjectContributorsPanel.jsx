@@ -28,7 +28,6 @@ function ProjectContributors({ showSettings, setShowSettings }) {
                 console.error("Ошибка при загрузке участников проекта:", error);
             }
         }
-
         if (currentProject?.id) {
             fetchMembers();
         }
@@ -57,7 +56,7 @@ function ProjectContributors({ showSettings, setShowSettings }) {
     };
 
     return (
-        <Modal show={showSettings} onHide={() => setShowSettings(false)} centered data-bs-theme="light">
+        <Modal show={showSettings} onHide={() => setShowSettings(false)} centered data-bs-theme="light" size="md">
             <Modal.Body className="p-4" style={{ backgroundColor: '#ffffff', borderRadius: '1.2rem', color: '#212121' }}>
 
                 {/* Шапка с кнопкой закрытия */}
@@ -119,7 +118,7 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
 
     return <Form onSubmit={(e) => { e.preventDefault(); handleInvite(); }} className="mb-4">
         <Form.Label className="small text-secondary fw-semibold mb-2">Пригласить участника</Form.Label>
-        <InputGroup>
+        <InputGroup className="d-flex w-100">
             <Form.Control
                 placeholder="Почта пользователя:"
                 value={inviteEmail}
@@ -128,12 +127,14 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
                     backgroundColor: '#ffffff',
                     borderColor: '#212121',
                     color: '#212121',
-                    borderRadius: '0.6rem 0 0 0.6rem'
-                }} />
+                    borderRadius: '0.6rem 0 0 0.6rem',
+                    minWidth: '180px'
+                }}
+                className="flex-grow-1" />
             <Form.Select
                 value={inviteRole}
                 onChange={e => setInviteRole(e.target.value)}
-                style={{ maxWidth: '140px' }}
+                style={{ minWidth: '160px' }}
             >
                 <option value="Member">Участник</option>
                 <option value="Viewer">Наблюдатель</option>
@@ -161,7 +162,6 @@ function ContributorsList({ contributors, currentUser, handleRemove }) {
         <ListGroup style={{ maxHeight: '200px', overflowY: 'auto' }}>
             {contributors.map((c, i) => {
                 const isSelf = c.userId === currentUser?.id || c.id === currentUser?.id;
-                // const badge = getRoleBadgeColor ? getRoleBadgeColor(c.role) : null;
                 return (
                     <ListGroup.Item
                         key={c.userId || c.id || i}
@@ -171,7 +171,7 @@ function ContributorsList({ contributors, currentUser, handleRemove }) {
                         <div className="text-secondary me-2">{c.email}</div>
 
                         <div className="d-flex align-items-center gap-2">
-                            <Badge bg="dark" className="fw-normal">
+                            <Badge bg="dark" className="fw-normal"> { /*Можно использовать MyRoleBadge, вопрос дизайна*/ }
                                 {c.role}
                             </Badge>
 
@@ -202,9 +202,9 @@ function ContributorsList({ contributors, currentUser, handleRemove }) {
 function MyRoleBadge({ role }) {
     let styles;
     switch (role) {
-        case 'Owner': styles = { bg: '#c1f0c4', text: '#196f3d', label: 'Владелец' };
-        case 'Member': styles = { bg: '#d0e1fd', text: '#1a56db', label: 'Участник' };
-        default: styles = { bg: '#e5e7eb', text: '#374151', label: 'Наблюдатель' };
+        case 'Owner': styles = { bg: '#c1f0c4', text: '#196f3d', label: 'Владелец' }; break;
+        case 'Member': styles = { bg: '#d0e1fd', text: '#1a56db', label: 'Участник' }; break;
+        default: styles = { bg: '#e5e7eb', text: '#374151', label: 'Наблюдатель' }; break;
     }
     return (
         <span className="badge fw-semibold ms-2" style={{ backgroundColor: styles.bg, color: styles.text }}>
