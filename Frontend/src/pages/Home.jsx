@@ -4,8 +4,7 @@ import { useEffect } from 'react';
 import ProjectCard from '../models/ProjectCard.jsx';
 import useProject from '../context/ProjectContext.jsx';
 import useUser from '../context/UserContext.jsx';
-import { useProjectsMeta } from '../context/ProjectMetaHook.jsx';
-import { useDBProjectMeta } from '../hooks/DataBaseHook.jsx';
+import { useMYProjectsMeta } from '../context/ProjectMetaHook.jsx';
 
 const newProject = (ownerId) => ({
     ownerId: ownerId,
@@ -14,24 +13,18 @@ const newProject = (ownerId) => ({
 });
 
 function Home() {
-
-    const [getMetas, post, patch, remove] = useDBProjectMeta();
-
     const navigate = useNavigate();
 
     const [currentProject, setCurrentProject] = useProject();
     const [currentUser, setCurrentUser] = useUser();
-    const [createProjectMeta, updateProjectMeta, removeProjectMeta] = useProjectsMeta();
+    const [createProjectMeta, updateProjectMeta, removeProjectMeta, loadProjectMeta] = useMYProjectsMeta();
+
     useEffect(() => {
         async function fetchProjects() {
             if (!currentUser?.id) return;
 
             try {
-                const response = await getMetas(currentUser.id);
-                setCurrentUser(prevUser => ({
-                    ...prevUser,
-                    projects: response
-                }));
+                await loadProjectMeta(); // Загружает в пользователя сам
             }
             catch (error) {
                 throw error;
@@ -65,7 +58,7 @@ function Home() {
                     variant="dark"
                     className="position-absolute end-0 rounded-circle d-flex align-items-center justify-content-center shadow-sm"
                     style={{ backgroundColor: '#5E17EB', borderColor: '#5E17EB', width: '45px', height: '45px', fontSize: '1.5rem', paddingBottom: '5px' }}
-                    onClick={async () => { let p = await post(newProject(currentUser.id)); createProjectMeta(p); }}
+                    onClick={async () => { await createProjectMeta(newProject(currentUser.id)); }}
                 >
                     +
                 </Button>
@@ -78,8 +71,8 @@ function Home() {
                             <ProjectCard
                                 project={project}
                                 onChoose={() => onProjectCardClicked(project)}
-                                onDelete={async () => { await remove(project); removeProjectMeta(project); }}
-                                onUpdate={async (p) => { await patch(p); updateProjectMeta(p); }}
+                                onDelete={async () => { await removeProjectMeta(project); }}
+                                onUpdate={async (p) => { await updateProjectMeta(p); }}
                             />
                         </Col>)
                     : <div className="text-center text-white opacity-75 fs-5 mt-4">Создайте новый проект!</div>

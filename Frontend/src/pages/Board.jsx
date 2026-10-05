@@ -8,7 +8,7 @@ function Board() {
 
     const { projectId } = useParams();
 
-    const [currentProject, setCurrentProject] = useProject();
+    const [currentProject, ] = useProject();
 
     if (!projectId)
         return <Navigate to="/" replace />;
