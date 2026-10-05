@@ -22,21 +22,12 @@ function Home() {
     const [currentProject, setCurrentProject] = useProject();
     const [currentUser, setCurrentUser] = useUser();
     const [createProjectMeta, updateProjectMeta, removeProjectMeta] = useProjectsMeta();
-
-
-    function onProjectCardClicked(project) {
-        setCurrentProject(project);
-        navigate(`/${project.id}/board/`);
-    }
-
     useEffect(() => {
         async function fetchProjects() {
             if (!currentUser?.id) return;
 
             try {
                 const response = await getMetas(currentUser.id);
-                if (response.length == 0) return;
-
                 setCurrentUser(prevUser => ({
                     ...prevUser,
                     projects: response
@@ -81,7 +72,7 @@ function Home() {
             </div>
 
             <Row className="justify-content-center px-4 gx-4 gy-4" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                {currentUser.projects.length != 0
+                {currentUser.projects.length !== 0
                     ? currentUser.projects.map((project) =>
                         <Col key={project.id} xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center">
                             <ProjectCard

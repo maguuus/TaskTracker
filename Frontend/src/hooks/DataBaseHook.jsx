@@ -14,7 +14,7 @@ export function useDBUser() {
     }
 
     async function changePassword(dto) {
-        return await api.post('/api/user/change-password', dto);
+        return (await api.post('/api/user/change-password', dto)).data; 
     }
 
     return [login, register, getMe, changePassword];
@@ -61,6 +61,9 @@ export function useDBColumn() {
 
 export function useDBTask() {
 
+    /** 
+     * @returns {Task}
+     */
     async function post(task) {
         return (await api.post(`/api/tasks/`, task)).data;
     }
