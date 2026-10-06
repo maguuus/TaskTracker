@@ -5,17 +5,28 @@ export function useMYProjectsMeta() {
     const [currentUser, setCurrentUser] = useUser();
 
     function createProjectMeta(newProject) {
-        setCurrentUser(prev => ({
-            ...prev,
-            projects: [...(prev?.projects ?? []), newProject],
-        }));
+        if (!newProject?.id) return newProject;
+
+        setCurrentUser(prev => {
+            const existing = prev?.projects ?? [];
+            if (existing.some(p => p.id === newProject.id)) {
+                return prev;
+            }
+            return {
+                ...prev,
+                projects: [...existing, newProject],
+            };
+        });
+
         return newProject;
     }
 
     function updateProjectMeta(updatedProject) {
         setCurrentUser(prev => ({
             ...prev,
-            projects: (prev?.projects ?? []).map(p => p.id === updatedProject.id ? updatedProject : p),
+            projects: (prev?.projects ?? []).map(p =>
+                p.id === updatedProject.id ? { ...p, ...updatedProject } : p
+            ),
         }));
         return updatedProject;
     }
