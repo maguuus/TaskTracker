@@ -104,6 +104,7 @@ app.UseAuthorization();
 
 app.MapHub<TaskTrackerHub>("/hubs/task-tracker");
 app.MapControllers();
+// app.MapHub<...>("/hubs/board"); 
 
 app.MapGet("/", () => "API is running");
 
