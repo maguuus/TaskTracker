@@ -25,13 +25,11 @@ function Home() {
     useEffect(() => {
         async function fetchProjects() {
             if (!currentUser?.id) return;
-
             try {
                 const response = await getMetas(currentUser.id);
-                setProjectsMeta(response);
-            }
-            catch (error) {
-                throw error;
+                setProjectsMeta(response || []);
+            } catch (error) {
+                console.error("Ошибка загрузки проектов:", error);
             }
         }
 
@@ -48,51 +46,29 @@ function Home() {
             const { entityType, action, payload } = message;
             if (!['project', 'projectMember'].includes(entityType)) return;
 
+
             if (entityType === 'project') {
                 if (action === 'created' && payload?.project) {
                     createProjectMeta(payload.project);
                     return;
                 }
-
                 if (action === 'deleted' && payload?.projectId) {
                     removeProjectMeta({ id: payload.projectId });
                     return;
                 }
-
                 if (action === 'updated' && payload?.projectId) {
-                    const currentProjectRecord = (currentUser?.projects ?? []).find(project => project.id === payload.projectId);
-                    updateProjectMeta({
-                        ...(currentProjectRecord ?? {}),
-                        ...payload.project,
-                        id: payload.projectId,
-                    });
+                    updateProjectMeta({ id: payload.projectId, ...payload.project });
                     return;
                 }
             }
 
             if (entityType === 'projectMember') {
-                const memberId = payload?.memberId ?? payload?.member?.userId ?? payload?.member?.id;
-                const projectId = payload?.projectId;
-                
-                if ((action === 'created' || action === 'updated') && memberId === currentUser.id) {
-                    const refreshedProjects = await getMetas(currentUser.id);
-                    setProjectsMeta(refreshedProjects);
-                    return;
+                const memberId = payload?.memberId ?? payload?.userId;
+                if (memberId === currentUser.id) {
+                    const refreshed = await getMetas(currentUser.id);
+                    setProjectsMeta(refreshed || []);
                 }
-
-                if (action === 'deleted' && memberId === currentUser.id) {
-                    const refreshedProjects = await getMetas(currentUser.id);
-                    setProjectsMeta(refreshedProjects);
-                    return;
-                }
-
-                if (action === 'deleted' && projectId && !(currentUser.projects ?? []).some(project => project.id === projectId)) {
-                    const refreshedProjects = await getMetas(currentUser.id);
-                    setProjectsMeta(refreshedProjects);
-                    return;
-                }
-            }
-        };
+            }};
 
         hub.on('stateChanged', handleStateChanged);
 
@@ -128,8 +104,7 @@ function Home() {
                     className="position-absolute end-0 rounded-circle d-flex align-items-center justify-content-center shadow-sm"
                     style={{ backgroundColor: '#5E17EB', borderColor: '#5E17EB', width: '45px', height: '45px', fontSize: '1.5rem', paddingBottom: '5px' }}
                     onClick={async () => {
-                        const savedProject = await post(newProject(currentUser.id));
-                        createProjectMeta(savedProject);
+                        await post(newProject(currentUser.id));
                     }}
                 >
                     +

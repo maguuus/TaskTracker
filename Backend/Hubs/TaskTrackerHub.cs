@@ -1,60 +1,33 @@
-using System.Collections.Concurrent;
+using System.Security.Claims;
+using Backend.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Hubs;
 
 [Authorize]
-public class TaskTrackerHub : Hub
+public class TaskTrackerHub(AppDbContext dbContext) : Hub
 {
-    public static readonly ConcurrentDictionary<string, HashSet<string>> UserConnections = new();
-
-    public static IEnumerable<string> GetConnectionIdsForUser(string userId)
-    {
-        if (string.IsNullOrWhiteSpace(userId))
-            return Enumerable.Empty<string>();
-
-        return UserConnections.TryGetValue(userId, out var connections)
-            ? connections.ToArray()
-            : Enumerable.Empty<string>();
-    }
-
-    public override Task OnConnectedAsync()
-    {
-        var userId = Context.UserIdentifier;
-        if (!string.IsNullOrWhiteSpace(userId))
-        {
-            UserConnections.AddOrUpdate(
-                userId,
-                _ => new HashSet<string> { Context.ConnectionId },
-                (_, connections) =>
-                {
-                    connections.Add(Context.ConnectionId);
-                    return connections;
-                });
-        }
-
-        return base.OnConnectedAsync();
-    }
-
-    public override Task OnDisconnectedAsync(Exception? exception)
-    {
-        var userId = Context.UserIdentifier;
-        if (!string.IsNullOrWhiteSpace(userId) && UserConnections.TryGetValue(userId, out var connections))
-        {
-            connections.Remove(Context.ConnectionId);
-            if (connections.Count == 0)
-            {
-                UserConnections.TryRemove(userId, out _);
-            }
-        }
-
-        return base.OnDisconnectedAsync(exception);
-    }
-
     public async Task JoinProject(Guid projectId)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"project-{projectId}");
+        var rawUserId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                        ?? Context.User?.FindFirst("sub")?.Value;
+
+        if (Guid.TryParse(rawUserId, out var userId))
+        {
+            var hasAccess = await dbContext.Projects
+                .AsNoTracking()
+                .AnyAsync(p => p.Id == projectId && 
+                               (p.OwnerId == userId || p.Members.Any(m => m.UserId == userId)));
+
+            if (!hasAccess)
+            {
+                throw new HubException("У вас нет доступа к этому проекту.");
+            }
+
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"project-{projectId}");
+        }
     }
 
     public async Task LeaveProject(Guid projectId)

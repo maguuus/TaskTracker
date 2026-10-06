@@ -2,29 +2,20 @@ import { Container, Row, Col, Button } from 'react-bootstrap';
 import Column from './Column';
 import useColumns from '../context/BoardContext';
 import { useBoard } from '../hooks/BoardHooks';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDBColumn } from '../hooks/DataBaseHook';
-import { useState } from 'react';
 import ProjectContributors from '../components/ProjectContributorsPanel';
 import useProject from "../context/ProjectContext.jsx";
 import { hub } from '../api/index.js';
 
-
-function ProjectBoard({ name, id, ...rest }) {
-
+function ProjectBoard({ name, id }) {
     const [getColumns, getTasks, post, patch, remove] = useDBColumn();
-
     const [columns, setColumns] = useColumns();
     const [addColumn, updateColumn, removeColumn] = useBoard();
-
     const [currentProject] = useProject();
-    const isViewer = currentProject?.role === "Viewer";
+    const [showSettings, setShowSettings] = useState(false);
 
-    const newColumn = () => ({
-        orderIndex: (columns[columns.length - 1]?.orderIndex ?? -1) + 1,
-        title: `New Column`,
-        projectId: id
-    });
+    const isViewer = currentProject?.role === "Viewer";
 
     useEffect(() => {
         let cancelled = false;
@@ -33,9 +24,9 @@ function ProjectBoard({ name, id, ...rest }) {
             setColumns([]);
             const fetched = await getColumns(id);
 
-            const promises = fetched.map(async (column) => {
-                const tasks = await getTasks(column.id);
-                return { ...column, tasks: tasks };
+            const promises = fetched.map(async (col) => {
+                const tasks = await getTasks(col.id);
+                return { ...col, tasks: tasks || [] };
             });
 
             const columnsWithTasks = await Promise.all(promises);
@@ -46,58 +37,121 @@ function ProjectBoard({ name, id, ...rest }) {
         }
 
         fetchColumns();
-
         return () => { cancelled = true; };
     }, [id]);
 
-    // --- Обработка событий из вебсокета ---
+    useEffect(() => {
+        if (!id) return;
+        let isMounted = true;
+
+        const joinRoom = async () => {
+            if (hub.state === "Connected" && isMounted) {
+                try {
+                    await hub.invoke("JoinProject", id);
+                } catch (e) {
+                    console.error("Не удалось войти в комнату проекта:", e);
+                }
+            }
+        };
+
+        joinRoom();
+
+        const onReconnected = () => {
+            if (isMounted) joinRoom();
+        };
+        hub.onreconnected(onReconnected);
+
+        return () => {
+            isMounted = false;
+            if (hub.state === "Connected") {
+                hub.invoke("LeaveProject", id).catch(() => {});
+            }
+        };
+    }, [id]);
+
     useEffect(() => {
         const handleStateChanged = (message) => {
-            if (!message || message.type !== 'stateChanged') return;
+            if (!message || message.type !== 'stateChanged' || message.projectId !== id) return;
 
             const { entityType, action, payload } = message;
-            if (entityType !== 'column') return;
 
-            const columnPayload = payload?.column ?? payload;
-            const columnId = payload?.columnId ?? columnPayload?.id;
+            if (entityType === 'column') {
+                const colPayload = payload?.column ?? payload;
+                const colId = payload?.columnId ?? colPayload?.id;
 
-            if (action === 'created' && columnPayload?.projectId === id) {
-                addColumn({ ...columnPayload, tasks: [] });
-                return;
+                if (action === 'created' && colPayload) {
+                    setColumns(prev => {
+                        if (prev.some(col => col.id === colPayload.id)) return prev;
+                        const nextCols = [...prev, { ...colPayload, tasks: colPayload.tasks || [] }];
+                        return nextCols.sort((a, b) => a.orderIndex - b.orderIndex);
+                    });
+                    return;
+                } else if (action === 'deleted' && colId) {
+                    removeColumn({ id: colId });
+                    return;
+                } else if (action === 'updated' && colId) {
+                    setColumns(prev => prev.map(col => {
+                        if (col.id === colId) {
+                            return {
+                                ...col,
+                                ...colPayload,
+                                title: colPayload?.title ?? col.title,
+                                orderIndex: colPayload?.orderIndex ?? col.orderIndex,
+                                tasks: col.tasks || []
+                            };
+                        }
+                        return col;
+                    }));
+                    return;
+                }
             }
 
-            if (action === 'deleted' && columnId) {
-                removeColumn({ id: columnId });
-                return;
-            }
+            if (entityType === 'task') {
+                const task = payload?.task;
+                const taskId = payload?.taskId ?? task?.id;
 
-            if (action === 'updated' && columnId) {
-                const currentColumn = columns.find(column => column.id === columnId);
-                if (!currentColumn) return;
-
-                updateColumn({
-                    ...currentColumn,
-                    ...columnPayload,
-                    id: columnId,
-                    title: columnPayload?.title ?? currentColumn.title,
-                    orderIndex: columnPayload?.orderIndex ?? currentColumn.orderIndex,
-                });
+                if (action === 'created' && task) {
+                    setColumns(prev => prev.map(col =>
+                        col.id === task.columnId
+                            ? { ...col, tasks: [...col.tasks.filter(t => t.id !== task.id), task] }
+                            : col
+                    ));
+                } else if (action === 'deleted' && taskId) {
+                    setColumns(prev => prev.map(col => ({
+                        ...col,
+                        tasks: col.tasks.filter(t => t.id !== taskId)
+                    })));
+                } else if (action === 'updated' && task) {
+                    setColumns(prev => prev.map(col => {
+                        if (col.id === task.columnId) {
+                            const cleanTasks = col.tasks.filter(t => t.id !== task.id);
+                            return {
+                                ...col,
+                                tasks: [...cleanTasks, task].sort((a, b) => a.orderIndex - b.orderIndex)
+                            };
+                        }
+                        return {
+                            ...col,
+                            tasks: col.tasks.filter(t => t.id !== task.id)
+                        };
+                    }));
+                }
             }
         };
 
         hub.on('stateChanged', handleStateChanged);
-
         return () => {
             hub.off('stateChanged', handleStateChanged);
         };
-    }, [addColumn, columns, id, removeColumn, updateColumn]);
-    // --- Конец обработки событий из вебсокета ---
+    }, [id, addColumn, removeColumn, updateColumn, setColumns]);
+    
+    const newColumn = () => ({
+        orderIndex: (columns[columns.length - 1]?.orderIndex ?? -1) + 1,
+        title: `Новая колонка`,
+        projectId: id
+    });
 
-    if (!columns)
-        return <h1>Loading Columns for {name}...</h1>
-
-
-    const [showSettings, setShowSettings] = useState(false);
+    if (!columns) return <h1>Загрузка колонок для {name}...</h1>;
 
     return (
         <Container fluid className="pt-2 px-4 position-relative" style={{ backgroundColor: '#bee0c6', minHeight: '100vh' }}>
@@ -112,7 +166,9 @@ function ProjectBoard({ name, id, ...rest }) {
                             variant="dark"
                             className="rounded-pill px-4 shadow-sm"
                             style={{ backgroundColor: '#212121' }}
-                            onClick={async () => { let c = await post(newColumn()); addColumn({ ...c, tasks: [] }); }}
+                            onClick={async () => {
+                                await post(newColumn());
+                            }}
                         >
                             + Добавить колонку
                         </Button>
@@ -140,15 +196,15 @@ function ProjectBoard({ name, id, ...rest }) {
 
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem', marginTop: '1rem' }}>
                 <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }} className="justify-content-start align-items-stretch">
-                    {columns.map((column) =>
+                    {columns.map((column) => (
                         <Col key={column.id} style={{ minWidth: '410px', width: '410px', flexGrow: 0 }} className="me-2 h-100">
                             <Column
                                 column={column}
-                                onColumnUpdate={async (c) => { await patch(c); updateColumn(c); }}
-                                onColumnDelete={async () => { await remove(column); removeColumn(column); }}
+                                onColumnUpdate={async (c) => { await patch(c); }}
+                                onColumnDelete={async () => { await remove(column); }}
                             />
                         </Col>
-                    )}
+                    ))}
                 </Row>
             </div>
 
@@ -157,6 +213,4 @@ function ProjectBoard({ name, id, ...rest }) {
     );
 }
 
-
-
-export default ProjectBoard
+export default ProjectBoard;
