@@ -22,8 +22,8 @@ export default api;
 
 /** @type {signalr.HubConnection} */
 export const hub = new signalr.HubConnectionBuilder()
-    .withUrl(`${import.meta.env.VITE_API_URL}/hubs/task-tracker`, {
-        accessTokenFactory: () => localStorage.getItem("token"),
+    .withUrl(`${import.meta.env.VITE_API_URL}/hubs/board`, {
+        accessTokenFactory: () => loaclStorage.getItem("token"),
     })
     .withAutomaticReconnect()
     .build();
