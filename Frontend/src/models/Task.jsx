@@ -1,4 +1,4 @@
-import {Card, Button, Modal, Form, Badge, Col, Row} from 'react-bootstrap';
+import { Card, Button, Modal, Form, Badge, Col, Row } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 
 /**
@@ -23,7 +23,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
         return new Date(dateString).toISOString().split('T')[0];
     };
     const [dueDate, setDueDate] = useState(formatDateForInput(task.dueDate));
-    
+
     useEffect(() => {
         setTitle(task.title || '');
         setDescription(task.description || '');
@@ -67,7 +67,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
     }
 
     const getBorderColor = () => {
-        switch(task.priority) {
+        switch (task.priority) {
             case 'Критический': return 'danger';
             case 'Высокий': return 'warning';
             case 'Средний': return 'primary';
@@ -78,18 +78,18 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
 
     const displayDate = task.dueDate ? new Date(task.dueDate).toLocaleDateString('ru-RU') : null;
     const isOverdue = task.dueDate && new Date(task.dueDate) < new Date();
-    
+
     return (
         <>
             <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white`}
-                style={{ 
-                    borderLeftWidth: '5px !important', 
+                style={{
+                    borderLeftWidth: '5px !important',
                     borderRadius: '12px',
                     cursor: 'move',
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease'
                 }}
-                draggable="true" 
-                onDragStart={(e) => {                   
+                draggable="true"
+                onDragStart={(e) => {
                     e.dataTransfer.setData("text/plain", task.id);
                     e.currentTarget.style.opacity = '0.5';
                 }}
@@ -107,19 +107,31 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
             >
                 <Card.Body className="p-0 position-relative">
 
-                    <button
-                        className="btn-close position-absolute"
-                        aria-label="Close"
-                        onClick={onTaskDelete}
-                        style={{ top: '12px', right: '12px', width: '0.5rem', height: '0.5rem' }}
-                    ></button>
+                    <div className="d-flex align-items-start justify-content-between mb-2">
+                        <div className="d-flex align-items-center text-truncate me-2">
+                            {task.icon && <span className="fs-5 me-2">{task.icon}</span>}
+                            <h6 className="mb-0 fw-bold m-0 text-truncate">{task.title}</h6>
+                        </div>
 
-                    <div className="d-flex align-items-center mb-2 pe-4">
-                        {task.icon && <span className="fs-5 me-2">{task.icon}</span>}
-                        <h6 className="mb-0 fw-bold m-0">{task.title}</h6>
+                        <div className="d-flex align-items-center gap-2 flex-shrink-0">
+                            <Button
+                                variant="secondary d-inline-flex focus-ring focus-ring-secondary px-2 text-decoration-none border rounded-2"
+                                style={{ paddingTop: '3px', paddingBottom: '3px' }}
+                                size="sm"
+                                onClick={() => setShowModal(true)}
+                            >
+                                Детали
+                            </Button>
+                            <button
+                                className="btn-close"
+                                aria-label="Close"
+                                onClick={onTaskDelete}
+                                style={{ width: '0.5rem', height: '0.5rem' }}
+                            ></button>
+                        </div>
                     </div>
 
-                    <div className="text-muted small mb-3 text-truncate">
+                    <div className="text-muted small mb-1 text-truncate">
                         {task.description || "Нет описания"}
                     </div>
 
@@ -136,7 +148,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                     </div> */}
 
                     {(task.priority || task.dueDate) && (
-                        <div className="d-flex justify-content-between text-muted small mb-3 fw-bold">
+                        <div className="d-flex justify-content-between text-muted small mb-1 fw-bold">
                             {task.priority && <span>⚡ {task.priority}</span>}
                             {displayDate && (
                                 <span className={isOverdue ? 'text-danger' : 'text-primary'}>
@@ -144,9 +156,9 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                                 </span>
                             )}
                         </div>
-                    )}                    
-                    
-                    <div className="d-flex justify-content-end">
+                    )}
+
+                    {/* <div className="d-flex justify-content-end">
                         <Button
                             variant="secondary d-inline-flex focus-ring focus-ring-secondary py-1 px-2 text-decoration-none border rounded-2"
                             size="sm"
@@ -154,116 +166,147 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         >
                             Детали
                         </Button>
-                    </div>
+                    </div> */}
                 </Card.Body>
             </Card>
 
-            <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
-                <Form onSubmit={handleSave}>
-                    <Modal.Header closeButton className="border-0 pb-0">
-                        <div className="d-flex w-100 gap-2 align-items-center">
-                            <Form.Control
-                                type="text"
-                                maxLength={2}
-                                value={icon}
-                                onChange={(e) => setIcon(e.target.value)}
-                                placeholder="🚀"
-                                style={{ width: '60px', fontSize: '1.5rem', textAlign: 'center' }}
-                                title="Эмодзи"
-                            />
-                            <Form.Control
-                                type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="fs-4 fw-bold border-0 shadow-none px-0"
-                                placeholder="Название задачи"
-                                required
-                            />
-                        </div>
-                    </Modal.Header>
-                    
-                    <Modal.Body>
-                        <Row className="mb-4 bg-light p-3 rounded mx-0">
-                            <Col md={4}>
-                                <Form.Group>
-                                    <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Приоритет</Form.Label>
-                                    <Form.Select value={priority} onChange={(e) => setPriority(e.target.value)} className="border-0 shadow-sm">
-                                        <option value="">Не задан</option>
-                                        <option value="Низкий">Низкий</option>
-                                        <option value="Средний">Средний</option>
-                                        <option value="Высокий">Высокий</option>
-                                        <option value="Критический">Критический 🚨</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group>
-                                    <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Срочность</Form.Label>
-                                    <Form.Select value={urgency} onChange={(e) => setUrgency(e.target.value)} className="border-0 shadow-sm">
-                                        <option value="">Не задана</option>
-                                        <option value="Несрочно">Несрочно</option>
-                                        <option value="Срочно">Срочно</option>
-                                        <option value="Очень срочно">Очень срочно ⏳</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group>
-                                    <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Дедлайн</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={dueDate}
-                                        onChange={(e) => setDueDate(e.target.value)}
-                                        className="border-0 shadow-sm"
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Form.Group className="mb-4">
-                            <Form.Label className="fw-bold text-muted small text-uppercase">Описание</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={4}
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Добавьте подробное описание..."
-                                className="bg-light border-0"
-                            />
-                        </Form.Group>
-
-                        {/* <Form.Group className="mb-3">
-                            <Form.Label className="fw-bold text-muted small text-uppercase">Теги</Form.Label>
-                            <div className="d-flex flex-wrap gap-2 mb-2">
-                                {tags.map((tag, index) => (
-                                    <Badge
-                                        bg="primary"
-                                        key={index}
-                                        style={{ cursor: 'pointer', padding: '8px 12px' }}
-                                        onClick={() => removeTag(tag)}
-                                        title="Нажмите, чтобы удалить"
-                                    >
-                                        #{tag} &times;
-                                    </Badge>
-                                ))}
-                            </div>
-                            <Form.Control
-                                type="text"
-                                value={tagInput}
-                                onChange={(e) => setTagInput(e.target.value)}
-                                onKeyDown={handleTagKeyDown}
-                                placeholder="Введите тег и нажмите Enter..."
-                            />
-                        </Form.Group> */}
-                    </Modal.Body>
-
-                    <Modal.Footer className="border-0 pt-0">
-                        <Button variant="light" onClick={() => setShowModal(false)}>Отмена</Button>
-                        <Button variant="primary" type="submit">Сохранить</Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
+            <TaskModal
+                showModal={showModal}
+                setShowModal={setShowModal}
+                handleSave={handleSave}
+                icon={icon}
+                setIcon={setIcon}
+                title={title}
+                setTitle={setTitle}
+                priority={priority}
+                setPriority={setPriority}
+                urgency={urgency}
+                setUrgency={setUrgency}
+                dueDate={dueDate}
+                setDueDate={setDueDate}
+                description={description}
+                setDescription={setDescription}
+            />
         </>
     );
 }
 
 export default Task;
+
+function TaskModal({ showModal,
+    setShowModal,
+    handleSave,
+    icon,
+    setIcon,
+    title, // перенести внутрь TaskModal
+    setTitle,
+    priority,
+    setPriority,
+    urgency,
+    setUrgency,
+    dueDate,
+    setDueDate,
+    description,
+    setDescription
+}) {
+    return <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+        <Form onSubmit={handleSave}>
+            <Modal.Header closeButton className="border-0 pb-0">
+                <div className="d-flex w-100 gap-2 align-items-center">
+                    <Form.Control
+                        type="text"
+                        maxLength={2}
+                        value={icon}
+                        onChange={(e) => setIcon(e.target.value)}
+                        placeholder="🚀"
+                        style={{ width: '60px', fontSize: '1.5rem', textAlign: 'center' }}
+                        title="Эмодзи" />
+                    <Form.Control
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="fs-4 fw-bold border-0 shadow-none px-0"
+                        placeholder="Название задачи"
+                        required />
+                </div>
+            </Modal.Header>
+
+            <Modal.Body>
+                <Row className="mb-4 bg-light p-3 rounded mx-0">
+                    <Col md={4}>
+                        <Form.Group>
+                            <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Приоритет</Form.Label>
+                            <Form.Select value={priority} onChange={(e) => setPriority(e.target.value)} className="border-0 shadow-sm">
+                                <option value="">Не задан</option>
+                                <option value="Низкий">Низкий</option>
+                                <option value="Средний">Средний</option>
+                                <option value="Высокий">Высокий</option>
+                                <option value="Критический">Критический 🚨</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
+                    <Col md={4}>
+                        <Form.Group>
+                            <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Срочность</Form.Label>
+                            <Form.Select value={urgency} onChange={(e) => setUrgency(e.target.value)} className="border-0 shadow-sm">
+                                <option value="">Не задана</option>
+                                <option value="Несрочно">Несрочно</option>
+                                <option value="Срочно">Срочно</option>
+                                <option value="Очень срочно">Очень срочно ⏳</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
+                    <Col md={4}>
+                        <Form.Group>
+                            <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Дедлайн</Form.Label>
+                            <Form.Control
+                                type="date"
+                                value={dueDate}
+                                onChange={(e) => setDueDate(e.target.value)}
+                                className="border-0 shadow-sm" />
+                        </Form.Group>
+                    </Col>
+                </Row>
+                <Form.Group className="mb-4">
+                    <Form.Label className="fw-bold text-muted small text-uppercase">Описание</Form.Label>
+                    <Form.Control
+                        as="textarea"
+                        rows={4}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Добавьте подробное описание..."
+                        className="bg-light border-0" />
+                </Form.Group>
+
+                {/* <Form.Group className="mb-3">
+            <Form.Label className="fw-bold text-muted small text-uppercase">Теги</Form.Label>
+            <div className="d-flex flex-wrap gap-2 mb-2">
+                {tags.map((tag, index) => (
+                    <Badge
+                        bg="primary"
+                        key={index}
+                        style={{ cursor: 'pointer', padding: '8px 12px' }}
+                        onClick={() => removeTag(tag)}
+                        title="Нажмите, чтобы удалить"
+                    >
+                        #{tag} &times;
+                    </Badge>
+                ))}
+            </div>
+            <Form.Control
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleTagKeyDown}
+                placeholder="Введите тег и нажмите Enter..."
+            />
+        </Form.Group> */}
+            </Modal.Body>
+
+            <Modal.Footer className="border-0 pt-0">
+                <Button variant="light" onClick={() => setShowModal(false)}>Отмена</Button>
+                <Button variant="primary" type="submit">Сохранить</Button>
+            </Modal.Footer>
+        </Form>
+    </Modal>;
+}
