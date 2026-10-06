@@ -37,7 +37,7 @@ public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotif
         await context.SaveChangesAsync();
 
         var response = new ColumnResponseDto(column.Id, column.Title, column.OrderIndex, column.ProjectId);
-        await realtimeNotifier.NotifyStateChangedAsync("column", "created", new { column = response }, CurrentUserId);
+        await realtimeNotifier.NotifyProjectGroupAsync(column.ProjectId, "column", "created", new { column = response });
         return response;
     }
     public async Task<bool> UpdateColumnAsync(Guid id, ColumnUpdateDto columnDto)
@@ -49,7 +49,7 @@ public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotif
         column.Title = columnDto.Title;
         column.OrderIndex = columnDto.OrderIndex;
         await context.SaveChangesAsync();
-        await realtimeNotifier.NotifyStateChangedAsync("column", "updated", new { columnId = id, column = columnDto }, CurrentUserId);
+        await realtimeNotifier.NotifyProjectGroupAsync(column.ProjectId, "column", "updated", new { columnId = id, column = columnDto });
         return true;
     }
     public async Task<bool> DeleteColumnAsync(Guid id)
@@ -58,10 +58,10 @@ public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotif
         if (column == null)
             throw new InvalidOperationException();
 
+        var projectId = column.ProjectId;
         context.Columns.Remove(column);
         await context.SaveChangesAsync();
-
-        await realtimeNotifier.NotifyStateChangedAsync("column", "deleted", new { columnId = id }, CurrentUserId);
+        await realtimeNotifier.NotifyProjectGroupAsync(projectId, "column", "deleted", new { columnId = id });
         return true;
     }
 }

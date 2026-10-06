@@ -1,20 +1,17 @@
-using System.Security.Claims;
-using Backend.DTO;
 using Backend.Data;
+using Backend.DTO;
 using Backend.Models;
+using Backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+
 namespace Backend.Services;
 
-public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNotifier, IHttpContextAccessor httpContextAccessor) : IProjectService
+public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNotifier) : IProjectService
 {
-    private Guid? CurrentUserId => Guid.TryParse(httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)
-        ? userId
-        : null;
-
     public async Task<IEnumerable<ProjectResponseDto>> GetProjectsByUserAsync(Guid userId)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException("ID добавленного пользователя не может быть пустым.", nameof(userId));
+            throw new ArgumentException("ID пользователя не может быть пустым.", nameof(userId));
 
         var userExists = await context.Users.AsNoTracking().AnyAsync(u => u.Id == userId);
         if (!userExists)
@@ -23,13 +20,19 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
         return await context.Projects.AsNoTracking()
             .Where(p => p.OwnerId == userId || p.Members.Any(m => m.UserId == userId))
             .OrderByDescending(p => p.CreatedAt)
-            .Select(p => new ProjectResponseDto(p.Id, p.Name, p.OwnerId, p.CreatedAt, p.Description, p.OwnerId == userId 
+            .Select(p => new ProjectResponseDto(
+                p.Id,
+                p.Name,
+                p.OwnerId,
+                p.CreatedAt,
+                p.Description,
+                p.OwnerId == userId 
                     ? ProjectRole.Owner 
-                    : (p.Members.Where(m => m.UserId == userId).Select(m => m.Role).FirstOrDefault())
+                    : p.Members.Where(m => m.UserId == userId).Select(m => m.Role).FirstOrDefault()
             ))
-            .ToListAsync();    
+            .ToListAsync();
     }
-    
+
     public async Task<ProjectResponseDto> CreateProjectAsync(ProjectCreateDto projectDto)
     {
         var project = new Project
@@ -40,7 +43,7 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
             OwnerId = projectDto.OwnerId,
             CreatedAt = DateTime.UtcNow
         };
-        
+
         context.Projects.Add(project);
         context.ProjectMembers.Add(new ProjectMember
         {
@@ -50,37 +53,71 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
         });
         await context.SaveChangesAsync();
 
-        var response = new ProjectResponseDto(project.Id, project.Name, project.OwnerId, project.CreatedAt, project.Description, ProjectRole.Owner);
-        await realtimeNotifier.NotifyStateChangedAsync("project", "created", new { project = response }, CurrentUserId);
+        var response = new ProjectResponseDto(
+            project.Id,
+            project.Name,
+            project.OwnerId,
+            project.CreatedAt,
+            project.Description,
+            ProjectRole.Owner);
+
+        // Персональное уведомление создателю (чтобы синхронизировать открытые вкладки)
+        await realtimeNotifier.NotifyUserAsync(project.OwnerId, "project", "created", new { project = response });
+
         return response;
     }
+
     public async Task<bool> UpdateProjectAsync(Guid id, ProjectUpdateDto projectDto)
     {
         var project = await context.Projects.FindAsync(id);
         if (project == null)
             throw new InvalidOperationException("Project not found");
-        
+
         project.Name = projectDto.Name;
         project.Description = projectDto.Description;
-        
+
         await context.SaveChangesAsync();
-        await realtimeNotifier.NotifyStateChangedAsync("project", "updated", new { projectId = id, project = new { id, name = project.Name, description = project.Description, ownerId = project.OwnerId } }, CurrentUserId);
+
+        var payload = new
+        {
+            id,
+            name = project.Name,
+            description = project.Description,
+            ownerId = project.OwnerId
+        };
+
+        var memberUserIds = await context.ProjectMembers
+            .Where(pm => pm.ProjectId == id)
+            .Select(pm => pm.UserId)
+            .ToListAsync();
+
+        await realtimeNotifier.NotifyUsersAsync(memberUserIds, "project", "updated", new { projectId = id, project = payload });
+
+        await realtimeNotifier.NotifyProjectGroupAsync(id, "project", "updated", new { projectId = id, project = payload });
+
         return true;
     }
-    
     public async Task<bool> DeleteProjectAsync(Guid id)
     {
         var project = await context.Projects.FindAsync(id);
         if (project == null)
             throw new InvalidOperationException("Project not found");
-        
+
+        var memberUserIds = await context.ProjectMembers
+            .Where(pm => pm.ProjectId == id)
+            .Select(pm => pm.UserId)
+            .ToListAsync();
+
         context.Projects.Remove(project);
         await context.SaveChangesAsync();
 
-        await realtimeNotifier.NotifyStateChangedAsync("project", "deleted", new { projectId = id }, CurrentUserId);
+        await realtimeNotifier.NotifyProjectGroupAsync(id, "project", "deleted", new { projectId = id });
+
+        await realtimeNotifier.NotifyUsersAsync(memberUserIds, "project", "deleted", new { projectId = id });
+
         return true;
     }
-    
+
     public async Task<ProjectMemberDto> AddMemberAsync(Guid projectId, Guid currentUserId, AddProjectMemberDto dto)
     {
         if (projectId == Guid.Empty)
@@ -115,7 +152,7 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
 
         var isAlreadyMember = await context.ProjectMembers
             .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
-            
+
         if (isAlreadyMember)
             throw new InvalidOperationException("Пользователь уже является участником проекта.");
 
@@ -130,7 +167,11 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
         await context.SaveChangesAsync();
 
         var payload = new ProjectMemberDto(user.Id, user.Id, user.Email, user.Name, member.Role);
-        await realtimeNotifier.NotifyStateChangedAsync("projectMember", "created", new { projectId, member = payload, userId = user.Id }, CurrentUserId);
+
+        await realtimeNotifier.NotifyUserAsync(user.Id, "projectMember", "created", new { projectId, member = payload, userId = user.Id });
+
+        await realtimeNotifier.NotifyProjectGroupAsync(projectId, "projectMember", "created", new { projectId, member = payload, userId = user.Id });
+
         return payload;
     }
 
@@ -163,7 +204,7 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
             throw new InvalidOperationException("Роль владельца нельзя изменить.");
 
         if (dto.Role == ProjectRole.Owner)
-            throw new InvalidOperationException("Нельзя назначить второго владельца. Выберите Editor или Viewer.");
+            throw new InvalidOperationException("Нельзя назначить второго владельца. Выберите Member или Viewer.");
 
         var member = await context.ProjectMembers
             .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == memberId);
@@ -173,7 +214,11 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
 
         member.Role = dto.Role;
         await context.SaveChangesAsync();
-        await realtimeNotifier.NotifyStateChangedAsync("projectMember", "updated", new { projectId, memberId, role = dto.Role }, CurrentUserId);
+
+        await realtimeNotifier.NotifyUserAsync(memberId, "projectMember", "updated", new { projectId, memberId, role = dto.Role });
+
+        await realtimeNotifier.NotifyProjectGroupAsync(projectId, "projectMember", "updated", new { projectId, memberId, role = dto.Role });
+
         return true;
     }
 
@@ -200,7 +245,11 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
 
         context.ProjectMembers.Remove(member);
         await context.SaveChangesAsync();
-        await realtimeNotifier.NotifyStateChangedAsync("projectMember", "deleted", new { projectId, memberId, userId = memberId }, CurrentUserId);
+
+        await realtimeNotifier.NotifyUserAsync(memberId, "projectMember", "deleted", new { projectId, memberId, userId = memberId });
+
+        await realtimeNotifier.NotifyProjectGroupAsync(projectId, "projectMember", "deleted", new { projectId, memberId, userId = memberId });
+
         return true;
     }
 }

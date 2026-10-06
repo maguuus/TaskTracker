@@ -24,8 +24,9 @@ function Login() {
         e.preventDefault();
         try {
             let response = await authMethod({ email: email, password: password });
-            const token = response.accessToken;
-
+            const token = response.token || response.accessToken;
+            localStorage.setItem('token', token);
+            
             localStorage.setItem('token', token);
 
             let profileResponse = await getMe();
