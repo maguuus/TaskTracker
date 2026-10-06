@@ -20,12 +20,17 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
     const [title, setTitle] = useState(column.title);
     const inputRef = useRef(null);
 
+    useEffect(() => {
+        setTitle(column.title);
+    }, [column])
+
     // --- Обработка событий из вебсокета ---
     useEffect(() => {
         const handleStateChanged = (message) => {
             if (!message || message.type !== 'stateChanged') return;
 
             const { entityType, action, payload } = message;
+
             if (entityType !== 'task') return;
 
             const taskId = payload?.taskId ?? payload?.task?.id;

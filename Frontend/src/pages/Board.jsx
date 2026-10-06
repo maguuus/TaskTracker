@@ -17,9 +17,12 @@ function Board() {
         return <Navigate to="/" replace />;
 
     useEffect(() => {
-        if (currentProject?.id !== projectId)
-            throw new Error("Should be same id's");
-    }, [currentProject?.id, projectId]);
+        if (!currentProject) return;
+
+        if (currentProject.id !== projectId) {
+            setCurrentProject(null);
+        }
+    }, [currentProject, projectId, setCurrentProject]);
 
     // --- Обработка событий из вебсокета ---
     useEffect(() => {
@@ -50,12 +53,12 @@ function Board() {
                 }
 
                 if (action === 'deleted' && memberId === currentUser.id) {
+                    navigate('/', { replace: true });
                     setCurrentProject(null);
                     setCurrentUser(prev => prev ? {
                         ...prev,
                         projects: (prev.projects ?? []).filter(p => p.id !== projectId),
                     } : prev);
-                    navigate('/', { replace: true });
                     return;
                 }
             }
