@@ -56,7 +56,7 @@ function ProjectContributors({ showSettings, setShowSettings }) {
     };
 
     return (
-        <Modal show={showSettings} onHide={() => setShowSettings(false)} centered data-bs-theme="light" size="md">
+        <Modal show={showSettings} onHide={() => setShowSettings(false)} centered data-bs-theme="light" size="lg">
             <Modal.Body className="p-4" style={{ backgroundColor: '#ffffff', borderRadius: '1.2rem', color: '#212121' }}>
 
                 {/* Шапка с кнопкой закрытия */}

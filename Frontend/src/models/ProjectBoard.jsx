@@ -7,6 +7,7 @@ import { useDBColumn } from '../hooks/DataBaseHook';
 import { useState } from 'react';
 import ProjectContributors from '../components/ProjectContributorsPanel';
 import useProject from "../context/ProjectContext.jsx";
+import { hub } from '../api/index.js';
 
 
 function ProjectBoard({ name, id, ...rest }) {
@@ -18,7 +19,7 @@ function ProjectBoard({ name, id, ...rest }) {
 
     const [currentProject] = useProject();
     const isViewer = currentProject?.role === "Viewer";
-    
+
     const newColumn = () => ({
         orderIndex: (columns[columns.length - 1]?.orderIndex ?? -1) + 1,
         title: `New Column`,
@@ -49,6 +50,49 @@ function ProjectBoard({ name, id, ...rest }) {
         return () => { cancelled = true; };
     }, [id]);
 
+    // --- Обработка событий из вебсокета ---
+    useEffect(() => {
+        const handleStateChanged = (message) => {
+            if (!message || message.type !== 'stateChanged') return;
+
+            const { entityType, action, payload } = message;
+            if (entityType !== 'column') return;
+
+            const columnPayload = payload?.column ?? payload;
+            const columnId = payload?.columnId ?? columnPayload?.id;
+
+            if (action === 'created' && columnPayload?.projectId === id) {
+                addColumn({ ...columnPayload, tasks: [] });
+                return;
+            }
+
+            if (action === 'deleted' && columnId) {
+                removeColumn({ id: columnId });
+                return;
+            }
+
+            if (action === 'updated' && columnId) {
+                const currentColumn = columns.find(column => column.id === columnId);
+                if (!currentColumn) return;
+
+                updateColumn({
+                    ...currentColumn,
+                    ...columnPayload,
+                    id: columnId,
+                    title: columnPayload?.title ?? currentColumn.title,
+                    orderIndex: columnPayload?.orderIndex ?? currentColumn.orderIndex,
+                });
+            }
+        };
+
+        hub.on('stateChanged', handleStateChanged);
+
+        return () => {
+            hub.off('stateChanged', handleStateChanged);
+        };
+    }, [addColumn, columns, id, removeColumn, updateColumn]);
+    // --- Конец обработки событий из вебсокета ---
+
     if (!columns)
         return <h1>Loading Columns for {name}...</h1>
 
@@ -58,9 +102,9 @@ function ProjectBoard({ name, id, ...rest }) {
     return (
         <Container fluid className="pt-2 px-4 position-relative" style={{ backgroundColor: '#bee0c6', minHeight: '100vh' }}>
             <div className="text-center mb-3">
-            <h1 className="fw-bold m-0 position-absolute start-50 translate-middle-x" style={{ color: '#212121', fontSize: '2.2rem', whiteSpace: 'nowrap' }}>
-                Проект: <span style={{ textDecoration: 'underline', textUnderlineOffset: '6px' }}>{name}</span>
-            </h1>
+                <h1 className="fw-bold m-0 position-absolute start-50 translate-middle-x" style={{ color: '#212121', fontSize: '2.2rem', whiteSpace: 'nowrap' }}>
+                    Проект: <span style={{ textDecoration: 'underline', textUnderlineOffset: '6px' }}>{name}</span>
+                </h1>
 
                 <div className="d-flex align-items-center" style={{ marginRight: '60px', paddingTop: '5px' }}>
                     {!isViewer && (

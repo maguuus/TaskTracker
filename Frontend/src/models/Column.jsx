@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Badge, Card, Dropdown, Form } from 'react-bootstrap';
 import useColumns from '../context/BoardContext';
 import { useColumn } from '../hooks/BoardHooks';
 import { useDBTask } from '../hooks/DataBaseHook';
 import Task from './Task';
+import { hub } from '../api/index.js';
 
 /**
  * @param {Object} props
@@ -18,6 +19,57 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
 
     const [title, setTitle] = useState(column.title);
     const inputRef = useRef(null);
+
+    // --- Обработка событий из вебсокета ---
+    useEffect(() => {
+        const handleStateChanged = (message) => {
+            if (!message || message.type !== 'stateChanged') return;
+
+            const { entityType, action, payload } = message;
+            if (entityType !== 'task') return;
+
+            const taskId = payload?.taskId ?? payload?.task?.id;
+            const taskColumnId = payload?.task?.columnId ?? payload?.columnId;
+
+            if (action === 'created' && payload?.task && payload.task.columnId === column.id) {
+                addTask(payload.task);
+                return;
+            }
+
+            if (action === 'deleted' && taskId) {
+                if (taskColumnId === column.id || !taskColumnId) {
+                    removeTask({ id: taskId });
+                }
+                return;
+            }
+
+            if (action === 'updated' && payload?.task) {
+                const taskInCurrentColumn = column.tasks.some(task => task.id === payload.task.id);
+
+                if (payload.task.columnId === column.id) {
+                    if (taskInCurrentColumn) {
+                        updateTask(payload.task);
+                    } else {
+                        addTask(payload.task);
+                    }
+                    return;
+                }
+
+                if (taskColumnId && taskColumnId !== column.id) {
+                    if (taskInCurrentColumn) {
+                        removeTask({ id: taskId });
+                    }
+                }
+            }
+        };
+
+        hub.on('stateChanged', handleStateChanged);
+
+        return () => {
+            hub.off('stateChanged', handleStateChanged);
+        };
+    }, [addTask, column.id, removeTask, updateTask]);
+    // --- Конец обработки событий из вебсокета ---
 
     const getColumnBg = (title) => {
         const t = title.toLowerCase();

@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useMemo } from 'react';
-import hub from '../api/index.js';
+import { createContext, useContext, useState, useMemo, useEffect } from 'react';
+import { hub } from '../api/index.js';
 
 const UserContext = createContext();
 
@@ -9,9 +9,19 @@ export function UserProvider({ children }) {
     const memoized = useMemo(() => ([currentUser, setCurrentUser]), [currentUser]);
 
     useEffect(() => {
-        if(!currentUser) return;
+        if (!currentUser) return;
+
+        const handleStateChanged = (message) => {
+            console.log('SignalR stateChanged event:', message);
+        };
+
+        hub.on('stateChanged', handleStateChanged);
         hub.start().catch(console.error);
-        return () => { hub.stop(); };
+
+        return () => {
+            hub.off('stateChanged', handleStateChanged);
+            hub.stop();
+        };
     }, [currentUser?.id]);
 
     return (

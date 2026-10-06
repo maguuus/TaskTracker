@@ -2,12 +2,15 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Backend.Data;
+using Backend.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Backend.Services;
 using Backend.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddCors(options =>
 {
@@ -33,6 +36,7 @@ builder.Services.AddScoped<IColumnService, ColumnService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IProjectAccessService, ProjectAccessService>();
+builder.Services.AddScoped<IRealtimeNotifier, RealtimeNotifier>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -98,6 +102,7 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<TaskTrackerHub>("/hubs/task-tracker");
 app.MapControllers();
 // app.MapHub<...>("/hubs/board"); 
 

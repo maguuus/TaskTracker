@@ -1,11 +1,16 @@
+using System.Security.Claims;
 using Backend.DTO;
 using Backend.Data;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Services;
 
-public class TaskService(AppDbContext context) : ITaskService
+public class TaskService(AppDbContext context, IRealtimeNotifier realtimeNotifier, IHttpContextAccessor httpContextAccessor) : ITaskService
 {
+    private Guid? CurrentUserId => Guid.TryParse(httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)
+        ? userId
+        : null;
+
     public async Task<IEnumerable<TaskResponseDto>> GetTasksByColumnAsync(Guid columnId)
     {
         var tasks = await context.TaskItems
@@ -42,7 +47,7 @@ public class TaskService(AppDbContext context) : ITaskService
         context.TaskItems.Add(task);
         await context.SaveChangesAsync();
         
-        return new TaskResponseDto(task.Id, 
+        var response = new TaskResponseDto(task.Id, 
             task.Title, 
             task.Description, 
             task.Priority, 
@@ -55,6 +60,9 @@ public class TaskService(AppDbContext context) : ITaskService
             task.UpdatedAt, 
             task.DueDate, 
             task.PlannedStartAt);
+
+        await realtimeNotifier.NotifyStateChangedAsync("task", "created", new { task = response }, CurrentUserId);
+        return response;
     }
     public async Task<TaskResponseDto> UpdateTaskAsync(Guid id, TaskUpdateDto taskDto)
     {
@@ -94,7 +102,7 @@ public class TaskService(AppDbContext context) : ITaskService
         
         await context.SaveChangesAsync();
         
-        return new TaskResponseDto(
+        var response = new TaskResponseDto(
             task.Id,
             task.Title,
             task.Description,
@@ -108,6 +116,9 @@ public class TaskService(AppDbContext context) : ITaskService
             task.UpdatedAt,
             task.DueDate,
             task.PlannedStartAt);
+
+        await realtimeNotifier.NotifyStateChangedAsync("task", "updated", new { taskId = id, task = response }, CurrentUserId);
+        return response;
     }
     public async Task<bool> DeleteTaskAsync(Guid id)
     {
@@ -117,6 +128,7 @@ public class TaskService(AppDbContext context) : ITaskService
 
         context.TaskItems.Remove(task);
         await context.SaveChangesAsync();
+        await realtimeNotifier.NotifyStateChangedAsync("task", "deleted", new { taskId = id }, CurrentUserId);
         return true;
     }
 }
