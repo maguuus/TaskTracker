@@ -5,12 +5,8 @@ using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Services;
 
-public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotifier, IHttpContextAccessor httpContextAccessor) : IColumnService
+public class ColumnService(AppDbContext context) : IColumnService
 {
-    private Guid? CurrentUserId => Guid.TryParse(httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)
-        ? userId
-        : null;
-
     public async Task<IEnumerable<ColumnResponseDto>> GetColumnsByProjectAsync(Guid projectId)
     {
         var columns = await context.Columns
@@ -32,12 +28,10 @@ public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotif
             OrderIndex = columnDto.OrderIndex,
             ProjectId = columnDto.ProjectId
         };
-        
         context.Columns.Add(column);
         await context.SaveChangesAsync();
 
         var response = new ColumnResponseDto(column.Id, column.Title, column.OrderIndex, column.ProjectId);
-        await realtimeNotifier.NotifyProjectGroupAsync(column.ProjectId, "column", "created", new { column = response });
         return response;
     }
     public async Task<bool> UpdateColumnAsync(Guid id, ColumnUpdateDto columnDto)
@@ -45,11 +39,10 @@ public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotif
         var column = await context.Columns.FindAsync(id);
         if (column == null)
             throw new InvalidOperationException("Column not found");
-        
+
         column.Title = columnDto.Title;
         column.OrderIndex = columnDto.OrderIndex;
         await context.SaveChangesAsync();
-        await realtimeNotifier.NotifyProjectGroupAsync(column.ProjectId, "column", "updated", new { columnId = id, column = columnDto });
         return true;
     }
     public async Task<bool> DeleteColumnAsync(Guid id)
@@ -58,10 +51,9 @@ public class ColumnService(AppDbContext context, IRealtimeNotifier realtimeNotif
         if (column == null)
             throw new InvalidOperationException();
 
-        var projectId = column.ProjectId;
         context.Columns.Remove(column);
         await context.SaveChangesAsync();
-        await realtimeNotifier.NotifyProjectGroupAsync(projectId, "column", "deleted", new { columnId = id });
+
         return true;
     }
 }
