@@ -26,8 +26,8 @@ public class ColumnsController(IColumnService columnService, IProjectAccessServi
             return StatusCode(StatusCodes.Status403Forbidden, "У вас нет доступа к этому проекту.");
         }
 
-        var columns = await columnService.GetColumnsByProjectAsync(projectId);
         var version = requestQueueManager.GetCurrentVersion(projectId);
+        var columns = await columnService.GetColumnsByProjectAsync(projectId);
 
         return Ok(columns.Select(column => column with { Version = version }));
     }
