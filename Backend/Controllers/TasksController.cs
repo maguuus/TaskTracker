@@ -31,8 +31,10 @@ public class TasksController(ITaskService taskService, IProjectAccessService acc
         {
             return NotFound("Project not found");
         }
-        var tasks = await taskService.GetTasksByColumnAsync(columnId);
+
         var version = requestQueueManager.GetCurrentVersion(projectId.Value);
+        var tasks = await taskService.GetTasksByColumnAsync(columnId);
+
 
         return Ok(tasks.Select(task => task with { Version = version }));
     }
