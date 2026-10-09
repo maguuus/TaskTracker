@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Backend.Data;
 using Backend.DTO;
 using Backend.Models;
+using Backend.Queue;
 using Backend.Services;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +14,10 @@ namespace Backend.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class TasksController(ITaskService taskService, IProjectAccessService accessService) : ControllerBase
+public class TasksController(ITaskService taskService, IProjectAccessService accessService, RequestQueueManager requestQueueManager) : ControllerBase
 {
     private Guid CurrentUserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    
+
     [HttpGet("column/{columnId:guid}")]
     public async Task<ActionResult<IEnumerable<TaskResponseDto>>> GetTasksByColumn(Guid columnId)
     {
@@ -24,8 +25,18 @@ public class TasksController(ITaskService taskService, IProjectAccessService acc
         {
             return StatusCode(StatusCodes.Status403Forbidden, "У вас нет доступа к этой доске.");
         }
+
+        var projectId = await accessService.GetProjectIdByColumnAsync(columnId);
+        if (projectId == null)
+        {
+            return NotFound("Project not found");
+        }
+
+        var version = requestQueueManager.GetCurrentVersion(projectId.Value);
         var tasks = await taskService.GetTasksByColumnAsync(columnId);
-        return Ok(tasks);
+
+
+        return Ok(tasks.Select(task => task with { Version = version }));
     }
 
     [HttpPost]
@@ -35,9 +46,9 @@ public class TasksController(ITaskService taskService, IProjectAccessService acc
         {
             return StatusCode(StatusCodes.Status403Forbidden, "Только Owner или Member могут создавать задачи.");
         }
+
         try {
             var taskResponseDto = await taskService.CreateTaskAsync(taskDto);
-            
             return Ok(taskResponseDto);
         }
         catch(InvalidOperationException ex)
@@ -45,7 +56,7 @@ public class TasksController(ITaskService taskService, IProjectAccessService acc
             return NotFound(ex.Message);
         }
     }
-    
+
     [HttpPatch("{id:guid}")]
     public async Task<IActionResult> UpdateTask(Guid id, TaskUpdateDto taskDto)
     {
@@ -72,7 +83,6 @@ public class TasksController(ITaskService taskService, IProjectAccessService acc
             return NotFound(ex.Message);
         }
     }
-    
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteTask(Guid id)
     {
@@ -90,4 +100,5 @@ public class TasksController(ITaskService taskService, IProjectAccessService acc
             return NotFound();
         }
     }
+
 }

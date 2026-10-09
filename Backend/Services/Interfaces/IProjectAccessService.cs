@@ -8,4 +8,6 @@ public interface IProjectAccessService
     Task<bool> CanEditColumnAsync(Guid userId, Guid columnId);
     Task<bool> CanEditTaskAsync(Guid userId, Guid taskId);
     Task<bool> IsProjectOwnerAsync(Guid userId, Guid projectId);
+    Task<Guid?> GetProjectIdByColumnAsync(Guid columnId);
+    Task<Guid?> GetProjectIdByTaskAsync(Guid taskId);
 }
