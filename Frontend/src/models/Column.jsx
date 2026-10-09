@@ -1,12 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
 import { Badge, Card, Dropdown, Form } from 'react-bootstrap';
 import { useColumn } from '../hooks/BoardHooks';
+import useColumns from '../context/BoardContext';
 import { useDBTask } from '../hooks/DataBaseHook';
+import { hub } from '../api/index.js';
 import Task from './Task';
 
-function Column({ column, onColumnUpdate, onColumnDelete }) {
+/**
+ * @param {Object} props
+ * @param {Column} props.column
+ */
+
+function Column({ column, projectId, onColumnUpdate, onColumnDelete }) {
     const [post, patch, remove] = useDBTask();
     const [, updateTask, removeTask] = useColumn(column.id);
+    const [, setColumns] = useColumns();
 
     const [title, setTitle] = useState(column.title);
     const inputRef = useRef(null);
@@ -14,6 +22,54 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
     useEffect(() => {
         setTitle(column.title);
     }, [column.title]);
+
+    useEffect(() => {
+        const handleStateChanged = (message) => {
+            if (!message || message.type !== 'stateChanged' || message.projectId !== projectId) return;
+
+            const { entityType, action, payload } = message;
+            if (entityType !== 'task') return;
+
+            const task = payload?.task;
+            const taskId = payload?.taskId ?? task?.id;
+
+            if (action === 'created' && task && column.id === task.columnId) {
+                setColumns(prev => prev.map(col =>
+                    col.id === column.id
+                        ? { ...col, tasks: [...col.tasks.filter(t => t.id !== task.id), task] }
+                        : col
+                ));
+            } else if (action === 'deleted' && taskId) {
+                setColumns(prev => prev.map(col =>
+                    col.id === column.id
+                        ? { ...col, tasks: col.tasks.filter(t => t.id !== taskId) }
+                        : col
+                ));
+            } else if (action === 'updated' && task) {
+                setColumns(prev => prev.map(col => {
+                    if (col.id === column.id && col.id === task.columnId) {
+                        const cleanTasks = col.tasks.filter(t => t.id !== task.id);
+                        return {
+                            ...col,
+                            tasks: [...cleanTasks, task].sort((a, b) => a.orderIndex - b.orderIndex)
+                        };
+                    }
+                    if (col.id === column.id) {
+                        return {
+                            ...col,
+                            tasks: col.tasks.filter(t => t.id !== task.id)
+                        };
+                    }
+                    return col;
+                }));
+            }
+        };
+
+        hub.on('stateChanged', handleStateChanged);
+        return () => {
+            hub.off('stateChanged', handleStateChanged);
+        };
+    }, [column.id, projectId, setColumns]);
 
     const getColumnBg = (t) => {
         const val = (t || '').toLowerCase();

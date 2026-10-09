@@ -106,37 +106,6 @@ function ProjectBoard({ name, id }) {
                 }
             }
 
-            if (entityType === 'task') {
-                const task = payload?.task;
-                const taskId = payload?.taskId ?? task?.id;
-
-                if (action === 'created' && task) {
-                    setColumns(prev => prev.map(col =>
-                        col.id === task.columnId
-                            ? { ...col, tasks: [...col.tasks.filter(t => t.id !== task.id), task] }
-                            : col
-                    ));
-                } else if (action === 'deleted' && taskId) {
-                    setColumns(prev => prev.map(col => ({
-                        ...col,
-                        tasks: col.tasks.filter(t => t.id !== taskId)
-                    })));
-                } else if (action === 'updated' && task) {
-                    setColumns(prev => prev.map(col => {
-                        if (col.id === task.columnId) {
-                            const cleanTasks = col.tasks.filter(t => t.id !== task.id);
-                            return {
-                                ...col,
-                                tasks: [...cleanTasks, task].sort((a, b) => a.orderIndex - b.orderIndex)
-                            };
-                        }
-                        return {
-                            ...col,
-                            tasks: col.tasks.filter(t => t.id !== task.id)
-                        };
-                    }));
-                }
-            }
         };
 
         hub.on('stateChanged', handleStateChanged);
@@ -200,6 +169,7 @@ function ProjectBoard({ name, id }) {
                         <Col key={column.id} style={{ minWidth: '410px', width: '410px', flexGrow: 0 }} className="me-2 h-100">
                             <Column
                                 column={column}
+                                projectId={id}
                                 onColumnUpdate={async (c) => { await patch(c); }}
                                 onColumnDelete={async () => { await remove(column); }}
                             />
