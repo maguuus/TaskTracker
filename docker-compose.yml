@@ -1,6 +1,6 @@
 x-urls:
-  backend: &backend-url "http://${BACKEND_HOST:-localhost}:${BACKEND_PORT:-8080}"
-  frontend: &frontend-url "http://${FRONTEND_HOST:-localhost}:${FRONTEND_PORT:-3000}"
+  backend: &backend-url "${BACKEND_URL:-http://${BACKEND_HOST:-localhost}:${BACKEND_PORT:-8080}}"
+  frontend: &frontend-url "${FRONTEND_URL:-http://${FRONTEND_HOST:-localhost}:${FRONTEND_PORT:-3000}}"
 
 services:
   postgres-db:
@@ -32,7 +32,7 @@ services:
       Jwt__Audience: ${JWT_AUDIENCE}
       Jwt__ExpireMinutes: "1440"
     ports:
-      - "${BACKEND_PORT:-8080}:8080"
+      - "${BIND_ADDRESS:-}:${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres-db:
         condition: service_healthy
@@ -46,7 +46,7 @@ services:
       args:
         VITE_API_URL: *backend-url
     ports:
-      - "${FRONTEND_PORT:-3000}:80"
+      - "${BIND_ADDRESS:-}:${FRONTEND_PORT:-3000}:80"
     networks:
       - backend
 

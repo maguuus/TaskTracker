@@ -1,4 +1,5 @@
 import axios from "axios";
+import * as signalr from "@microsoft/signalr"
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
@@ -18,3 +19,11 @@ api.interceptors.request.use(config => {
 })
 
 export default api;
+
+/** @type {signalr.HubConnection} */
+export const hub = new signalr.HubConnectionBuilder()
+    .withUrl(`${import.meta.env.VITE_API_URL}/hubs/board`, {
+        accessTokenFactory: () => localStorage.getItem("token"),
+    })
+    .withAutomaticReconnect()
+    .build();

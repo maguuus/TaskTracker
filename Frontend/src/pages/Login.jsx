@@ -1,14 +1,13 @@
-import { Container, Form, Button, InputGroup } from 'react-bootstrap'
-import { useEffect, useState } from 'react'
-import useUser from '../context/UserContext'
+import { useState } from 'react';
+import { Button, Container, Form, InputGroup } from 'react-bootstrap';
+import useUser from '../context/UserContext';
 import { useDBUser } from '../hooks/DataBaseHook';
-import api from '../api';
 
-const mockUser = (email) => ({
-    id: 1,
-    email: email,
-    projects: [projectMeta1, projectMeta2, projectMeta3]
-})
+// const mockUser = (email) => ({
+//     id: 1,
+//     email: email,
+//     projects: [projectMeta1, projectMeta2, projectMeta3]
+// })
 
 function Login() {
 
@@ -25,8 +24,9 @@ function Login() {
         e.preventDefault();
         try {
             let response = await authMethod({ email: email, password: password });
-            const token = response.accessToken;
-
+            const token = response.token || response.accessToken;
+            localStorage.setItem('token', token);
+            
             localStorage.setItem('token', token);
 
             let profileResponse = await getMe();
