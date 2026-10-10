@@ -177,6 +177,7 @@ function ColumnCard({
         textAlign: 'center',
         cursor: 'pointer',
         transition: 'all 0.2s',
+        width: '150px',
     };
 
     const getGlowClass = (title) => {
@@ -218,7 +219,7 @@ function ColumnCard({
                 </Dropdown.Menu>
             </Dropdown>
 
-            <h3 className="column-title mb-0 d-flex align-items-center justify-content-center w-100 fw-normal">
+            <h3 className="column-title mb-0 d-flex align-items-center justify-content-center fw-normal">
 
                 <Form
                     className="d-inline-block w-auto"
