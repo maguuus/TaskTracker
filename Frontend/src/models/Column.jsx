@@ -3,6 +3,7 @@ import { Badge, Card, Dropdown, Form } from 'react-bootstrap';
 import useColumns from '../context/BoardContext';
 import { useColumn } from '../hooks/BoardHooks';
 import { useDBTask } from '../hooks/DataBaseHook';
+import { useTheme } from '../context/ThemeContext';
 import Task from './Task';
 
 /**
@@ -18,15 +19,19 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
 
     const [title, setTitle] = useState(column.title);
     const inputRef = useRef(null);
+    const { theme } = useTheme();
 
-    const getColumnBg = (title) => {
+    const getColumnBg = (title, theme = 'colorful') => {
         const t = title.toLowerCase();
-        if (t.includes('do') || t.includes('дел')) {
-            return '#FFDE6A';
+
+        if (theme === 'beige') {
+            if (t.includes('do') || t.includes('дел')) return '#E8D3A8';
+            if (t.includes('progress') || t.includes('ход')) return '#E8C2B8';
+            return '#D8CBE2';
         }
-        if (t.includes('progress') || t.includes('ход')) {
-            return '#FFA6B4';
-        }
+
+        if (t.includes('do') || t.includes('дел')) return '#FFDE6A';
+        if (t.includes('progress') || t.includes('ход')) return '#FFA6B4';
         return '#C79EFF';
     };
 
@@ -119,6 +124,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
 
     return (
         <ColumnCard
+            theme={theme}
             inputRef={inputRef}
             getColumnBg={getColumnBg}
             column={column}
@@ -143,6 +149,7 @@ function Column({ column, onColumnUpdate, onColumnDelete }) {
 export default Column;
 
 function ColumnCard({
+    theme,
     getColumnBg,
     column,
     handleSave,
@@ -170,18 +177,28 @@ function ColumnCard({
         textAlign: 'center',
         cursor: 'pointer',
         transition: 'all 0.2s',
+        width: '150px',
     };
 
-    return (<Card style={{
-        backgroundColor: getColumnBg(column.title),
-        height: 'calc(110vh - 200px)',
-        display: 'flex',
-        flexDirection: 'column',
-        borderRadius: '24px',
-        border: 'none',
-        padding: '13px 10px',
-        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)'
-    }}>
+    const getGlowClass = (title) => {
+        const t = title.toLowerCase();
+
+        if (t.includes('do') || t.includes('дел')) return 'glow-blue';
+        if (t.includes('progress') || t.includes('ход')) return 'glow-green';
+        if (t.includes('review') || t.includes('пров')) return 'glow-yellow';
+
+        return 'glow-red';
+    };
+
+    return (
+    <Card
+        className={`board-column ${theme === 'neon' ? getGlowClass(column.title) : ''}`}
+        style={
+            ['colorful', 'beige'].includes(theme)
+                ? { backgroundColor: getColumnBg(column.title, theme) }
+                : undefined
+        }
+    >
         <Card.Header className="bg-transparent border-0 text-center py-2 position-relative">
             <Dropdown className="position-absolute" style={{ top: '0.5rem', right: '0.5rem' }} align="end">
                 <Dropdown.Toggle
@@ -202,7 +219,7 @@ function ColumnCard({
                 </Dropdown.Menu>
             </Dropdown>
 
-            <h3 className="mb-0 d-flex align-items-center justify-content-center w-100 fw-normal" style={{ color: '#212121' }}>
+            <h3 className="column-title mb-0 d-flex align-items-center justify-content-center fw-normal">
 
                 <Form
                     className="d-inline-block w-auto"
@@ -222,16 +239,19 @@ function ColumnCard({
                     />
                 </Form>
 
-                <Badge bg="secondary" className="ms-2 fs-6 rounded-circle">
+                <Badge 
+                    bg={theme === 'colorful' ? 'secondary' : undefined}
+                    className={`column-count ms-2 fs-6 rounded-circle ${theme !== 'colorful' ? 'themed-count' : ''}`}
+                >
                     {column.tasks.length}
                 </Badge>
             </h3>
         </Card.Header>
 
         <Card.Body
+            className="column-body"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            style={{ overflowY: 'auto', padding: '10px' }}
         >
             {column.tasks.map((task) => (
                 <div key={task.id} onDragStart={() => { window.__draggedTaskInstance = task; }}>

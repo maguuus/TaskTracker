@@ -81,9 +81,9 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
 
     return (
         <>
-            <Card className={`border border-${getBorderColor()} shadow-sm p-3 mb-3 bg-white`}
+            <Card className={`task-card border border-${getBorderColor()} shadow-sm p-3 mb-3`}
                 style={{
-                    borderLeftWidth: '5px !important',
+                    borderLeftWidth: '5px',
                     borderRadius: '12px',
                     cursor: 'move',
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease'

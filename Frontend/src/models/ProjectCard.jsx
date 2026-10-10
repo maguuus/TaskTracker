@@ -13,16 +13,35 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
     const [name, setName] = useState(project.name);
     const [description, setDescription] = useState(project.description);
 
+    
+    const [cover, setCover] = useState(project.cover || "abstract");
+
+    const coverOptions = [
+        { id: "abstract", label: "Абстракция" },
+        { id: "stripes", label: "Полоски" },
+        { id: "waves", label: "Волны" },
+        { id: "circles", label: "Круги" },
+        { id: "geometry", label: "Геометрия" },
+        { id: "dots", label: "Точки" },
+    ];
+
+
     useEffect(() => {
         setName(project.name);
         setDescription(project.description);
+        setCover(project.cover || "abstract");
     }, [project]);
 
     async function onToggleEdit() {
         if (!isOwner) return;
 
         if (editMode) {
-            const updated = { ...project, name: name.trim(), description: description.trim() };
+            const updated = {
+                ...project,
+                name: name.trim(),
+                description: description.trim(),
+                cover: cover,
+            };
             await onUpdate(updated);
             setEditMode(false);
             return;
@@ -37,6 +56,7 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
             setName(project.name);
             setDescription(project.description);
             setEditMode(false);
+            setCover(project.cover || "abstract");
         }
     }
 
@@ -64,16 +84,14 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
 
     return (
         <Card
-            className="border-0 shadow-sm w-100 rounded-4 overflow-hidden position-relative"
-            style={{ backgroundColor: '#FFFFFF', maxWidth: '280px', height: '100%' }}
+            className="project-card w-100 rounded-4 overflow-hidden position-relative"
             onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.08)';
+                e.currentTarget.classList.add('project-card-hover');
             }}
             onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+                e.currentTarget.classList.remove('project-card-hover');
             }}
+            style={{ maxWidth: '280px', height: '100%' }}
         >
             {isOwner && (
                 <button
@@ -87,8 +105,12 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
 
             <div className="d-flex align-items-center p-3 pb-2">
                 <div
-                    className="d-flex align-items-center justify-content-center rounded-circle fw-bold me-2 flex-shrink-0"
-                    style={{ backgroundColor: '#EBE4FA', color: '#5E17EB', width: '32px', height: '32px', fontSize: project.icon ? '1rem' : '0.8rem' }}
+                    className="project-card-avatar d-flex align-items-center justify-content-center rounded-circle fw-bold me-2 flex-shrink-0"
+                    style={{
+                        width: '32px',
+                        height: '32px',
+                        fontSize: '0.8rem'
+                    }}
                 >
                     {avatarLetter}
                 </div>
@@ -103,7 +125,9 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                             autoFocus
                         />
                     ) : (
-                        <div className="fw-bold text-dark text-truncate" style={{ fontSize: '0.85rem' }}>{name}</div>
+                        <div className="project-card-name fw-bold text-truncate" style={{ fontSize: '0.85rem' }}>
+                            {name}
+                        </div>
                     )}
                     <span
                         className="badge fw-medium px-2 py-1 mt-1"
@@ -119,16 +143,60 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                 </div>
             </div>
 
-            <div
-                className="d-flex align-items-center justify-content-center border-0 mx-0"
-                style={{ backgroundColor: '#EBEBEB', height: '140px' }}
-            >
-                <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-25">
-                    <path d="M50 15L75 55H25L50 15Z" fill="#707070" />
-                    <rect x="52" y="48" width="24" height="24" rx="4" fill="#707070" />
-                    <path d="M36 68C36 74.6274 30.6274 80 24 80C17.3726 80 12 74.6274 12 68C12 61.3726 17.3726 56 24 56C30.6274 56 36 61.3726 36 68Z" fill="#707070" />
-                </svg>
+            <div className={`project-card-cover cover-${cover}`}>
+                <div className="project-card-cover-pattern" />
+
+                <div className="project-card-cover-shape project-card-shape-one" />
+                <div className="project-card-cover-shape project-card-shape-two" />
+                <div className="project-card-cover-shape project-card-shape-three" />
+
+                <div className="project-card-cover-icon">
+                    <svg
+                        width="52"
+                        height="52"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                    >
+                        <path d="M3 7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    </svg>
+                </div>
             </div>
+
+            {editMode && (
+                <div className="px-3 pt-3">
+                    <div className="small fw-semibold mb-2">
+                        Обложка проекта
+                    </div>
+
+                    <div className="cover-picker">
+                        {coverOptions.map(option => (
+                            <button
+                                key={option.id}
+                                type="button"
+                                className={`cover-option cover-${option.id} ${
+                                    cover === option.id ? "selected" : ""
+                                }`}
+                                title={option.label}
+                                aria-label={option.label}
+                                aria-pressed={cover === option.id}
+                                onClick={() => setCover(option.id)}
+                            >
+                                <span className="cover-option-pattern" />
+                                {cover === option.id && <span className="cover-check">✓</span>}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="small text-muted mt-1">
+                        Выбрано: {coverOptions.find(option => option.id === cover)?.label}
+                    </div>
+                </div>
+            )}
 
             <Card.Body className="p-3 d-flex flex-column">
                 <Card.Title className="fw-bold mb-0 text-dark text-truncate" style={{ fontSize: '0.85rem' }}>
@@ -169,8 +237,8 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                     <Button
                         variant="dark"
                         size="sm"
-                        className="rounded-pill px-3 border-0 text-white fw-medium"
-                        style={{ backgroundColor: '#5E17EB', fontSize: '0.7rem' }}
+                        className="project-card-open rounded-pill px-3 border-0 fw-medium"
+                        style={{ fontSize: '0.7rem' }}
                         onClick={onChoose}
                     >
                         Перейти
