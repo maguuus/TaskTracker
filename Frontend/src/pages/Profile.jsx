@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { useDBUser } from "../hooks/DataBaseHook";
 import useProject from '../context/ProjectContext';
-import ThemeSwitcher from '../components/ThemeSwitcher';
 import { useTheme } from '../context/ThemeContext';
 
 function Profile() {
