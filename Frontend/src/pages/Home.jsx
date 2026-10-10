@@ -48,7 +48,7 @@ function Home() {
 
     if (!currentUser)
         return (
-            <Container fluid className="d-flex align-items-center justify-content-center" style={{ backgroundColor: '#CBB4F5', minHeight: '100vh' }}>
+            <Container fluid className="home-page d-flex align-items-center justify-content-center">
                 <div className="text-center text-white">
                     <h2>Проекты</h2>
                     <p>Войдите в аккаунт, чтобы увидеть проекты.</p>
@@ -57,19 +57,20 @@ function Home() {
         )
 
     return (
-        <Container fluid className="py-5" style={{ backgroundColor: '#CBB4F5', minHeight: '100vh', width: '100vw' }}>
+        <Container fluid className="home-page py-5">
             <div className="d-flex justify-content-center align-items-center position-relative mb-5" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                <h1 className="display-4 fw-medium m-0" style={{ color: '#5E17EB' }}>Проекты</h1>
+                <h1 className="display-4 fw-medium m-0 home-heading">Проекты</h1>
 
                 <Button
-                    variant="dark"
-                    className="position-absolute end-0 rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                    style={{ backgroundColor: '#5E17EB', borderColor: '#5E17EB', width: '45px', height: '45px', fontSize: '1.5rem', paddingBottom: '5px' }}
-                    onClick={async () => { let p = await post(newProject(currentUser.id)); createProjectMeta(p); }}
+                    className="home-add-button position-absolute end-0 rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                    onClick={async () => {
+                        let p = await post(newProject(currentUser.id));
+                        createProjectMeta(p);
+                    }}
                 >
                     +
                 </Button>
-            </div>
+                            </div>
 
             <Row className="justify-content-center px-4 gx-4 gy-4" style={{ maxWidth: '1200px', margin: '0 auto' }}>
                 {currentUser.projects.length !== 0

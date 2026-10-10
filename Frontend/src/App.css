@@ -467,3 +467,235 @@
     border-color: #E5FF80;
     color: #171326;
 }
+
+
+/* Главная страница проектов */
+.home-page {
+    min-height: 100vh;
+    width: 100%;
+    background: var(--page-bg);
+    color: var(--text-primary);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.home-heading {
+    color: var(--text-primary);
+}
+
+.home-add-button {
+    width: 45px;
+    height: 45px;
+    padding: 0 0 4px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background-color: var(--accent) !important;
+    border: 1px solid var(--accent) !important;
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+    z-index: 2;
+}
+
+.home-add-button:hover {
+    filter: brightness(1.1);
+}
+
+.home-empty {
+    color: var(--text-secondary);
+}
+
+/* Разноцветная тема — сохраняем прежнее оформление */
+[data-theme="colorful"] .home-page {
+    background-color: #CBB4F5;
+}
+
+[data-theme="colorful"] .home-heading {
+    color: #5E17EB;
+}
+
+[data-theme="colorful"] .home-add-button {
+    background-color: #5E17EB !important;
+    border-color: #5E17EB !important;
+    color: #FFFFFF !important;
+}
+
+/* Карточки проектов — общие стили */
+.project-card {
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--task-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease,
+                background-color 0.25s ease, color 0.25s ease;
+}
+
+.project-card-hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.project-card-name,
+.project-card .card-title {
+    color: var(--text-primary) !important;
+}
+
+.project-card .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.project-card-avatar {
+    background: var(--accent);
+    color: var(--surface);
+}
+
+.project-card-open {
+    background: var(--accent);
+    color: var(--surface);
+}
+
+.project-card-open:hover {
+    background: var(--text-primary);
+    color: var(--surface);
+}
+
+/* Разноцветная тема */
+[data-theme="colorful"] .project-card-avatar {
+    background: #EBE4FA;
+    color: #5E17EB;
+}
+
+[data-theme="colorful"] .project-card-open {
+    background: #5E17EB;
+    color: #FFFFFF;
+}
+
+/* Неоновая тема */
+[data-theme="neon"] .project-card {
+    border-color: #62448A !important;
+}
+
+[data-theme="neon"] .project-card-avatar {
+    background: #D9FF52;
+    color: #171326;
+}
+
+[data-theme="neon"] .project-card-open {
+    background: #D9FF52;
+    color: #171326;
+}
+
+[data-theme="neon"] .project-card-hover {
+    box-shadow: 0 0 12px rgba(217, 255, 82, 0.2),
+                0 0 20px rgba(142, 68, 255, 0.25);
+}
+
+/* Бежевая тема */
+[data-theme="beige"] .project-card-avatar,
+[data-theme="beige"] .project-card-open {
+    background: #9C7954;
+    color: #FFFFFF;
+}
+
+/* Чёрно-белая тема */
+[data-theme="mono"] .project-card-avatar,
+[data-theme="mono"] .project-card-open {
+    background: #333333;
+    color: #FFFFFF;
+}
+
+
+
+/* Обложка карточки проекта */
+.project-card-cover {
+    height: 140px;
+    margin: 0 12px;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #8B5CF6, #D8B4FE 60%, #F9A8D4);
+    color: #FFFFFF;
+}
+
+.project-card-cover-shape {
+    position: absolute;
+    border-radius: 40% 60% 65% 35%;
+    pointer-events: none;
+}
+
+.project-card-shape-one {
+    width: 180px;
+    height: 150px;
+    top: -75px;
+    left: -35px;
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(-25deg);
+}
+
+.project-card-shape-two {
+    width: 150px;
+    height: 130px;
+    right: -45px;
+    bottom: -75px;
+    background: rgba(255, 255, 255, 0.24);
+    transform: rotate(30deg);
+}
+
+.project-card-shape-three {
+    width: 95px;
+    height: 95px;
+    top: -42px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.project-card-cover-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+}
+
+/* Разноцветная тема */
+[data-theme="colorful"] .project-card-cover {
+    background: linear-gradient(135deg, #8B5CF6, #D8B4FE 60%, #7DE7D1);
+}
+
+/* Неоновая тема */
+[data-theme="neon"] .project-card-cover {
+    background: linear-gradient(135deg, #171326, #35264F 65%, #164E63);
+    color: #D9FF52;
+    border: 1px solid #62448A;
+}
+
+[data-theme="neon"] .project-card-cover-shape {
+    border: 1px solid rgba(217, 255, 82, 0.35);
+    background: rgba(142, 68, 255, 0.16);
+}
+
+[data-theme="neon"] .project-card-cover-icon {
+    filter: drop-shadow(0 0 7px rgba(217, 255, 82, 0.45));
+}
+
+/* Бежевая тема */
+[data-theme="beige"] .project-card-cover {
+    background: linear-gradient(135deg, #E9D8B9, #C6A780 65%, #9C7954);
+    color: #FFF9EF;
+}
+
+[data-theme="beige"] .project-card-cover-shape {
+    background: rgba(255, 250, 241, 0.22);
+}
+
+/* Чёрно-белая тема */
+[data-theme="mono"] .project-card-cover {
+    background: linear-gradient(135deg, #333333, #999999 65%, #DADADA);
+    color: #FFFFFF;
+}
+
+[data-theme="mono"] .project-card-cover-shape {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+
