@@ -518,6 +518,12 @@
     color: #FFFFFF !important;
 }
 
+[data-theme="neon"] .home-add-button {
+    background-color: #D9FF52 !important;
+    border-color: #D9FF52 !important;
+    color: #171326 !important;
+}
+
 /* Карточки проектов — общие стили */
 .project-card {
     background: var(--surface);
@@ -849,3 +855,158 @@
 [data-theme="mono"] .project-card-cover.cover-dots {
     background: linear-gradient(135deg, #333333, #999999 65%, #DADADA);
 }
+
+
+/* Цветной стиль — оставляем исходную розовую палитру */
+[data-theme="colorful"] {
+    --auth-page-bg: #FBCED5;
+    --auth-card-bg: #EFA6B2;
+}
+
+/* Неоновый стиль */
+[data-theme="neon"] {
+    --auth-page-bg: var(--page-bg);
+    --auth-card-bg: var(--surface);
+}
+
+/* Бежевый стиль */
+[data-theme="beige"] {
+    --auth-page-bg: var(--page-bg);
+    --auth-card-bg: var(--surface);
+}
+
+/* Монохромный стиль */
+[data-theme="mono"] {
+    --auth-page-bg: var(--page-bg);
+    --auth-card-bg: var(--surface);
+}
+
+
+/* Бежевая тема */
+[data-theme="beige"] {
+    --auth-page-bg: #F3E9D8;
+    --auth-card-bg: #4c3301;
+}
+
+[data-theme="beige"] .form-control {
+    background-color: #FFFFFF;
+    border: 1px solid #CDBA9E;
+    color: #211A14;
+}
+
+[data-theme="beige"] .input-group-text {
+    background-color: #E9D8B9;
+    border: 1px solid #CDBA9E;
+    color: #211A14;
+}
+
+[data-theme="beige"] .btn-primary {
+    background-color: #9C7954;
+    border-color: #9C7954;
+    color: #FFFFFF;
+}
+
+[data-theme="beige"] .btn-primary:hover {
+    background-color: #806141;
+    border-color: #806141;
+}
+
+/* Чёрно-белая тема */
+[data-theme="mono"] {
+    --auth-page-bg: #F5F5F5;
+    --auth-card-bg: #302a2a;
+}
+
+[data-theme="mono"] .form-control {
+    background-color: #FFFFFF;
+    border: 1px solid #AAAAAA;
+    color: #161616;
+}
+
+[data-theme="mono"] .input-group-text {
+    background-color: #E5E5E5;
+    border: 1px solid #AAAAAA;
+    color: #161616;
+}
+
+[data-theme="mono"] .btn-primary {
+    background-color: #333333;
+    border-color: #333333;
+    color: #FFFFFF;
+}
+
+[data-theme="mono"] .btn-primary:hover {
+    background-color: #161616;
+    border-color: #161616;
+}
+
+
+
+/* Компактная овальная кнопка входа */
+.login-button {
+    padding: 6px 24px;
+    min-height: 20px;
+    border: none;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    box-shadow: none;
+    transition: background-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+.login-button:hover {
+    transform: translateY(-1px);
+}
+
+.login-button:focus-visible {
+    outline: 2px solid var(--text-primary);
+    outline-offset: 3px;
+}
+
+/* Colorful — розовая */
+[data-theme="colorful"] .login-button {
+    background-color: #EC7A91;
+    color: #FFFFFF;
+}
+
+[data-theme="colorful"] .login-button:hover {
+    background-color: #E36580;
+    color: #FFFFFF;
+}
+
+/* Neon — салатовая */
+[data-theme="neon"] .login-button {
+    background-color: #D9FF52;
+    color: #171326;
+}
+
+[data-theme="neon"] .login-button:hover {
+    background-color: #C7ED3D;
+    color: #171326;
+}
+
+/* Beige — коричневая */
+[data-theme="beige"] .login-button {
+    background-color: #9C7954;
+    color: #FFFFFF;
+}
+
+[data-theme="beige"] .login-button:hover {
+    background-color: #806141;
+    color: #FFFFFF;
+}
+
+/* Mono — чёрная */
+[data-theme="mono"] .login-button {
+    background-color: #333333;
+    color: #FFFFFF;
+}
+
+[data-theme="mono"] .login-button:hover {
+    background-color: #161616;
+    color: #FFFFFF;
+}
+
+
