@@ -158,8 +158,8 @@
    ======================================== */
 
 [data-theme="neon"] .board-column .column-title .form-control {
-    color: #D9FF52 !important;
-    -webkit-text-fill-color: #D9FF52;
+    color: #f8f8f7 !important;
+    -webkit-text-fill-color: #fbfcf7;
 }
 
 /* ========================================
@@ -176,7 +176,7 @@
 }
 
 [data-theme="neon"] .board-column .task-card h6 {
-    color: #D9FF52;
+    color: #f4f5f2;
 }
 
 [data-theme="neon"] .board-column .task-card .text-muted {
@@ -270,4 +270,200 @@
         height: auto;
         min-height: 300px;
     }
+}
+
+/* Профиль */
+
+.profile-page {
+    min-height: 100vh;
+    padding: 4rem 0 2rem;
+    background: var(--page-bg);
+    color: var(--text-primary);
+}
+
+.profile-container {
+    max-width: 600px;
+}
+
+.profile-card {
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: var(--task-shadow);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.profile-heading {
+    margin: 0;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.profile-menu-toggle {
+    color: var(--text-primary) !important;
+    font-size: 1.7rem;
+    text-decoration: none;
+}
+
+.profile-menu-toggle::after {
+    display: none;
+}
+
+.profile-theme-menu {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: var(--task-shadow);
+}
+
+.profile-theme-menu .dropdown-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    color: var(--text-primary);
+}
+
+.profile-theme-menu .dropdown-item:hover {
+    background: var(--page-bg);
+    color: var(--text-primary);
+}
+
+.profile-theme-menu .dropdown-item.active,
+.profile-theme-menu .dropdown-item:active {
+    background: var(--accent);
+    color: var(--text-primary);
+}
+
+@media (max-width: 576px) {
+    .profile-page {
+        padding: 1.5rem 12px;
+    }
+}
+
+
+/* Разноцветный профиль */
+[data-theme="colorful"] .profile-card {
+    background: #E9E1FA;
+    color: #30264A;
+}
+
+[data-theme="colorful"] .profile-heading {
+    color: #5B4290;
+}
+
+[data-theme="colorful"] .profile-card .bg-white {
+    background-color: #FFFFFF !important;
+}
+
+[data-theme="colorful"] .profile-card .btn-dark {
+    background-color: #7658B5 !important;
+    border: none;
+    color: #FFFFFF;
+}
+
+[data-theme="colorful"] .profile-card .btn-danger {
+    background-color: #FFFFFF;
+    border: 1px solid #C9B9EA;
+    color: #5B4290;
+}
+
+[data-theme="colorful"] .profile-card .form-control {
+    border-color: #C9B9EA !important;
+}
+
+/* Бежевая тема — исходное оформление */
+[data-theme="beige"] .profile-page {
+    background: #fcfaf2;
+}
+
+[data-theme="beige"] .profile-card {
+    background: #e4d9c9;
+    color: #333333;
+}
+
+[data-theme="beige"] .profile-heading {
+    color: #212121;
+}
+
+/* Монохромная тема — графит и серебро */
+[data-theme="mono"] .profile-card {
+    background: #E2E2E2;
+    color: #252525;
+}
+
+[data-theme="mono"] .profile-heading {
+    color: #252525;
+}
+
+[data-theme="mono"] .profile-card .bg-white {
+    background-color: #F7F7F7 !important;
+}
+
+[data-theme="mono"] .profile-card .btn-dark {
+    background-color: #333333 !important;
+    border: 1px solid #333333;
+    color: #FFFFFF;
+}
+
+[data-theme="mono"] .profile-card .btn-danger {
+    background-color: #f27171;
+    border: 1px solid #888888;
+    color: #333333;
+}
+
+[data-theme="mono"] .profile-card .form-control {
+    border-color: #AAAAAA !important;
+}
+
+/* Бежевая тема — кнопки в тон оформлению */
+[data-theme="beige"] .profile-card .btn-danger {
+    background-color: #9C7954;
+    border-color: #9C7954;
+    color: #FFFFFF;
+}
+
+[data-theme="beige"] .profile-card .btn-dark {
+    background-color: #9C7954 !important;
+    border-color: #9C7954;
+    color: #FFFFFF;
+}
+
+[data-theme="beige"] .profile-card .form-control {
+    border-color: #D6C2A3 !important;
+}
+
+
+/* Неоновая тема — кнопки в стиле неон */
+[data-theme="neon"] .profile-card .btn-danger {
+    background-color: #ff3c00;
+    border-color: #ff3c00;
+    color: #171326;
+}
+
+[data-theme="neon"] .profile-card .btn-danger:hover {
+    background-color: #E5FF80;
+    border-color: #E5FF80;
+    color: #171326;
+}
+
+[data-theme="neon"] .profile-card .btn-dark {
+    background-color: #D9FF52 !important;
+    border-color: #D9FF52;
+    color: #171326;
+}
+
+[data-theme="neon"] .profile-card .btn-dark:hover {
+    background-color: #E5FF80 !important;
+    border-color: #E5FF80;
+    color: #171326;
 }
