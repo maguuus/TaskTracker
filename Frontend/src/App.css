@@ -604,7 +604,8 @@
 
 
 
-/* Обложка карточки проекта */
+
+/* Обложки проектов */
 .project-card-cover {
     height: 140px;
     margin: 0 12px;
@@ -612,8 +613,15 @@
     overflow: hidden;
     isolation: isolate;
     border-radius: 14px;
-    background: linear-gradient(135deg, #8B5CF6, #D8B4FE 60%, #F9A8D4);
-    color: #FFFFFF;
+    background: linear-gradient(135deg, #8B5CF6, #D8B4FE 60%, #7DE7D1);
+    color: white;
+}
+
+.project-card-cover-pattern,
+.cover-option-pattern {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
 }
 
 .project-card-cover-shape {
@@ -627,7 +635,7 @@
     height: 150px;
     top: -75px;
     left: -35px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255,255,255,.2);
     transform: rotate(-25deg);
 }
 
@@ -636,7 +644,7 @@
     height: 130px;
     right: -45px;
     bottom: -75px;
-    background: rgba(255, 255, 255, 0.24);
+    background: rgba(255,255,255,.24);
     transform: rotate(30deg);
 }
 
@@ -645,7 +653,7 @@
     height: 95px;
     top: -42px;
     right: 20px;
-    background: rgba(255, 255, 255, 0.16);
+    background: rgba(255,255,255,.16);
 }
 
 .project-card-cover-icon {
@@ -654,48 +662,190 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: inherit;
 }
 
-/* Разноцветная тема */
-[data-theme="colorful"] .project-card-cover {
+/* Полоски */
+.cover-stripes .project-card-cover-pattern,
+.cover-stripes .cover-option-pattern {
+    background: repeating-linear-gradient(
+        135deg,
+        transparent 0 12px,
+        rgba(255,255,255,.4) 12px 19px,
+        transparent 19px 30px
+    );
+}
+
+/* Волны */
+.cover-waves .project-card-cover-pattern,
+.cover-waves .cover-option-pattern {
+    background: repeating-radial-gradient(
+        ellipse at 0% 100%,
+        transparent 0 18px,
+        rgba(255,255,255,.35) 20px 24px,
+        transparent 26px 40px
+    );
+}
+
+/* Круги */
+.cover-circles .project-card-cover-pattern,
+.cover-circles .cover-option-pattern {
+    background:
+        radial-gradient(circle at 20% 30%, #FFFFFF55 0 18%, transparent 19%),
+        radial-gradient(circle at 80% 75%, #FFFFFF66 0 22%, transparent 23%),
+        radial-gradient(circle at 70% 15%, #FFFFFF44 0 12%, transparent 13%);
+}
+
+/* Геометрия */
+.cover-geometry .project-card-cover-pattern,
+.cover-geometry .cover-option-pattern {
+    background:
+        linear-gradient(135deg, transparent 50%, #FFFFFF55 50%),
+        linear-gradient(45deg, transparent 50%, #FFFFFF33 50%);
+    background-size: 70px 70px, 90px 90px;
+}
+
+/* Точки */
+.cover-dots .project-card-cover-pattern,
+.cover-dots .cover-option-pattern {
+    background-image: radial-gradient(#FFFFFF99 2px, transparent 2px);
+    background-size: 18px 18px;
+}
+
+/* Абстракция — базовый градиент */
+.cover-abstract {
     background: linear-gradient(135deg, #8B5CF6, #D8B4FE 60%, #7DE7D1);
 }
 
-/* Неоновая тема */
-[data-theme="neon"] .project-card-cover {
-    background: linear-gradient(135deg, #171326, #35264F 65%, #164E63);
+/* Палитры обложек под темы */
+[data-theme="neon"] .project-card-cover,
+[data-theme="neon"] .cover-option {
+    background-color: #171326;
+    background-image: linear-gradient(135deg, #171326, #35264F 65%, #164E63);
     color: #D9FF52;
-    border: 1px solid #62448A;
 }
 
-[data-theme="neon"] .project-card-cover-shape {
-    border: 1px solid rgba(217, 255, 82, 0.35);
-    background: rgba(142, 68, 255, 0.16);
+[data-theme="neon"] .project-card-cover-pattern,
+[data-theme="neon"] .cover-option-pattern {
+    opacity: .9;
 }
 
-[data-theme="neon"] .project-card-cover-icon {
-    filter: drop-shadow(0 0 7px rgba(217, 255, 82, 0.45));
-}
-
-/* Бежевая тема */
-[data-theme="beige"] .project-card-cover {
-    background: linear-gradient(135deg, #E9D8B9, #C6A780 65%, #9C7954);
+[data-theme="beige"] .project-card-cover,
+[data-theme="beige"] .cover-option {
+    background-color: #E9D8B9;
+    background-image: linear-gradient(135deg, #E9D8B9, #C6A780 65%, #9C7954);
     color: #FFF9EF;
 }
 
-[data-theme="beige"] .project-card-cover-shape {
-    background: rgba(255, 250, 241, 0.22);
-}
-
-/* Чёрно-белая тема */
-[data-theme="mono"] .project-card-cover {
-    background: linear-gradient(135deg, #333333, #999999 65%, #DADADA);
+[data-theme="mono"] .project-card-cover,
+[data-theme="mono"] .cover-option {
+    background-color: #555;
+    background-image: linear-gradient(135deg, #333, #999 65%, #DADADA);
     color: #FFFFFF;
 }
 
-[data-theme="mono"] .project-card-cover-shape {
-    background: rgba(255, 255, 255, 0.16);
+/* Панель выбора */
+.cover-picker {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.cover-option {
+    position: relative;
+    min-width: 0;
+    height: 42px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #8B5CF6, #D8B4FE 60%, #7DE7D1);
+}
+
+.cover-option.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--surface);
+}
+
+.cover-check {
+    position: absolute;
+    right: 3px;
+    top: 1px;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 0 1px 3px #000;
+}
+
+@media (max-width: 360px) {
+    .cover-picker {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 
+
+/* Исправление: выбранный узор не смешивается с абстрактными фигурами */
+
+/* Скрываем декоративные абстрактные фигуры у остальных обложек */
+.project-card-cover:not(.cover-abstract) .project-card-cover-shape {
+    display: none;
+}
+
+/* Разноцветная тема */
+[data-theme="colorful"] .project-card-cover.cover-stripes {
+    background: linear-gradient(135deg, #8B5CF6, #D8B4FE);
+}
+
+[data-theme="colorful"] .project-card-cover.cover-waves {
+    background: linear-gradient(135deg, #6D5AE6, #72B7F2);
+}
+
+[data-theme="colorful"] .project-card-cover.cover-circles {
+    background: linear-gradient(135deg, #F0A5D8, #8B9FF5);
+}
+
+[data-theme="colorful"] .project-card-cover.cover-geometry {
+    background: linear-gradient(135deg, #8B5CF6, #4DD0C8);
+}
+
+[data-theme="colorful"] .project-card-cover.cover-dots {
+    background: linear-gradient(135deg, #A78BFA, #64748B);
+}
+
+/* Неоновая тема */
+[data-theme="neon"] .project-card-cover.cover-stripes {
+    background: linear-gradient(135deg, #171326, #35264F);
+}
+
+[data-theme="neon"] .project-card-cover.cover-waves {
+    background: linear-gradient(135deg, #171326, #164E63);
+}
+
+[data-theme="neon"] .project-card-cover.cover-circles {
+    background: linear-gradient(135deg, #35264F, #171326);
+}
+
+[data-theme="neon"] .project-card-cover.cover-geometry {
+    background: linear-gradient(135deg, #171326, #43306B);
+}
+
+[data-theme="neon"] .project-card-cover.cover-dots {
+    background: linear-gradient(135deg, #29203F, #171326);
+}
+
+/* Бежевая тема */
+[data-theme="beige"] .project-card-cover.cover-stripes,
+[data-theme="beige"] .project-card-cover.cover-waves,
+[data-theme="beige"] .project-card-cover.cover-circles,
+[data-theme="beige"] .project-card-cover.cover-geometry,
+[data-theme="beige"] .project-card-cover.cover-dots {
+    background: linear-gradient(135deg, #E9D8B9, #C6A780 65%, #9C7954);
+}
+
+/* Монохромная тема */
+[data-theme="mono"] .project-card-cover.cover-stripes,
+[data-theme="mono"] .project-card-cover.cover-waves,
+[data-theme="mono"] .project-card-cover.cover-circles,
+[data-theme="mono"] .project-card-cover.cover-geometry,
+[data-theme="mono"] .project-card-cover.cover-dots {
+    background: linear-gradient(135deg, #333333, #999999 65%, #DADADA);
+}

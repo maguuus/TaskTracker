@@ -13,16 +13,35 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
     const [name, setName] = useState(project.name);
     const [description, setDescription] = useState(project.description);
 
+    
+    const [cover, setCover] = useState(project.cover || "abstract");
+
+    const coverOptions = [
+        { id: "abstract", label: "Абстракция" },
+        { id: "stripes", label: "Полоски" },
+        { id: "waves", label: "Волны" },
+        { id: "circles", label: "Круги" },
+        { id: "geometry", label: "Геометрия" },
+        { id: "dots", label: "Точки" },
+    ];
+
+
     useEffect(() => {
         setName(project.name);
         setDescription(project.description);
+        setCover(project.cover || "abstract");
     }, [project]);
 
     async function onToggleEdit() {
         if (!isOwner) return;
 
         if (editMode) {
-            const updated = { ...project, name: name.trim(), description: description.trim() };
+            const updated = {
+                ...project,
+                name: name.trim(),
+                description: description.trim(),
+                cover: cover,
+            };
             await onUpdate(updated);
             setEditMode(false);
             return;
@@ -37,6 +56,7 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
             setName(project.name);
             setDescription(project.description);
             setEditMode(false);
+            setCover(project.cover || "abstract");
         }
     }
 
@@ -123,8 +143,9 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                 </div>
             </div>
 
+            <div className={`project-card-cover cover-${cover}`}>
+                <div className="project-card-cover-pattern" />
 
-            <div className="project-card-cover">
                 <div className="project-card-cover-shape project-card-shape-one" />
                 <div className="project-card-cover-shape project-card-shape-two" />
                 <div className="project-card-cover-shape project-card-shape-three" />
@@ -145,6 +166,37 @@ function ProjectCard({ project, onChoose, onDelete, onUpdate, disabled }) {
                     </svg>
                 </div>
             </div>
+
+            {editMode && (
+                <div className="px-3 pt-3">
+                    <div className="small fw-semibold mb-2">
+                        Обложка проекта
+                    </div>
+
+                    <div className="cover-picker">
+                        {coverOptions.map(option => (
+                            <button
+                                key={option.id}
+                                type="button"
+                                className={`cover-option cover-${option.id} ${
+                                    cover === option.id ? "selected" : ""
+                                }`}
+                                title={option.label}
+                                aria-label={option.label}
+                                aria-pressed={cover === option.id}
+                                onClick={() => setCover(option.id)}
+                            >
+                                <span className="cover-option-pattern" />
+                                {cover === option.id && <span className="cover-check">✓</span>}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="small text-muted mt-1">
+                        Выбрано: {coverOptions.find(option => option.id === cover)?.label}
+                    </div>
+                </div>
+            )}
 
             <Card.Body className="p-3 d-flex flex-column">
                 <Card.Title className="fw-bold mb-0 text-dark text-truncate" style={{ fontSize: '0.85rem' }}>
