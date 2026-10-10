@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { useDBUser } from "../hooks/DataBaseHook";
 import useProject from '../context/ProjectContext';
+import ThemeSwitcher from '../components/ThemeSwitcher';
 
 function Profile() {
     const [currentUser, setCurrentUser] = useUser();
@@ -63,6 +64,8 @@ function Profile() {
                             <p className="mb-2 fs-5"><strong>Имя: </strong> {currentUser?.name}</p>
                             <p className="mb-0 fs-5 text-muted"><strong>Email: </strong> {currentUser?.email}</p>
                         </div>
+
+                        <ThemeSwitcher />
 
                         {message.text && (
                             <Alert variant={message.type} onClose={() => setMessage({ text: '', type: '' })} dismissible className="rounded-3">

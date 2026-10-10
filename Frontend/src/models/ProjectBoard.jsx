@@ -7,6 +7,7 @@ import { useDBColumn } from '../hooks/DataBaseHook';
 import { useState } from 'react';
 import ProjectContributors from '../components/ProjectContributorsPanel';
 import useProject from "../context/ProjectContext.jsx";
+import { useTheme } from '../context/ThemeContext';
 
 
 function ProjectBoard({ name, id, ...rest }) {
@@ -56,9 +57,12 @@ function ProjectBoard({ name, id, ...rest }) {
     const [showSettings, setShowSettings] = useState(false);
 
     return (
-        <Container fluid className="pt-2 px-4 position-relative" style={{ backgroundColor: '#bee0c6', minHeight: '100vh' }}>
+        <Container fluid className="project-board pt-2 px-4 position-relative">
             <div className="text-center mb-3">
-            <h1 className="fw-bold m-0 position-absolute start-50 translate-middle-x" style={{ color: '#212121', fontSize: '2.2rem', whiteSpace: 'nowrap' }}>
+            <h1
+                className="project-heading fw-bold m-0 position-absolute start-50 translate-middle-x"
+                style={{ fontSize: '2.2rem', whiteSpace: 'nowrap' }}
+            >
                 Проект: <span style={{ textDecoration: 'underline', textUnderlineOffset: '6px' }}>{name}</span>
             </h1>
 
@@ -66,8 +70,7 @@ function ProjectBoard({ name, id, ...rest }) {
                     {!isViewer && (
                         <Button
                             variant="dark"
-                            className="rounded-pill px-4 shadow-sm"
-                            style={{ backgroundColor: '#212121' }}
+                            className="project-button rounded-pill px-4 shadow-sm"
                             onClick={async () => { let c = await post(newColumn()); addColumn({ ...c, tasks: [] }); }}
                         >
                             + Добавить колонку
@@ -84,7 +87,9 @@ function ProjectBoard({ name, id, ...rest }) {
                     right: '1.5rem',
                     width: '48px',
                     height: '48px',
-                    backgroundColor: '#212121',
+                    backgroundColor: 'var(--project-button-bg)',
+                    color: 'var(--project-button-text)',
+                    borderColor: 'var(--border-color)',
                     borderRadius: '0.5rem',
                     zIndex: 10,
                 }}
