@@ -15,7 +15,7 @@ namespace Backend.Hubs;
 public class TaskTrackerHub(ITaskService taskService, IColumnService columnService, IProjectAccessService accessService, RequestQueueManager requestQueueManager, IRealtimeNotifier notifier) : Hub
 {
     public static readonly ConcurrentDictionary<string, HashSet<string>> UserConnections = new();
-
+    private static readonly ConcurrentDictionary<Guid, HashSet<string>> ProjectConnections = new();
     private Guid CurrentUserId => Guid.Parse(Context.UserIdentifier!);
     public static IEnumerable<string> GetConnectionIdsForUser(string userId)
     {
@@ -25,6 +25,16 @@ public class TaskTrackerHub(ITaskService taskService, IColumnService columnServi
         return UserConnections.TryGetValue(userId, out var connections)
             ? connections.ToArray()
             : Enumerable.Empty<string>();
+    }
+
+    public static IEnumerable<string> GetConnectionIdsForProject(Guid projectId)
+    {
+        if (!ProjectConnections.TryGetValue(projectId, out var connections))
+            return Enumerable.Empty<string>();
+        lock (connections)
+        {
+            return connections.ToArray();
+        }
     }
 
     public override Task OnConnectedAsync()
@@ -44,17 +54,27 @@ public class TaskTrackerHub(ITaskService taskService, IColumnService columnServi
 
         return base.OnConnectedAsync();
     }
-
+    
     public override Task OnDisconnectedAsync(Exception? exception)
     {
         var userId = Context.UserIdentifier;
         if (!string.IsNullOrWhiteSpace(userId) && UserConnections.TryGetValue(userId, out var connections))
         {
             connections.Remove(Context.ConnectionId);
-            if (connections.Count == 0)
+            foreach (var project in ProjectConnections)
             {
-                UserConnections.TryRemove(userId, out _);
+                lock (project.Value)
+                {
+                    project.Value.Remove(Context.ConnectionId);
+
+                    if (project.Value.Count == 0)
+                    {
+                        ProjectConnections.TryRemove(project.Key, out _);
+                        requestQueueManager.RemoveQueue(project.Key);
+                    }
+                }
             }
+            notifier.RemoveConnection(Context.ConnectionId);
         }
 
         return base.OnDisconnectedAsync(exception);
@@ -62,12 +82,33 @@ public class TaskTrackerHub(ITaskService taskService, IColumnService columnServi
 
     public async Task JoinProject(Guid projectId)
     {
+        if (!await accessService.CanViewProjectAsync(CurrentUserId, projectId))
+            throw new HubException("У вас нет доступа к этому проекту.");
         await Groups.AddToGroupAsync(Context.ConnectionId, $"project-{projectId}");
+        var connections = ProjectConnections.GetOrAdd(projectId, _ => new HashSet<string>());
+        lock (connections)
+        {
+            connections.Add(Context.ConnectionId);
+        }
     }
 
     public async Task LeaveProject(Guid projectId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"project-{projectId}");
+
+        if (ProjectConnections.TryGetValue(projectId, out var connections))
+        {
+            lock (connections)
+            {
+                connections.Remove(Context.ConnectionId);
+
+                if (connections.Count == 0)
+                {
+                    ProjectConnections.TryRemove(projectId, out _);
+                    requestQueueManager.RemoveQueue(projectId);
+                }
+            }
+        }
     }
 
     public async Task<TaskResponseDto?> CreateTask(TaskCreateDto taskDto)
@@ -93,7 +134,6 @@ public class TaskTrackerHub(ITaskService taskService, IColumnService columnServi
                 "task",
                 "created",
                 taskDto.Version,
-                CurrentUserId,
                 () => taskService.CreateTaskAsync(taskDto),
                 (dto, version) => dto with { Version = version });
         }
@@ -126,7 +166,7 @@ public class TaskTrackerHub(ITaskService taskService, IColumnService columnServi
 
         try
         {
-            return await requestQueueManager.EnqueueRequest(projectId.Value, Context.ConnectionId, "task", "updated", taskDto.Version, CurrentUserId,
+            return await requestQueueManager.EnqueueRequest(projectId.Value, Context.ConnectionId, "task", "updated", taskDto.Version,
                 () => taskService.UpdateTaskAsync(id, taskDto), (dto, version) => dto with { Version = version });
         }
         catch
@@ -158,7 +198,6 @@ public class TaskTrackerHub(ITaskService taskService, IColumnService columnServi
                 "task",
                 "deleted",
                 deleteDto.Version,
-                CurrentUserId,
                 async () =>
                 {
                     await taskService.DeleteTaskAsync(id);
@@ -188,7 +227,6 @@ public class TaskTrackerHub(ITaskService taskService, IColumnService columnServi
                 "column",
                 "created",
                 columnDto.Version,
-                CurrentUserId,
                 () => columnService.CreateColumnAsync(columnDto),
                 (dto, version) => dto with { Version = version });
         }
@@ -221,7 +259,6 @@ public class TaskTrackerHub(ITaskService taskService, IColumnService columnServi
                 "column",
                 "updated",
                 columnDto.Version,
-                CurrentUserId,
                 async () =>
                 {
                     await columnService.UpdateColumnAsync(id, columnDto);
@@ -258,7 +295,6 @@ public class TaskTrackerHub(ITaskService taskService, IColumnService columnServi
                 "column",
                 "deleted",
                 deleteDto.Version,
-                CurrentUserId,
                 async () =>
                 {
                     await columnService.DeleteColumnAsync(id);
