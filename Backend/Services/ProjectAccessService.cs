@@ -50,4 +50,20 @@ public class ProjectAccessService(AppDbContext context) : IProjectAccessService
     {
         return await context.Projects.AnyAsync(p => p.Id == projectId && p.OwnerId == userId);
     }
+
+    public async Task<Guid?> GetProjectIdByColumnAsync(Guid columnId)
+    {
+        return await context.Columns
+            .Where(c => c.Id == columnId)
+            .Select(c => (Guid?)c.ProjectId)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Guid?> GetProjectIdByTaskAsync(Guid taskId)
+    {
+        return await context.TaskItems
+            .Where(t => t.Id == taskId)
+            .Select(t => (Guid?)t.Column!.ProjectId)
+            .FirstOrDefaultAsync();
+    }
 }

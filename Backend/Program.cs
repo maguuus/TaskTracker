@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Backend.Services;
 using Backend.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
+using Backend.Queue;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +37,7 @@ builder.Services.AddScoped<IColumnService, ColumnService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IProjectAccessService, ProjectAccessService>();
-builder.Services.AddScoped<IRealtimeNotifier, RealtimeNotifier>();
-
+builder.Services.AddSingleton<IRealtimeNotifier, RealtimeNotifier>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -80,7 +80,7 @@ builder.Services.AddSignalR().AddJsonProtocol(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddSingleton<RequestQueueManager>();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

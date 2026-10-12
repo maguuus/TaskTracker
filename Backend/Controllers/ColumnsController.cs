@@ -3,6 +3,7 @@ using Backend.Data;
 using Backend.DTO;
 using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
+using Backend.Queue;
 using Backend.Services;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,7 @@ namespace Backend.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ColumnsController(IColumnService columnService, IProjectAccessService accessService) : ControllerBase
+public class ColumnsController(IColumnService columnService, IProjectAccessService accessService, RequestQueueManager requestQueueManager) : ControllerBase
 {
     private Guid CurrentUserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -24,12 +25,12 @@ public class ColumnsController(IColumnService columnService, IProjectAccessServi
         {
             return StatusCode(StatusCodes.Status403Forbidden, "У вас нет доступа к этому проекту.");
         }
-        
+
+        var version = requestQueueManager.GetCurrentVersion(projectId);
         var columns = await columnService.GetColumnsByProjectAsync(projectId);
-        return Ok(columns);    
+
+        return Ok(columns.Select(column => column with { Version = version }));
     }
-    
-    
 
     [HttpPost]
     public async Task<ActionResult<ColumnResponseDto>> CreateColumn(ColumnCreateDto columnDto)
@@ -62,7 +63,6 @@ public class ColumnsController(IColumnService columnService, IProjectAccessServi
         }
         catch (InvalidOperationException ex) { return NotFound(ex.Message); }
     }
-    
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteColumn(Guid id)
@@ -71,6 +71,7 @@ public class ColumnsController(IColumnService columnService, IProjectAccessServi
         {
             return StatusCode(StatusCodes.Status403Forbidden, "Только Owner или Member могут удалять колонки.");
         }
+
         try
         {
             await columnService.DeleteColumnAsync(id);
