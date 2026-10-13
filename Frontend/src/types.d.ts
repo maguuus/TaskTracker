@@ -1,6 +1,6 @@
 // @ts-check
 
-interface Project { // CHECK!
+interface Project {
     id: string;
     name: string;
     ownerId: string;
@@ -19,6 +19,7 @@ interface User {
     id: string;
     email: string;
     name: string;
+    projects: Project[];
 }
 
 interface Column {

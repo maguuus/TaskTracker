@@ -1,0 +1,1012 @@
+
+/* ========================================
+   Основная доска
+   ======================================== */
+
+.board-container {
+    min-height: 100vh;
+    padding: 24px;
+    background: var(--page-bg);
+    color: var(--text-primary);
+    transition: background-color 0.25s ease;
+}
+
+/* ========================================
+   Страница проекта
+   ======================================== */
+
+.project-board {
+    min-height: 100vh;
+    background-color: var(--project-page-bg, var(--page-bg));
+    color: var(--text-primary);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.project-board .project-heading {
+    color: var(--project-heading, var(--text-primary));
+}
+
+.project-board .project-button {
+    background-color: var(--project-button-bg, var(--surface));
+    color: var(--project-button-text, var(--text-primary));
+    border-color: var(--border-color);
+}
+
+/* ========================================
+   Колонки доски
+   ======================================== */
+
+.board-column {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 140px);
+    min-height: 350px;
+    padding: 13px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    background: var(--column-bg);
+    color: var(--text-primary);
+    box-shadow: var(--task-shadow);
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.board-column .column-title {
+    color: var(--text-primary);
+}
+
+.board-column .column-count {
+    background-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.board-column .column-body {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+/* Карточки задач — базовые стили */
+
+.board-column .task-card {
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: var(--task-shadow);
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+/* ========================================
+   Настройки темы
+   ======================================== */
+
+.theme-settings {
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--text-primary);
+}
+
+.theme-settings p {
+    color: var(--text-secondary);
+}
+
+.theme-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.theme-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--page-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.theme-option:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+}
+
+.theme-option.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* ========================================
+   Счётчики задач
+   ======================================== */
+
+[data-theme="colorful"] .column-count {
+    background-color: #6c757d !important;
+    color: #fff !important;
+}
+
+[data-theme="neon"] .column-count {
+    background-color: #D9FF52 !important;
+    color: #171326 !important;
+}
+
+[data-theme="beige"] .column-count {
+    background-color: #9C7954 !important;
+    color: #fff !important;
+}
+
+[data-theme="mono"] .column-count {
+    background-color: #333333 !important;
+    color: #fff !important;
+}
+
+/* ========================================
+   Заголовок колонки в неоновой теме
+   ======================================== */
+
+[data-theme="neon"] .board-column .column-title .form-control {
+    color: #f8f8f7 !important;
+    -webkit-text-fill-color: #fbfcf7;
+}
+
+/* ========================================
+   Неоновая тема: карточки задач
+   Оставляем их текущий вид
+   ======================================== */
+
+[data-theme="neon"] .board-column .task-card {
+    background-color: #35264F;
+    color: #F7EFFF;
+    box-shadow:
+        0 0 8px rgba(217, 255, 82, 0.16),
+        0 0 14px rgba(142, 68, 255, 0.22);
+}
+
+[data-theme="neon"] .board-column .task-card h6 {
+    color: #f4f5f2;
+}
+
+[data-theme="neon"] .board-column .task-card .text-muted {
+    color: #D8C8F0 !important;
+}
+
+[data-theme="neon"] .board-column .task-card:hover {
+    box-shadow:
+        0 0 10px rgba(217, 255, 82, 0.3),
+        0 0 22px rgba(142, 68, 255, 0.4);
+}
+
+/* ========================================
+   Бежевая тема: карточки задач
+   ======================================== */
+
+[data-theme="beige"] .board-column .task-card {
+    background-color: #FFFAF1;
+    color: #000000;
+    box-shadow: 0 4px 10px rgba(70, 50, 30, 0.1);
+}
+
+[data-theme="beige"] .board-column .task-card h6 {
+    color: #000000;
+}
+
+[data-theme="beige"] .board-column .task-card .text-muted {
+    color: #574635 !important;
+}
+
+/* ========================================
+   Неоновая тема: цветное свечение колонок
+   Цвет задаётся через --column-glow
+   ======================================== */
+
+
+/* Неоновая тема: мягкое свечение колонок */
+
+[data-theme="neon"] .board-column {
+    border-color: var(--column-glow);
+    box-shadow:
+        0 0 4px var(--column-glow),
+        0 0 10px color-mix(
+            in srgb,
+            var(--column-glow) 20%,
+            transparent
+        );
+}
+
+/* Цвета контуров */
+
+[data-theme="neon"] .board-column.glow-blue {
+    --column-glow: #4287FF;
+}
+
+[data-theme="neon"] .board-column.glow-green {
+    --column-glow: #55FF88;
+}
+
+[data-theme="neon"] .board-column.glow-yellow {
+    --column-glow: #D9FF52;
+}
+
+[data-theme="neon"] .board-column.glow-red {
+    --column-glow: #FF4D6D;
+}
+
+/* При наведении свечение немного усиливается */
+
+[data-theme="neon"] .board-column:hover {
+    box-shadow:
+        0 0 6px var(--column-glow),
+        0 0 14px color-mix(
+            in srgb,
+            var(--column-glow) 30%,
+            transparent
+        );
+}
+
+
+/* ========================================
+   Адаптация под небольшие экраны
+   ======================================== */
+
+@media (max-width: 768px) {
+    .board-container {
+        padding: 12px;
+    }
+
+    .board-column {
+        height: auto;
+        min-height: 300px;
+    }
+}
+
+/* Профиль */
+
+.profile-page {
+    min-height: 100vh;
+    padding: 4rem 0 2rem;
+    background: var(--page-bg);
+    color: var(--text-primary);
+}
+
+.profile-container {
+    max-width: 600px;
+}
+
+.profile-card {
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: var(--task-shadow);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.profile-heading {
+    margin: 0;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.profile-menu-toggle {
+    color: var(--text-primary) !important;
+    font-size: 1.7rem;
+    text-decoration: none;
+}
+
+.profile-menu-toggle::after {
+    display: none;
+}
+
+.profile-theme-menu {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: var(--task-shadow);
+}
+
+.profile-theme-menu .dropdown-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    color: var(--text-primary);
+}
+
+.profile-theme-menu .dropdown-item:hover {
+    background: var(--page-bg);
+    color: var(--text-primary);
+}
+
+.profile-theme-menu .dropdown-item.active,
+.profile-theme-menu .dropdown-item:active {
+    background: var(--accent);
+    color: var(--text-primary);
+}
+
+@media (max-width: 576px) {
+    .profile-page {
+        padding: 1.5rem 12px;
+    }
+}
+
+
+/* Разноцветный профиль */
+[data-theme="colorful"] .profile-card {
+    background: #E9E1FA;
+    color: #30264A;
+}
+
+[data-theme="colorful"] .profile-heading {
+    color: #5B4290;
+}
+
+[data-theme="colorful"] .profile-card .bg-white {
+    background-color: #FFFFFF !important;
+}
+
+[data-theme="colorful"] .profile-card .btn-dark {
+    background-color: #7658B5 !important;
+    border: none;
+    color: #FFFFFF;
+}
+
+[data-theme="colorful"] .profile-card .btn-danger {
+    background-color: #FFFFFF;
+    border: 1px solid #C9B9EA;
+    color: #5B4290;
+}
+
+[data-theme="colorful"] .profile-card .form-control {
+    border-color: #C9B9EA !important;
+}
+
+/* Бежевая тема — исходное оформление */
+[data-theme="beige"] .profile-page {
+    background: #fcfaf2;
+}
+
+[data-theme="beige"] .profile-card {
+    background: #e4d9c9;
+    color: #333333;
+}
+
+[data-theme="beige"] .profile-heading {
+    color: #212121;
+}
+
+/* Монохромная тема — графит и серебро */
+[data-theme="mono"] .profile-card {
+    background: #E2E2E2;
+    color: #252525;
+}
+
+[data-theme="mono"] .profile-heading {
+    color: #252525;
+}
+
+[data-theme="mono"] .profile-card .bg-white {
+    background-color: #F7F7F7 !important;
+}
+
+[data-theme="mono"] .profile-card .btn-dark {
+    background-color: #333333 !important;
+    border: 1px solid #333333;
+    color: #FFFFFF;
+}
+
+[data-theme="mono"] .profile-card .btn-danger {
+    background-color: #f27171;
+    border: 1px solid #888888;
+    color: #333333;
+}
+
+[data-theme="mono"] .profile-card .form-control {
+    border-color: #AAAAAA !important;
+}
+
+/* Бежевая тема — кнопки в тон оформлению */
+[data-theme="beige"] .profile-card .btn-danger {
+    background-color: #9C7954;
+    border-color: #9C7954;
+    color: #FFFFFF;
+}
+
+[data-theme="beige"] .profile-card .btn-dark {
+    background-color: #9C7954 !important;
+    border-color: #9C7954;
+    color: #FFFFFF;
+}
+
+[data-theme="beige"] .profile-card .form-control {
+    border-color: #D6C2A3 !important;
+}
+
+
+/* Неоновая тема — кнопки в стиле неон */
+[data-theme="neon"] .profile-card .btn-danger {
+    background-color: #ff3c00;
+    border-color: #ff3c00;
+    color: #171326;
+}
+
+[data-theme="neon"] .profile-card .btn-danger:hover {
+    background-color: #E5FF80;
+    border-color: #E5FF80;
+    color: #171326;
+}
+
+[data-theme="neon"] .profile-card .btn-dark {
+    background-color: #D9FF52 !important;
+    border-color: #D9FF52;
+    color: #171326;
+}
+
+[data-theme="neon"] .profile-card .btn-dark:hover {
+    background-color: #E5FF80 !important;
+    border-color: #E5FF80;
+    color: #171326;
+}
+
+
+/* Главная страница проектов */
+.home-page {
+    min-height: 100vh;
+    width: 100%;
+    background: var(--page-bg);
+    color: var(--text-primary);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.home-heading {
+    color: var(--text-primary);
+}
+
+.home-add-button {
+    width: 45px;
+    height: 45px;
+    padding: 0 0 4px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background-color: var(--accent) !important;
+    border: 1px solid var(--accent) !important;
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+    z-index: 2;
+}
+
+.home-add-button:hover {
+    filter: brightness(1.1);
+}
+
+.home-empty {
+    color: var(--text-secondary);
+}
+
+/* Разноцветная тема — сохраняем прежнее оформление */
+[data-theme="colorful"] .home-page {
+    background-color: #CBB4F5;
+}
+
+[data-theme="colorful"] .home-heading {
+    color: #5E17EB;
+}
+
+[data-theme="colorful"] .home-add-button {
+    background-color: #5E17EB !important;
+    border-color: #5E17EB !important;
+    color: #FFFFFF !important;
+}
+
+[data-theme="neon"] .home-add-button {
+    background-color: #D9FF52 !important;
+    border-color: #D9FF52 !important;
+    color: #171326 !important;
+}
+
+/* Карточки проектов — общие стили */
+.project-card {
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--task-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease,
+                background-color 0.25s ease, color 0.25s ease;
+}
+
+.project-card-hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.project-card-name,
+.project-card .card-title {
+    color: var(--text-primary) !important;
+}
+
+.project-card .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.project-card-avatar {
+    background: var(--accent);
+    color: var(--surface);
+}
+
+.project-card-open {
+    background: var(--accent);
+    color: var(--surface);
+}
+
+.project-card-open:hover {
+    background: var(--text-primary);
+    color: var(--surface);
+}
+
+/* Разноцветная тема */
+[data-theme="colorful"] .project-card-avatar {
+    background: #EBE4FA;
+    color: #5E17EB;
+}
+
+[data-theme="colorful"] .project-card-open {
+    background: #5E17EB;
+    color: #FFFFFF;
+}
+
+/* Неоновая тема */
+[data-theme="neon"] .project-card {
+    border-color: #62448A !important;
+}
+
+[data-theme="neon"] .project-card-avatar {
+    background: #D9FF52;
+    color: #171326;
+}
+
+[data-theme="neon"] .project-card-open {
+    background: #D9FF52;
+    color: #171326;
+}
+
+[data-theme="neon"] .project-card-hover {
+    box-shadow: 0 0 12px rgba(217, 255, 82, 0.2),
+                0 0 20px rgba(142, 68, 255, 0.25);
+}
+
+/* Бежевая тема */
+[data-theme="beige"] .project-card-avatar,
+[data-theme="beige"] .project-card-open {
+    background: #9C7954;
+    color: #FFFFFF;
+}
+
+/* Чёрно-белая тема */
+[data-theme="mono"] .project-card-avatar,
+[data-theme="mono"] .project-card-open {
+    background: #333333;
+    color: #FFFFFF;
+}
+
+
+
+
+/* Обложки проектов */
+.project-card-cover {
+    height: 140px;
+    margin: 0 12px;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #8B5CF6, #D8B4FE 60%, #7DE7D1);
+    color: white;
+}
+
+.project-card-cover-pattern,
+.cover-option-pattern {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.project-card-cover-shape {
+    position: absolute;
+    border-radius: 40% 60% 65% 35%;
+    pointer-events: none;
+}
+
+.project-card-shape-one {
+    width: 180px;
+    height: 150px;
+    top: -75px;
+    left: -35px;
+    background: rgba(255,255,255,.2);
+    transform: rotate(-25deg);
+}
+
+.project-card-shape-two {
+    width: 150px;
+    height: 130px;
+    right: -45px;
+    bottom: -75px;
+    background: rgba(255,255,255,.24);
+    transform: rotate(30deg);
+}
+
+.project-card-shape-three {
+    width: 95px;
+    height: 95px;
+    top: -42px;
+    right: 20px;
+    background: rgba(255,255,255,.16);
+}
+
+.project-card-cover-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Полоски */
+.cover-stripes .project-card-cover-pattern,
+.cover-stripes .cover-option-pattern {
+    background: repeating-linear-gradient(
+        135deg,
+        transparent 0 12px,
+        rgba(255,255,255,.4) 12px 19px,
+        transparent 19px 30px
+    );
+}
+
+/* Волны */
+.cover-waves .project-card-cover-pattern,
+.cover-waves .cover-option-pattern {
+    background: repeating-radial-gradient(
+        ellipse at 0% 100%,
+        transparent 0 18px,
+        rgba(255,255,255,.35) 20px 24px,
+        transparent 26px 40px
+    );
+}
+
+/* Круги */
+.cover-circles .project-card-cover-pattern,
+.cover-circles .cover-option-pattern {
+    background:
+        radial-gradient(circle at 20% 30%, #FFFFFF55 0 18%, transparent 19%),
+        radial-gradient(circle at 80% 75%, #FFFFFF66 0 22%, transparent 23%),
+        radial-gradient(circle at 70% 15%, #FFFFFF44 0 12%, transparent 13%);
+}
+
+/* Геометрия */
+.cover-geometry .project-card-cover-pattern,
+.cover-geometry .cover-option-pattern {
+    background:
+        linear-gradient(135deg, transparent 50%, #FFFFFF55 50%),
+        linear-gradient(45deg, transparent 50%, #FFFFFF33 50%);
+    background-size: 70px 70px, 90px 90px;
+}
+
+/* Точки */
+.cover-dots .project-card-cover-pattern,
+.cover-dots .cover-option-pattern {
+    background-image: radial-gradient(#FFFFFF99 2px, transparent 2px);
+    background-size: 18px 18px;
+}
+
+/* Абстракция — базовый градиент */
+.cover-abstract {
+    background: linear-gradient(135deg, #8B5CF6, #D8B4FE 60%, #7DE7D1);
+}
+
+/* Палитры обложек под темы */
+[data-theme="neon"] .project-card-cover,
+[data-theme="neon"] .cover-option {
+    background-color: #171326;
+    background-image: linear-gradient(135deg, #171326, #35264F 65%, #164E63);
+    color: #D9FF52;
+}
+
+[data-theme="neon"] .project-card-cover-pattern,
+[data-theme="neon"] .cover-option-pattern {
+    opacity: .9;
+}
+
+[data-theme="beige"] .project-card-cover,
+[data-theme="beige"] .cover-option {
+    background-color: #E9D8B9;
+    background-image: linear-gradient(135deg, #E9D8B9, #C6A780 65%, #9C7954);
+    color: #FFF9EF;
+}
+
+[data-theme="mono"] .project-card-cover,
+[data-theme="mono"] .cover-option {
+    background-color: #555;
+    background-image: linear-gradient(135deg, #333, #999 65%, #DADADA);
+    color: #FFFFFF;
+}
+
+/* Панель выбора */
+.cover-picker {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.cover-option {
+    position: relative;
+    min-width: 0;
+    height: 42px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #8B5CF6, #D8B4FE 60%, #7DE7D1);
+}
+
+.cover-option.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--surface);
+}
+
+.cover-check {
+    position: absolute;
+    right: 3px;
+    top: 1px;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 0 1px 3px #000;
+}
+
+@media (max-width: 360px) {
+    .cover-picker {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+
+
+/* Исправление: выбранный узор не смешивается с абстрактными фигурами */
+
+/* Скрываем декоративные абстрактные фигуры у остальных обложек */
+.project-card-cover:not(.cover-abstract) .project-card-cover-shape {
+    display: none;
+}
+
+/* Разноцветная тема */
+[data-theme="colorful"] .project-card-cover.cover-stripes {
+    background: linear-gradient(135deg, #8B5CF6, #D8B4FE);
+}
+
+[data-theme="colorful"] .project-card-cover.cover-waves {
+    background: linear-gradient(135deg, #6D5AE6, #72B7F2);
+}
+
+[data-theme="colorful"] .project-card-cover.cover-circles {
+    background: linear-gradient(135deg, #F0A5D8, #8B9FF5);
+}
+
+[data-theme="colorful"] .project-card-cover.cover-geometry {
+    background: linear-gradient(135deg, #8B5CF6, #4DD0C8);
+}
+
+[data-theme="colorful"] .project-card-cover.cover-dots {
+    background: linear-gradient(135deg, #A78BFA, #64748B);
+}
+
+/* Неоновая тема */
+[data-theme="neon"] .project-card-cover.cover-stripes {
+    background: linear-gradient(135deg, #171326, #35264F);
+}
+
+[data-theme="neon"] .project-card-cover.cover-waves {
+    background: linear-gradient(135deg, #171326, #164E63);
+}
+
+[data-theme="neon"] .project-card-cover.cover-circles {
+    background: linear-gradient(135deg, #35264F, #171326);
+}
+
+[data-theme="neon"] .project-card-cover.cover-geometry {
+    background: linear-gradient(135deg, #171326, #43306B);
+}
+
+[data-theme="neon"] .project-card-cover.cover-dots {
+    background: linear-gradient(135deg, #29203F, #171326);
+}
+
+/* Бежевая тема */
+[data-theme="beige"] .project-card-cover.cover-stripes,
+[data-theme="beige"] .project-card-cover.cover-waves,
+[data-theme="beige"] .project-card-cover.cover-circles,
+[data-theme="beige"] .project-card-cover.cover-geometry,
+[data-theme="beige"] .project-card-cover.cover-dots {
+    background: linear-gradient(135deg, #E9D8B9, #C6A780 65%, #9C7954);
+}
+
+/* Монохромная тема */
+[data-theme="mono"] .project-card-cover.cover-stripes,
+[data-theme="mono"] .project-card-cover.cover-waves,
+[data-theme="mono"] .project-card-cover.cover-circles,
+[data-theme="mono"] .project-card-cover.cover-geometry,
+[data-theme="mono"] .project-card-cover.cover-dots {
+    background: linear-gradient(135deg, #333333, #999999 65%, #DADADA);
+}
+
+
+/* Цветной стиль — оставляем исходную розовую палитру */
+[data-theme="colorful"] {
+    --auth-page-bg: #FBCED5;
+    --auth-card-bg: #EFA6B2;
+}
+
+/* Неоновый стиль */
+[data-theme="neon"] {
+    --auth-page-bg: var(--page-bg);
+    --auth-card-bg: var(--surface);
+}
+
+/* Бежевый стиль */
+[data-theme="beige"] {
+    --auth-page-bg: var(--page-bg);
+    --auth-card-bg: var(--surface);
+}
+
+/* Монохромный стиль */
+[data-theme="mono"] {
+    --auth-page-bg: var(--page-bg);
+    --auth-card-bg: var(--surface);
+}
+
+
+/* Бежевая тема */
+[data-theme="beige"] {
+    --auth-page-bg: #F3E9D8;
+    --auth-card-bg: #4c3301;
+}
+
+[data-theme="beige"] .form-control {
+    background-color: #FFFFFF;
+    border: 1px solid #CDBA9E;
+    color: #211A14;
+}
+
+[data-theme="beige"] .input-group-text {
+    background-color: #E9D8B9;
+    border: 1px solid #CDBA9E;
+    color: #211A14;
+}
+
+[data-theme="beige"] .btn-primary {
+    background-color: #9C7954;
+    border-color: #9C7954;
+    color: #FFFFFF;
+}
+
+[data-theme="beige"] .btn-primary:hover {
+    background-color: #806141;
+    border-color: #806141;
+}
+
+/* Чёрно-белая тема */
+[data-theme="mono"] {
+    --auth-page-bg: #F5F5F5;
+    --auth-card-bg: #302a2a;
+}
+
+[data-theme="mono"] .form-control {
+    background-color: #FFFFFF;
+    border: 1px solid #AAAAAA;
+    color: #161616;
+}
+
+[data-theme="mono"] .input-group-text {
+    background-color: #E5E5E5;
+    border: 1px solid #AAAAAA;
+    color: #161616;
+}
+
+[data-theme="mono"] .btn-primary {
+    background-color: #333333;
+    border-color: #333333;
+    color: #FFFFFF;
+}
+
+[data-theme="mono"] .btn-primary:hover {
+    background-color: #161616;
+    border-color: #161616;
+}
+
+
+
+/* Компактная овальная кнопка входа */
+.login-button {
+    padding: 6px 24px;
+    min-height: 20px;
+    border: none;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    box-shadow: none;
+    transition: background-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+.login-button:hover {
+    transform: translateY(-1px);
+}
+
+.login-button:focus-visible {
+    outline: 2px solid var(--text-primary);
+    outline-offset: 3px;
+}
+
+/* Colorful — розовая */
+[data-theme="colorful"] .login-button {
+    background-color: #EC7A91;
+    color: #FFFFFF;
+}
+
+[data-theme="colorful"] .login-button:hover {
+    background-color: #E36580;
+    color: #FFFFFF;
+}
+
+/* Neon — салатовая */
+[data-theme="neon"] .login-button {
+    background-color: #D9FF52;
+    color: #171326;
+}
+
+[data-theme="neon"] .login-button:hover {
+    background-color: #C7ED3D;
+    color: #171326;
+}
+
+/* Beige — коричневая */
+[data-theme="beige"] .login-button {
+    background-color: #9C7954;
+    color: #FFFFFF;
+}
+
+[data-theme="beige"] .login-button:hover {
+    background-color: #806141;
+    color: #FFFFFF;
+}
+
+/* Mono — чёрная */
+[data-theme="mono"] .login-button {
+    background-color: #333333;
+    color: #FFFFFF;
+}
+
+[data-theme="mono"] .login-button:hover {
+    background-color: #161616;
+    color: #FFFFFF;
+}
+
+
