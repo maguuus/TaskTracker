@@ -7,6 +7,8 @@ import { useDBColumn } from '../hooks/DataBaseHook';
 import ProjectContributors from '../components/ProjectContributorsPanel';
 import useProject from "../context/ProjectContext.jsx";
 import { hub } from '../api/index.js';
+import { useTheme } from '../context/ThemeContext';
+
 
 function ProjectBoard({ name, id }) {
     const [getColumns, getTasks, post, patch, remove] = useDBColumn();
@@ -16,6 +18,11 @@ function ProjectBoard({ name, id }) {
     const [showSettings, setShowSettings] = useState(false);
 
     const isViewer = currentProject?.role === "Viewer";
+    const newColumn = () => ({
+        orderIndex: (columns[columns.length - 1]?.orderIndex ?? -1) + 1,
+        title: `Новая колонка`,
+        projectId: id
+    });
 
     useEffect(() => {
         let cancelled = false;
@@ -24,9 +31,9 @@ function ProjectBoard({ name, id }) {
             setColumns([]);
             const fetched = await getColumns(id);
 
-            const promises = fetched.map(async (col) => {
-                const tasks = await getTasks(col.id);
-                return { ...col, tasks: tasks || [] };
+            const promises = fetched.map(async (column) => {
+                const tasks = await getTasks(column.id);
+                return { ...column, tasks: tasks };
             });
 
             const columnsWithTasks = await Promise.all(promises);
@@ -85,10 +92,8 @@ function ProjectBoard({ name, id }) {
                         const nextCols = [...prev, { ...colPayload, tasks: colPayload.tasks || [] }];
                         return nextCols.sort((a, b) => a.orderIndex - b.orderIndex);
                     });
-                    return;
                 } else if (action === 'deleted' && colId) {
                     removeColumn({ id: colId });
-                    return;
                 } else if (action === 'updated' && colId) {
                     setColumns(prev => prev.map(col => {
                         if (col.id === colId) {
@@ -102,7 +107,6 @@ function ProjectBoard({ name, id }) {
                         }
                         return col;
                     }));
-                    return;
                 }
             }
 
@@ -113,28 +117,24 @@ function ProjectBoard({ name, id }) {
             hub.off('stateChanged', handleStateChanged);
         };
     }, [id, addColumn, removeColumn, updateColumn, setColumns]);
-    
-    const newColumn = () => ({
-        orderIndex: (columns[columns.length - 1]?.orderIndex ?? -1) + 1,
-        title: `Новая колонка`,
-        projectId: id
-    });
 
     if (!columns) return <h1>Загрузка колонок для {name}...</h1>;
 
     return (
-        <Container fluid className="pt-2 px-4 position-relative" style={{ backgroundColor: '#bee0c6', minHeight: '100vh' }}>
+        <Container fluid className="project-board pt-2 px-4 position-relative">
             <div className="text-center mb-3">
-                <h1 className="fw-bold m-0 position-absolute start-50 translate-middle-x" style={{ color: '#212121', fontSize: '2.2rem', whiteSpace: 'nowrap' }}>
-                    Проект: <span style={{ textDecoration: 'underline', textUnderlineOffset: '6px' }}>{name}</span>
-                </h1>
+            <h1
+                className="project-heading fw-bold m-0 position-absolute start-50 translate-middle-x"
+                style={{ fontSize: '2.2rem', whiteSpace: 'nowrap' }}
+            >
+                Проект: <span style={{ textDecoration: 'underline', textUnderlineOffset: '6px' }}>{name}</span>
+            </h1>
 
                 <div className="d-flex align-items-center" style={{ marginRight: '60px', paddingTop: '5px' }}>
                     {!isViewer && (
                         <Button
                             variant="dark"
-                            className="rounded-pill px-4 shadow-sm"
-                            style={{ backgroundColor: '#212121' }}
+                            className="project-button rounded-pill px-4 shadow-sm"
                             onClick={async () => {
                                 await post(newColumn());
                             }}
@@ -153,7 +153,9 @@ function ProjectBoard({ name, id }) {
                     right: '1.5rem',
                     width: '48px',
                     height: '48px',
-                    backgroundColor: '#212121',
+                    backgroundColor: 'var(--project-button-bg)',
+                    color: 'var(--project-button-text)',
+                    borderColor: 'var(--border-color)',
                     borderRadius: '0.5rem',
                     zIndex: 10,
                 }}
