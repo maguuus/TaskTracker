@@ -62,7 +62,22 @@ public class UserService(AppDbContext context) : IUserService
         await context.SaveChangesAsync();
         
         return true;
-}
+    }
+
+    public async Task<List<UserSearchDto>> SearchUsersAsync(string query, Guid currentUserId){
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return new List<UserSearchDto>();
+        }
+
+        return await context.Users
+            .Where(u => u.Id != currentUserId &&
+                        u.Name.ToLower().Contains(query.Trim().ToLower()))
+            .OrderBy(u => u.Name)
+            .Select(u => new UserSearchDto(u.Id, u.Name))
+            .Take(20)
+            .ToListAsync();
+    }
     //Task<UserResponseDto> UpdateUserAsync(Guid id, UserUpdateDto updateDto);
     //Task<bool> DeleteUserAsync(Guid id){}
 }

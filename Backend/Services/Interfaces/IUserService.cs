@@ -10,6 +10,7 @@ public interface IUserService
     Task<bool> IsEmailTakenAsync(string email);
     Task<User> CreateUserAsync(UserRegisterDto registerDto);
     Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordDto dto);
+    Task<List<UserSearchDto>> SearchUsersAsync(string query, Guid currentUserId);
     
     //Task<UserResponseDto> UpdateUserAsync(Guid id, UserUpdateDto updateDto);
     //Task<bool> DeleteUserAsync(Guid id);
