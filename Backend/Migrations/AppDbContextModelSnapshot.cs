@@ -46,6 +46,31 @@ namespace Backend.Migrations
                     b.ToTable("Columns");
                 });
 
+            modelBuilder.Entity("Backend.Models.Friendship", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("FriendId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FriendId");
+
+                    b.HasIndex("UserId", "FriendId")
+                        .IsUnique();
+
+                    b.ToTable("Friendships");
+                });
+
             modelBuilder.Entity("Backend.Models.Project", b =>
                 {
                     b.Property<Guid>("Id")
@@ -176,6 +201,25 @@ namespace Backend.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("Backend.Models.Friendship", b =>
+                {
+                    b.HasOne("Backend.Models.User", "Friend")
+                        .WithMany("ReceivedFriendships")
+                        .HasForeignKey("FriendId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.User", "User")
+                        .WithMany("SentFriendships")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Friend");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Backend.Models.Project", b =>
                 {
                     b.HasOne("Backend.Models.User", "Owner")
@@ -234,6 +278,10 @@ namespace Backend.Migrations
                     b.Navigation("OwnedProjects");
 
                     b.Navigation("ProjectMemberships");
+
+                    b.Navigation("ReceivedFriendships");
+
+                    b.Navigation("SentFriendships");
                 });
 #pragma warning restore 612, 618
         }

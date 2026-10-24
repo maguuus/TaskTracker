@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<TaskItem> TaskItems { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<ProjectMember> ProjectMembers { get; set; }
+    public DbSet<Friendship> Friendships { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,6 +48,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         
         modelBuilder.Entity<Project>()
             .HasIndex(p => p.OwnerId);
+
+        modelBuilder.Entity<Friendship>()
+            .HasOne(f => f.User)
+            .WithMany(u => u.SentFriendships)
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Friendship>()
+            .HasOne(f => f.Friend)
+            .WithMany(u => u.ReceivedFriendships)
+            .HasForeignKey(f => f.FriendId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Friendship>()
+            .HasIndex(f => new { f.UserId, f.FriendId })
+            .IsUnique();
         
         base.OnModelCreating(modelBuilder);
     }
