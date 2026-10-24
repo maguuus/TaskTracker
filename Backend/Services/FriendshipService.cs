@@ -1,6 +1,7 @@
 using Backend.Data;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
+using Backend.DTO;
 
 namespace Backend.Services;
 
@@ -44,4 +45,48 @@ public class FriendshipService(AppDbContext context) : IFriendshipService
         context.Friendships.Add(friendship);
         await context.SaveChangesAsync();
     }
+    
+    public async Task<List<FriendRequestDto>> GetIncomingRequestsAsync(Guid userId)
+    {
+        return await context.Friendships
+            .Where(f =>
+                f.FriendId == userId &&
+                f.Status == FriendshipStatus.Pending)
+            .Select(f => new FriendRequestDto(
+                f.Id,
+                f.UserId,
+                f.User.Name))
+            .ToListAsync();
+    }
+
+    public async Task AcceptRequestAsync(Guid userId, Guid requestId)
+    {
+        var request = await context.Friendships.FirstOrDefaultAsync(f =>
+            f.Id == requestId &&
+            f.FriendId == userId &&
+            f.Status == FriendshipStatus.Pending);
+
+        if (request is null)
+            throw new KeyNotFoundException("Входящая заявка не найдена.");
+
+        request.Status = FriendshipStatus.Accepted;
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task RejectRequestAsync(Guid userId, Guid requestId)
+    {
+        var request = await context.Friendships.FirstOrDefaultAsync(f =>
+            f.Id == requestId &&
+            f.FriendId == userId &&
+            f.Status == FriendshipStatus.Pending);
+
+        if (request is null)
+            throw new KeyNotFoundException("Входящая заявка не найдена.");
+
+        context.Friendships.Remove(request);
+
+        await context.SaveChangesAsync();
+    }
+
 }
