@@ -7,6 +7,7 @@ import useProject from '../context/ProjectContext';
 import { useTheme } from '../context/ThemeContext';
 import FriendsModal from "../components/FriendModal";
 import AddFriendsModal from "../components/AddFriendsModal";
+import FriendRequestsModal from "../components/FriendRequestsModal";
 
 function Profile() {
     const [currentUser, setCurrentUser] = useUser();
@@ -22,6 +23,7 @@ function Profile() {
     const [, setCurrentProject] = useProject(); // Проект остается в памяти даже для нового пользователя
     const [showFriends, setShowFriends] = useState(false);
     const [showAddFriends, setShowAddFriends] = useState(false);
+    const [showFriendRequests, setShowFriendRequests] = useState(false);
 
 
     const { theme, setTheme } = useTheme();
@@ -131,11 +133,19 @@ function Profile() {
 
                         <Button 
                             variant="dark"
-                            className="rounded-pill px-5"
+                            className="rounded-pill px-6"
                             style={{ backgroundColor: '#212121', border: 'none' }}
                             onClick={() => setShowAddFriends(true)}
                         >
                             Добавить друзей
+                        </Button>
+
+                        <Button
+                            variant="dark"
+                            className="rounded-pill px-8"
+                            onClick={() => setShowFriendRequests(true)}
+                        >
+                            Заявки в друзья
                         </Button>
 
                         <FriendsModal
@@ -146,6 +156,11 @@ function Profile() {
                         <AddFriendsModal
                             show={showAddFriends}
                             onHide={() => setShowAddFriends(false)}
+                        />
+
+                        <FriendRequestsModal
+                            show={showFriendRequests}
+                            onHide={() => setShowFriendRequests(false)}
                         />
 
                         {showPasswordForm && (

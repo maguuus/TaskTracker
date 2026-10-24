@@ -97,4 +97,38 @@ public class FriendshipController(
         }
     }
 
+    [HttpGet("friends")]
+    public async Task<IActionResult> GetFriends()
+    {
+        if (!Guid.TryParse(
+            User.FindFirstValue(ClaimTypes.NameIdentifier),
+            out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var friends = await friendshipService.GetFriendsAsync(userId);
+        return Ok(friends);
+    }
+
+    [HttpDelete("friends/{friendId:guid}")]
+    public async Task<IActionResult> RemoveFriend(Guid friendId)
+    {
+        if (!Guid.TryParse(
+            User.FindFirstValue(ClaimTypes.NameIdentifier),
+            out var userId))
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            await friendshipService.RemoveFriendAsync(userId, friendId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
 }

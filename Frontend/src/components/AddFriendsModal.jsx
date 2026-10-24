@@ -61,7 +61,6 @@ function AddFriendsModal({ show, onHide }) {
         let cancelled = false;
 
         const timer = setTimeout(async () => {
-            setSearching(true);
             setSearchError("");
 
             try {

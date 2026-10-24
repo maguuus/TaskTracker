@@ -9,4 +9,7 @@ public interface IFriendshipService
     Task AcceptRequestAsync(Guid userId, Guid requestId);
 
     Task RejectRequestAsync(Guid userId, Guid requestId);
+
+    Task<List<FriendDto>> GetFriendsAsync(Guid userId);
+    Task RemoveFriendAsync(Guid userId, Guid friendId);
 }

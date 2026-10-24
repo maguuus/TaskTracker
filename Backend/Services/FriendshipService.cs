@@ -89,4 +89,33 @@ public class FriendshipService(AppDbContext context) : IFriendshipService
         await context.SaveChangesAsync();
     }
 
+    
+    public async Task<List<FriendDto>> GetFriendsAsync(Guid userId)
+    {
+        return await context.Friendships
+            .Where(f =>
+                f.Status == FriendshipStatus.Accepted &&
+                (f.UserId == userId || f.FriendId == userId))
+            .Select(f => new FriendDto(
+                f.UserId == userId ? f.FriendId : f.UserId,
+                f.UserId == userId ? f.Friend.Name : f.User.Name))
+            .ToListAsync();
+    }
+
+    public async Task RemoveFriendAsync(Guid userId, Guid friendId)
+    {
+        var friendship = await context.Friendships
+            .FirstOrDefaultAsync(f =>
+                f.Status == FriendshipStatus.Accepted &&
+                (
+                    (f.UserId == userId && f.FriendId == friendId) ||
+                    (f.UserId == friendId && f.FriendId == userId)
+                ));
+
+        if (friendship is null)
+            throw new KeyNotFoundException("Друг не найден.");
+
+        context.Friendships.Remove(friendship);
+        await context.SaveChangesAsync();
+    }
 }
