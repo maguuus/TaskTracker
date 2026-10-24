@@ -98,7 +98,8 @@ public class FriendshipService(AppDbContext context) : IFriendshipService
                 (f.UserId == userId || f.FriendId == userId))
             .Select(f => new FriendDto(
                 f.UserId == userId ? f.FriendId : f.UserId,
-                f.UserId == userId ? f.Friend.Name : f.User.Name))
+                f.UserId == userId ? f.Friend.Name : f.User.Name,
+                f.UserId == userId ? f.Friend.Email : f.User.Email))
             .ToListAsync();
     }
 

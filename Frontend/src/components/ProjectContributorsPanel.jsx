@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Badge, Button, Form, InputGroup, ListGroup, Modal } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 import useProject from '../context/ProjectContext';
 import useUser from "../context/UserContext.jsx";
 import { useProjectMembers } from '../hooks/ProjectMemberHook';
 import { hub } from '../api/index.js';
+import api from '../api/index.js';
 
 function ProjectContributors({ showSettings, setShowSettings }) {
     const navigate = useNavigate();
@@ -126,6 +127,54 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
     const [inviteEmail, setInviteEmail] = useState("");
     const [inviteRole, setInviteRole] = useState("Member");
     const [errorMessage, setErrorMessage] = useState("");
+    const [friends, setFriends] = useState([]);
+    const [loadingFriends, setLoadingFriends] = useState(false);
+    const [showFriends, setShowFriends] = useState(false);
+    const [selectedFriend, setSelectedFriend] = useState(null);
+    const [friendsLoaded, setFriendsLoaded] = useState(false);
+    const inviteRef = useRef(null);
+
+    const searchQuery = inviteEmail.trim().toLowerCase();
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (inviteRef.current && !inviteRef.current.contains(event.target)) {
+                setShowFriends(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const filteredFriends = friends.filter((friend) =>
+        friend.name?.toLowerCase().includes(searchQuery) ||
+        friend.email?.toLowerCase().includes(searchQuery)
+    );
+
+    async function loadFriends() {
+        setLoadingFriends(true);
+
+        try {
+            const response = await api.get("/api/Friendship/friends");
+            setFriends(response.data);
+            setFriendsLoaded(true);
+        } catch (error) {
+            setErrorMessage("Не удалось загрузить список друзей.");
+        } finally {
+            setLoadingFriends(false);
+        }
+    }
+
+    function handleSelectFriend(friend) {
+        setSelectedFriend(friend);
+        setInviteEmail(friend.email);
+        setShowFriends(false);
+        setErrorMessage("");
+    }
 
     const handleInvite = async (e) => {
         if (e) e.preventDefault();
@@ -145,40 +194,91 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
 
     return <Form onSubmit={(e) => { e.preventDefault(); handleInvite(); }} className="mb-4">
         <Form.Label className="small text-secondary fw-semibold mb-2">Пригласить участника</Form.Label>
-        <InputGroup className="d-flex w-100">
-            <Form.Control
-                placeholder="Почта пользователя:"
-                value={inviteEmail}
-                onChange={e => setInviteEmail(e.target.value)}
-                style={{
-                    backgroundColor: '#ffffff',
-                    borderColor: '#212121',
-                    color: '#212121',
-                    borderRadius: '0.6rem 0 0 0.6rem',
-                    minWidth: '180px'
-                }}
-                className="flex-grow-1" />
-            <Form.Select
-                value={inviteRole}
-                onChange={e => setInviteRole(e.target.value)}
-                style={{ minWidth: '160px' }}
-            >
-                <option value="Member">Участник</option>
-                <option value="Viewer">Наблюдатель</option>
-            </Form.Select>
-            <Button
-                variant="dark"
-                type="submit"
-                style={{
-                    backgroundColor: '#212121',
-                    borderColor: '#212121',
-                    borderRadius: '0 0.6rem 0.6rem 0',
-                    color: '#ffffff'
-                }}
-            >
-                Пригласить
-            </Button>
-        </InputGroup>
+        <div className="position-relative" ref={inviteRef}>
+            <InputGroup className="d-flex w-100">
+                <Form.Control
+                    placeholder="Почта пользователя:"
+                    value={inviteEmail}
+                    autoComplete="off"
+                    onFocus={() => {
+                        if (!friendsLoaded) {
+                            loadFriends();
+                        }
+                        setShowFriends(true);
+                    }}
+                    onChange={(e) => {
+                        setInviteEmail(e.target.value);
+                        setSelectedFriend(null);
+                        setShowFriends(true);
+                    }}
+                    style={{
+                        backgroundColor: '#ffffff',
+                        borderColor: '#212121',
+                        color: '#212121',
+                        borderRadius: '0.6rem 0 0 0.6rem',
+                        minWidth: '180px'
+                    }}
+                    className="flex-grow-1" />
+                <Form.Select
+                    value={inviteRole}
+                    onChange={e => setInviteRole(e.target.value)}
+                    style={{ minWidth: '160px' }}
+                >
+                    <option value="Member">Участник</option>
+                    <option value="Viewer">Наблюдатель</option>
+                </Form.Select>
+                <Button
+                    variant="dark"
+                    type="submit"
+                    style={{
+                        backgroundColor: '#212121',
+                        borderColor: '#212121',
+                        borderRadius: '0 0.6rem 0.6rem 0',
+                        color: '#ffffff'
+                    }}
+                >
+                    Пригласить
+                </Button>
+            </InputGroup>
+            {showFriends && (
+                <div
+                    className="position-absolute top-100 start-0 bg-white border rounded-3 shadow-sm mt-1"
+                    style={{
+                        width: "calc((100% - 160px - 105px))",
+                        zIndex: 1060,
+                        maxHeight: "220px",
+                        overflowY: "auto",
+                        overflowX: "hidden"
+                    }}
+                >
+                {loadingFriends ? (
+                    <div className="p-3 text-muted small">
+                        Загружаем друзей...
+                    </div>
+                ) : filteredFriends.length > 0 ? (
+                    <ListGroup variant="flush">
+                        {filteredFriends.map((friend) => (
+                            <ListGroup.Item
+                                key={friend.id}
+                                action
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => handleSelectFriend(friend)}
+                            >
+                                <div className="fw-semibold">{friend.name}</div>
+                                <div className="small text-muted">{friend.email}</div>
+                            </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+                ) : (
+                    <div className="p-3 text-muted small">
+                        {friends.length === 0
+                            ? "У тебя пока нет друзей."
+                            : "Друзья не найдены."}
+                    </div>
+                )}
+            </div>
+        )}
+    </div>
         {errorMessage && <div className="text-danger small mt-1">{errorMessage}</div>}
     </Form>;
 }
