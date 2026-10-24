@@ -111,9 +111,29 @@ function Column({ column, projectId, onColumnUpdate, onColumnDelete }) {
                 columnId: column.id
             };
             window.__draggedTaskInstance = null;
-
+            const sourceColumnId = taskToMove.columnId;
+            const targetColumnId = column.id;
+            
             try {
-                await patch(updatedTask);
+                const saved = await patch(updatedTask);
+                const finalTask = saved || updatedTask;
+
+                setColumns(prev => prev.map(col => {
+                    if (col.id === sourceColumnId) {
+                        return {
+                            ...col,
+                            tasks: col.tasks.filter(t => t.id !== finalTask.id)
+                        };
+                    }
+                    if (col.id === targetColumnId) {
+                        const cleanTasks = col.tasks.filter(t => t.id !== finalTask.id);
+                        return {
+                            ...col,
+                            tasks: [...cleanTasks, finalTask].sort((a, b) => a.orderIndex - b.orderIndex)
+                        };
+                    }
+                    return col;
+                }));
             } catch (error) {
                 if (error.response?.status === 409) {
                     alert("Задача была изменена другим участником. Доска будет обновлена.");
@@ -132,7 +152,8 @@ function Column({ column, projectId, onColumnUpdate, onColumnDelete }) {
             columnId: col.id,
             orderIndex: order,
             title: `Новая задача ${order + 1}`,
-            description: `Описание задачи`
+            description: `Описание задачи`,
+            tags: []
         };
     }
 
