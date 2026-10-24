@@ -6,6 +6,7 @@ import { useDBUser } from "../hooks/DataBaseHook";
 import useProject from '../context/ProjectContext';
 import { useTheme } from '../context/ThemeContext';
 import FriendsModal from "../components/FriendModal";
+import AddFriendsModal from "../components/AddFriendsModal";
 
 function Profile() {
     const [currentUser, setCurrentUser] = useUser();
@@ -20,6 +21,7 @@ function Profile() {
     const [message, setMessage] = useState({ text: '', type: '' });
     const [, setCurrentProject] = useProject(); // Проект остается в памяти даже для нового пользователя
     const [showFriends, setShowFriends] = useState(false);
+    const [showAddFriends, setShowAddFriends] = useState(false);
 
 
     const { theme, setTheme } = useTheme();
@@ -127,9 +129,23 @@ function Profile() {
                             Мои друзья
                         </Button>
 
+                        <Button 
+                            variant="dark"
+                            className="rounded-pill px-5"
+                            style={{ backgroundColor: '#212121', border: 'none' }}
+                            onClick={() => setShowAddFriends(true)}
+                        >
+                            Добавить друзей
+                        </Button>
+
                         <FriendsModal
                             show={showFriends}
                             onHide={() => setShowFriends(false)}
+                        />
+
+                        <AddFriendsModal
+                            show={showAddFriends}
+                            onHide={() => setShowAddFriends(false)}
                         />
 
                         {showPasswordForm && (
