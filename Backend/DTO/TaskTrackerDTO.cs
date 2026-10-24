@@ -4,7 +4,7 @@ namespace Backend.DTO;
 
 public record UserRegisterDto(string? Name, string Email, string Password);
 public record UserLoginDto(string Email, string Password);
-public record UserResponseDto(Guid Id, string Name, string Email);
+public record UserResponseDto(Guid Id, string Name, string Email, string? Avatar);
 
 public record ProjectCreateDto(string Name, Guid OwnerId, string? Description);
 public record ProjectUpdateDto(string Name, string? Description);
@@ -17,7 +17,7 @@ public record ColumnResponseDto(Guid Id, string Title, int OrderIndex, Guid Proj
 
 public record TokenResponseDto(string AccessToken);
 public record ChangePasswordDto(string OldPassword, string NewPassword);
-
+public record ChangeAvatarDto(string Avatar);
 public record TaskCreateDto(
     string Title, 
     string? Description, 

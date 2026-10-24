@@ -5,12 +5,20 @@ import { useState } from "react";
 import { useDBUser } from "../hooks/DataBaseHook";
 import useProject from '../context/ProjectContext';
 import { useTheme } from '../context/ThemeContext';
-
+import avatar1 from '../image/1.png';
+import avatar2 from '../image/2.png';
+import avatar3 from '../image/3.png';
+import avatar4 from '../image/4.png';
+import avatar5 from '../image/5.png';
+import avatar6 from '../image/6.png';
+import avatar7 from '../image/7.png';
+import avatar8 from '../image/8.png';
+import defaultAvatar from '../image/9.jpg';
 function Profile() {
     const [currentUser, setCurrentUser] = useUser();
     const navigate = useNavigate();
 
-    const [, , , changePassword] = useDBUser();
+    const [, , , changePassword, changeAvatar] = useDBUser();
 
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [oldPassword, setOldPassword] = useState('');
@@ -26,6 +34,20 @@ function Profile() {
         { id: 'beige', label: 'Бежевая', icon: '🤎' },
         { id: 'mono', label: 'Чёрно-белая', icon: '◐' },
     ];
+
+    const avatars = [
+        { id: "1", image: avatar1 },
+        { id: "2", image: avatar2 },
+        { id: "3", image: avatar3 },
+        { id: "4", image: avatar4 },
+        { id: "5", image: avatar5 },
+        { id: "6", image: avatar6 },
+        { id: "7", image: avatar7 },
+        { id: "8", image: avatar8 },
+        { id: "9", image: defaultAvatar }
+    ];
+
+    const savedAvatar = avatars.find(avatar=>avatar.id == currentUser?.avatar) ?? avatars[8];
     function onLogout() {
         localStorage.removeItem("token");
         setCurrentUser(null);
@@ -50,6 +72,23 @@ function Profile() {
         } catch (error) {
             const errorMsg = error.response?.data || "Ошибка при смене пароля.";
             setMessage({ text: errorMsg, type: 'danger' });
+        }
+    }
+
+    async function handleAvatarChange(avatar) {
+        try {
+            await changeAvatar({avatar : avatar.id});
+            setCurrentUser({
+                ...currentUser,
+                avatar: avatar.id
+            });
+
+            setMessage({
+                text: 'Аватар успешно изменен.',
+                type: 'success'
+            });
+        } catch (error) {
+            setMessage({text: 'Ошибка при смене аватара.', type: 'danger'});
         }
     }
 
@@ -85,20 +124,52 @@ function Profile() {
                                 </Dropdown.Menu>
                             </Dropdown>
                         </div>
+                        <div className='profile-main-info'>
+                            <div className='avatar'>
+                                <img 
+                                    className='avatarka'
+                                    src = {savedAvatar.image}
+                                    alt = "Аватар"
+                                />
+                                <Dropdown>
+                                    <Dropdown.Toggle
+                                        variant="dark"
+                                        className="avatar-button"
+                                    >
+                                        Сменить аватарку
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu className='avatar-menu'>
+                                        <div className='avatar-grid'>
+                                            {avatars.map((avatar) => (
+                                                <button
+                                                    key={avatar.id}
+                                                    type="button"
+                                                    className='avatar-option'
+                                                    onClick={()=>handleAvatarChange(avatar)}
+                                                >
+                                                    <img
+                                                        src={avatar.image}
+                                                        alt={`Аватар ${avatar.id}`}
+                                                    />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </Dropdown.Menu>                            
+                                </Dropdown>
+                            </div>
 
-                        <div className="mb-4 bg-white bg-opacity-50 p-3 rounded-4">
-                            <p className="mb-2 fs-5"><strong>Имя: </strong> {currentUser?.name}</p>
-                            <p className="mb-0 fs-5 text-muted"><strong>Email: </strong> {currentUser?.email}</p>
+                            <div className="user-info">
+                                <p className="mb-2 fs-5"><strong>Имя: </strong> {currentUser?.name}</p>
+                                <p className="mb-0 fs-5 text-muted"><strong>Email: </strong> {currentUser?.email}</p>
+                            </div>
                         </div>
-
-
                         {message.text && (
                             <Alert variant={message.type} onClose={() => setMessage({ text: '', type: '' })} dismissible className="rounded-3">
                                 {message.text}
                             </Alert>
                         )}
 
-                        <div className="d-flex gap-3 mb-4">
+                        <div className="d-flex gap-3 mb-4 profile-actions ">
                             <Button
                                 variant="dark"
                                 className="rounded-pill px-4"
