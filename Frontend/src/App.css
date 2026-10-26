@@ -89,7 +89,9 @@
     min-height: 300px;
     overflow: auto;
     margin-top: 1rem;
-    padding-bottom: 1rem;
+    padding-bottom: 0;
+    border-radius: 16px;
+    background: var(--roadmap-row-bg, var(--surface));
 }
 
 .roadmap-grid {
@@ -97,15 +99,18 @@
     width: max-content;
     min-width: 100%;
     align-items: stretch;
+    color: var(--text-primary);
+    background: var(--roadmap-row-bg, var(--surface));
 }
 
 .roadmap-header {
     position: sticky;
     top: 0;
-    z-index: 4;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    background: var(--surface);
+    z-index: 3;
+    min-height: 58px;
+    padding: 16px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+    background: var(--roadmap-header-bg, var(--surface));
     color: var(--text-primary);
     font-weight: 600;
     text-align: center;
@@ -116,56 +121,181 @@
     position: sticky;
     left: 0;
     z-index: 2;
-    background: var(--surface);
+    background: var(--roadmap-row-bg, var(--surface));
     color: var(--text-primary);
+}
+
+.roadmap-header.roadmap-label {
+    background: var(--roadmap-header-bg, var(--surface));
 }
 
 .roadmap-corner {
     left: 0;
-    z-index: 6;
+    z-index: 5;
+    text-align: left;
 }
 
 .roadmap-undated-header {
-    position: sticky;
-    left: 230px;
-    z-index: 5;
+    left: var(--roadmap-label-width);
+    z-index: 4;
+    text-align: left;
 }
 
-.roadmap-date,
-.roadmap-cell,
-.roadmap-row-label {
-    border: 1px solid var(--border-color);
+.roadmap-row-label,
+.roadmap-undated,
+.roadmap-timeline {
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 45%, transparent);
+}
+
+.roadmap-row-label,
+.roadmap-cell {
+    min-height: 150px;
+    padding: 12px;
+    background: var(--roadmap-row-bg, var(--surface));
 }
 
 .roadmap-row-label {
     z-index: 3;
-    min-height: 150px;
-    padding: 12px;
+    border-right: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
 }
 
 .roadmap-cell {
-    min-height: 150px;
-    padding: 10px;
-    background: color-mix(in srgb, var(--surface) 75%, transparent);
+    position: relative;
 }
 
 .roadmap-undated {
     position: sticky;
-    left: 230px;
+    left: var(--roadmap-label-width);
+    z-index: 2;
+    width: 600px;
+    border-right: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
+    background: var(--roadmap-undated-bg, var(--surface));
+}
+
+.roadmap-time-header {
+    z-index: 2;
+    width: 100%;
+    min-width: 100%;
+    padding: 0;
+    background: var(--roadmap-axis-bg, var(--surface));
+}
+
+.roadmap-month-axis {
+    position: relative;
+    height: 29px;
+    width: max-content;
+    overflow: hidden;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
+}
+
+.roadmap-month {
+    position: absolute;
+    top: 0;
+    display: flex;
+    height: 100%;
+    align-items: center;
+    padding-left: 8px;
+    color: var(--roadmap-axis-text, var(--text-secondary));
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.roadmap-day-axis {
+    display: flex;
+    height: 28px;
+    width: max-content;
+}
+
+.roadmap-day {
+    display: flex;
+    flex: 0 0 72px;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid color-mix(in srgb, var(--border-color) 16%, transparent);
+    color: var(--roadmap-axis-text, var(--text-secondary));
+    font-size: 0.75rem;
+}
+
+.roadmap-timeline {
+    min-width: 0;
+    overflow: hidden;
+    background-color: var(--roadmap-timeline-bg, var(--surface));
+    background-image: repeating-linear-gradient(
+        to right,
+        transparent 0,
+        transparent 71px,
+        color-mix(in srgb, var(--border-color) 16%, transparent) 71px,
+        color-mix(in srgb, var(--border-color) 16%, transparent) 72px
+    );
+}
+
+.roadmap-timeline-task {
+    position: absolute;
     z-index: 1;
-    background: var(--surface);
 }
 
 .roadmap-cell .task-card {
     margin-bottom: 0.5rem !important;
-    background: var(--surface);
+    background: var(--roadmap-task-bg, var(--surface));
     color: var(--text-primary);
 }
 
-.roadmap-empty {
-    display: block;
-    color: var(--text-secondary);
-    text-align: center;
+.roadmap-view {
+    --roadmap-label-width: 276px;
+    --roadmap-header-bg: #f0f4f2;
+    --roadmap-axis-bg: #e7eeea;
+    --roadmap-axis-text: #51645a;
+    --roadmap-row-bg: #f6f8f6;
+    --roadmap-undated-bg: #f2f6f3;
+    --roadmap-timeline-bg: #f8faf8;
+    --roadmap-task-bg: #fff;
+}
+
+[data-theme="neon"] .roadmap-view {
+    --roadmap-header-bg: #211a36;
+    --roadmap-axis-bg: #251d3b;
+    --roadmap-axis-text: #d9ff52;
+    --roadmap-row-bg: #211a36;
+    --roadmap-undated-bg: #261e3d;
+    --roadmap-timeline-bg: #1c172e;
+    --roadmap-task-bg: #35264f;
+}
+
+[data-theme="neon"] .roadmap-view .task-card {
+    border-color: #62448a;
+    box-shadow: 0 0 8px rgba(217, 255, 82, 0.12), 0 0 14px rgba(142, 68, 255, 0.18);
+}
+
+[data-theme="neon"] .roadmap-view .task-card h6 {
+    color: #f4f5f2;
+}
+
+[data-theme="neon"] .roadmap-view .task-card .text-muted {
+    color: #d8c8f0 !important;
+}
+
+[data-theme="beige"] .roadmap-view {
+    --roadmap-header-bg: #e9d8b9;
+    --roadmap-axis-bg: #ddc9a7;
+    --roadmap-axis-text: #604a32;
+    --roadmap-row-bg: #f3e8d6;
+    --roadmap-undated-bg: #eee0c9;
+    --roadmap-timeline-bg: #f8f0e3;
+    --roadmap-task-bg: #fffaef;
+}
+
+[data-theme="mono"] .roadmap-view {
+    --roadmap-header-bg: #d9d9d9;
+    --roadmap-axis-bg: #cecece;
+    --roadmap-axis-text: #333;
+    --roadmap-row-bg: #f0f0f0;
+    --roadmap-undated-bg: #e6e6e6;
+    --roadmap-timeline-bg: #fafafa;
+    --roadmap-task-bg: #fff;
+}
+
+[data-theme="colorful"] .roadmap-view .roadmap-row-label {
+    background-image: linear-gradient(120deg, rgba(199, 158, 255, 0.12), transparent 85%);
 }
 
 /* ========================================

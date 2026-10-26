@@ -1,14 +1,13 @@
-import { Container, Row, Col, Button } from 'react-bootstrap';
-import Column from './Column';
-import useColumns from '../context/BoardContext';
-import { useBoard } from '../hooks/BoardHooks';
 import { useEffect, useState } from 'react';
-import { useDBColumn } from '../hooks/DataBaseHook';
-import ProjectContributors from '../components/ProjectContributorsPanel';
-import useProject from "../context/ProjectContext.jsx";
+import { Button, Container } from 'react-bootstrap';
 import { hub } from '../api/index.js';
-import Roadmap from './Roadmap';
-import { useTheme } from '../context/ThemeContext';
+import Kanban from '../components/Kanban';
+import ProjectContributors from '../components/ProjectContributorsPanel';
+import Roadmap from '../components/Roadmap';
+import useColumns from '../context/BoardContext';
+import useProject from "../context/ProjectContext.jsx";
+import { useBoard } from '../hooks/BoardHooks';
+import { useDBColumn } from '../hooks/DataBaseHook';
 
 const BOARD_MODES = Object.freeze({
     KANBAN: 'Kanban',
@@ -221,20 +220,11 @@ function ProjectBoard({ name, id }) {
             </Button>
 
             {boardMode === BOARD_MODES.KANBAN ? (
-                <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem', marginTop: '1rem' }}>
-                    <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }} className="justify-content-start align-items-stretch">
-                        {columns.map((column) => (
-                            <Col key={column.id} style={{ minWidth: '410px', width: '410px', flexGrow: 0 }} className="me-2 h-100">
-                                <Column
-                                    column={column}
-                                projectId={id}
-                                    onColumnUpdate={async (c) => { await patch(c); }}
-                                    onColumnDelete={async () => { await remove(column); }}
-                                />
-                            </Col>
-                        ))}
-                    </Row>
-                </div>
+                <Kanban
+                    columns={columns}
+                    onColumnUpdate={async (column) => { await patch(column); }}
+                    onColumnDelete={async (column) => { await remove(column); }}
+                />
             ) : (
                 <Roadmap
                     columns={columns}
