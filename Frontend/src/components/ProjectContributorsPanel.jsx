@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useProject from '../context/ProjectContext';
 import useUser from "../context/UserContext.jsx";
 import { useProjectMembers } from '../hooks/ProjectMemberHook';
+import { hub } from '../api/index.js';
 
 function ProjectContributors({ showSettings, setShowSettings }) {
     const navigate = useNavigate();
@@ -19,20 +20,46 @@ function ProjectContributors({ showSettings, setShowSettings }) {
     const isOwner = currentProject?.role === "Owner" || currentProject?.ownerId === currentUser?.id;
     const myRole = currentProject?.role || (isOwner ? "Owner" : "Member");
 
-    useEffect(() => {
-        async function fetchMembers() {
-            try {
-                const data = await getProjectMembers(currentProject);
-                setContributors(data);
-            } catch (error) {
-                console.error("Ошибка при загрузке участников проекта:", error);
-            }
-        }
-        if (currentProject?.id) {
-            fetchMembers();
-        }
+    const refreshMembers = async () => {
+        if (!currentProject?.id) return;
 
+        try {
+            const data = await getProjectMembers(currentProject);
+            setContributors(data);
+        } catch (error) {
+            console.error("Ошибка при загрузке участников проекта:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (currentProject?.id) {
+            refreshMembers();
+        }
     }, [currentProject, trigger]);
+
+    useEffect(() => {
+        if (!currentProject?.id) return;
+
+        const handleStateChanged = async (message) => {
+            if (!message || message.type !== 'stateChanged') return;
+
+            const { entityType, action, payload } = message;
+            if (entityType !== 'projectMember') return;
+
+            const eventProjectId = payload?.projectId;
+            if (eventProjectId !== currentProject.id) return;
+
+            if (['created', 'updated', 'deleted'].includes(action)) {
+                await refreshMembers();
+            }
+        };
+
+        hub.on('stateChanged', handleStateChanged);
+
+        return () => {
+            hub.off('stateChanged', handleStateChanged);
+        };
+    }, [currentProject?.id, refreshMembers]);
 
 
     const handleRemove = async (member) => {
@@ -43,9 +70,9 @@ function ProjectContributors({ showSettings, setShowSettings }) {
             try {
                 await removeProjectMember(currentProject, member);
                 if (isSelf) {
-                    setCurrentProject(null);
                     setShowSettings(false);
                     navigate("/");
+                    setCurrentProject(null);
                 } else {
                     setTrigger(p => p + 1);
                 }
@@ -56,7 +83,7 @@ function ProjectContributors({ showSettings, setShowSettings }) {
     };
 
     return (
-        <Modal show={showSettings} onHide={() => setShowSettings(false)} centered data-bs-theme="light" size="md">
+        <Modal show={showSettings} onHide={() => setShowSettings(false)} centered data-bs-theme="light" size="lg">
             <Modal.Body className="p-4" style={{ backgroundColor: '#ffffff', borderRadius: '1.2rem', color: '#212121' }}>
 
                 {/* Шапка с кнопкой закрытия */}

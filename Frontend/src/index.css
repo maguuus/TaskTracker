@@ -1,0 +1,142 @@
+
+/* ========================================
+   Базовые стили приложения
+   ======================================== */
+
+:root {
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    --page-bg: #FAF8F5;
+    --surface: #FFFFFF;
+    --column-bg: #FFFFFF;
+    --text-primary: #212121;
+    --text-secondary: #777777;
+    --border-color: #E8E0D5;
+    --accent: #C79EFF;
+    --task-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+
+    --project-page-bg: #bee0c6;
+    --project-heading: #212121;
+    --project-button-bg: #212121;
+    --project-button-text: #ffffff;
+}
+
+/* ========================================
+   Разноцветная тема — исходное оформление
+   ======================================== */
+
+[data-theme="colorful"] {
+    color-scheme: light;
+
+    --page-bg: #FAF8F5;
+    --surface: #FFFFFF;
+    --column-bg: #FFFFFF;
+    --text-primary: #212121;
+    --text-secondary: #777777;
+    --border-color: #E8E0D5;
+    --accent: #C79EFF;
+    --task-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+
+    /* Исходное оформление страницы проекта */
+    --project-page-bg: #bee0c6;
+    --project-heading: #212121;
+    --project-button-bg: #212121;
+    --project-button-text: #ffffff;
+}
+
+/* ========================================
+   Неоновая тема
+   ======================================== */
+
+[data-theme="neon"] {
+    color-scheme: dark;
+
+    --page-bg: #171326;
+    --surface: #29203F;
+    --column-bg: #29203F;
+    --text-primary: #F7EFFF;
+    --text-secondary: #C9B6E8;
+    --border-color: #62448A;
+    --accent: #D9FF52;
+    --task-shadow: 0 0 12px rgba(142, 68, 255, 0.2);
+
+    --project-page-bg: var(--page-bg);
+    --project-heading: var(--text-primary);
+    --project-button-bg: var(--surface);
+    --project-button-text: var(--text-primary);
+}
+
+/* ========================================
+   Бежевая тема
+   ======================================== */
+
+[data-theme="beige"] {
+    color-scheme: light;
+
+    --page-bg: #F3E9D8;
+    --surface: #FFFAF1;
+    --column-bg: #E9D8B9;
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --border-color: #D6C2A3;
+    --accent: #9C7954;
+    --task-shadow: 0 4px 12px rgba(70, 50, 30, 0.08);
+
+    --project-page-bg: var(--page-bg);
+    --project-heading: var(--text-primary);
+    --project-button-bg: var(--surface);
+    --project-button-text: var(--text-primary);
+}
+
+/* ========================================
+   Чёрно-белая тема
+   ======================================== */
+
+[data-theme="mono"] {
+    color-scheme: light;
+
+    --page-bg: #F5F5F5;
+    --surface: #FFFFFF;
+    --column-bg: #DADADA;
+    --text-primary: #161616;
+    --text-secondary: #555555;
+    --border-color: #BBBBBB;
+    --accent: #333333;
+    --task-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+
+    --project-page-bg: var(--page-bg);
+    --project-heading: var(--text-primary);
+    --project-button-bg: var(--surface);
+    --project-button-text: var(--text-primary);
+}
+
+/* ========================================
+   Базовая разметка страницы
+   ======================================== */
+
+html,
+body,
+#root {
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    background-color: var(--page-bg);
+    color: var(--text-primary);
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+* {
+    box-sizing: border-box;
+}

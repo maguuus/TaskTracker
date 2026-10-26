@@ -9,7 +9,6 @@ RUN npm run build
 
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Чтобы при обращении на глубокие адреса ссылка передавалась в react router
-# RUN sed -i 's/try_files $uri $uri\/ =404;/try_files $uri $uri\/ \/index.html;/g' /etc/nginx/conf.d/default.conf # Что то идейно похожее надо сделат, не работает
 EXPOSE 80

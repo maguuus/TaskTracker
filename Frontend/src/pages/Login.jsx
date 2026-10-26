@@ -1,14 +1,13 @@
-import { Container, Form, Button, InputGroup } from 'react-bootstrap'
-import { useEffect, useState } from 'react'
-import useUser from '../context/UserContext'
+import { useState } from 'react';
+import { Button, Container, Form, InputGroup } from 'react-bootstrap';
+import useUser from '../context/UserContext';
 import { useDBUser } from '../hooks/DataBaseHook';
-import api from '../api';
 
-const mockUser = (email) => ({
-    id: 1,
-    email: email,
-    projects: [projectMeta1, projectMeta2, projectMeta3]
-})
+// const mockUser = (email) => ({
+//     id: 1,
+//     email: email,
+//     projects: [projectMeta1, projectMeta2, projectMeta3]
+// })
 
 function Login() {
 
@@ -25,8 +24,7 @@ function Login() {
         e.preventDefault();
         try {
             let response = await authMethod({ email: email, password: password });
-            const token = response.accessToken;
-
+            const token = response.token || response.accessToken;
             localStorage.setItem('token', token);
 
             let profileResponse = await getMe();
@@ -42,12 +40,17 @@ function Login() {
         <Container
             fluid
             className="d-flex align-items-start justify-content-center"
-            style={{ backgroundColor: '#FBCED5', minHeight: '100vh', width: '100vw', paddingTop: '150px'}}
+            style={{
+                backgroundColor: 'var(--auth-page-bg, #FBCED5)',
+                minHeight: '100vh',
+                width: '100%',
+                paddingTop: '150px'
+            }}
         >
             <div
                 className="p-5 text-center d-flex flex-column justify-content-center align-items-center shadow-sm"
                 style={{
-                    backgroundColor: '#EFA6B2',
+                    backgroundColor: 'var(--auth-card-bg, #EFA6B2)',
                     borderRadius: '60px',
                     width: '100%',
                     maxWidth: '420px',
@@ -95,10 +98,10 @@ function Login() {
                     <div className="d-flex flex-column gap-2 align-items-center">
                         <Button
                             onClick={(e) => handleAuth(e, login)}
-                            className="border-0 shadow-none text-white font-weight-bold px-4 py-1 small rounded-pill btn-sm"
-                            style={{ backgroundColor: '#EC7A91', fontSize: '0.8rem' }}
+                            className="login-button"
+                            style = {{fontSize: '0.8rem' }}
                         >
-                            Log in
+                            Войти
                         </Button>
 
                         <Button
@@ -107,7 +110,7 @@ function Login() {
                             className="text-decoration-none p-0 border-0 shadow-none font-weight-bold text-white opacity-75 small"
                             style={{ fontSize: '0.7rem' }}
                         >
-                            Register
+                            Зарегестрироваться
                         </Button>
                     </div>
                 </Form>
