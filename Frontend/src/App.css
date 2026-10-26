@@ -84,6 +84,90 @@
         box-shadow 0.25s ease;
 }
 
+.roadmap-scroll {
+    height: calc(100vh - 170px);
+    min-height: 300px;
+    overflow: auto;
+    margin-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.roadmap-grid {
+    display: grid;
+    width: max-content;
+    min-width: 100%;
+    align-items: stretch;
+}
+
+.roadmap-header {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.roadmap-label {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--surface);
+    color: var(--text-primary);
+}
+
+.roadmap-corner {
+    left: 0;
+    z-index: 6;
+}
+
+.roadmap-undated-header {
+    position: sticky;
+    left: 230px;
+    z-index: 5;
+}
+
+.roadmap-date,
+.roadmap-cell,
+.roadmap-row-label {
+    border: 1px solid var(--border-color);
+}
+
+.roadmap-row-label {
+    z-index: 3;
+    min-height: 150px;
+    padding: 12px;
+}
+
+.roadmap-cell {
+    min-height: 150px;
+    padding: 10px;
+    background: color-mix(in srgb, var(--surface) 75%, transparent);
+}
+
+.roadmap-undated {
+    position: sticky;
+    left: 230px;
+    z-index: 1;
+    background: var(--surface);
+}
+
+.roadmap-cell .task-card {
+    margin-bottom: 0.5rem !important;
+    background: var(--surface);
+    color: var(--text-primary);
+}
+
+.roadmap-empty {
+    display: block;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
 /* ========================================
    Настройки темы
    ======================================== */
@@ -1008,5 +1092,3 @@
     background-color: #161616;
     color: #FFFFFF;
 }
-
-

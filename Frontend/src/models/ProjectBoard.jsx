@@ -7,8 +7,13 @@ import { useDBColumn } from '../hooks/DataBaseHook';
 import ProjectContributors from '../components/ProjectContributorsPanel';
 import useProject from "../context/ProjectContext.jsx";
 import { hub } from '../api/index.js';
+import Roadmap from './Roadmap';
 import { useTheme } from '../context/ThemeContext';
 
+const BOARD_MODES = Object.freeze({
+    KANBAN: 'Kanban',
+    ROADMAP: 'Roadmap'
+});
 
 function ProjectBoard({ name, id }) {
     const [getColumns, getTasks, post, patch, remove] = useDBColumn();
@@ -16,6 +21,7 @@ function ProjectBoard({ name, id }) {
     const [addColumn, updateColumn, removeColumn] = useBoard();
     const [currentProject] = useProject();
     const [showSettings, setShowSettings] = useState(false);
+    const [boardMode, setBoardMode] = useState(BOARD_MODES.KANBAN);
 
     const isViewer = currentProject?.role === "Viewer";
     const newColumn = () => ({
@@ -167,7 +173,7 @@ function ProjectBoard({ name, id }) {
                                 await post(newColumn());
                             }}
                         >
-                            + Добавить колонку
+                            + {boardMode === BOARD_MODES.KANBAN ? 'Добавить колонку' : 'Добавить группу'}
                         </Button>
                     )}
                 </div>
@@ -193,20 +199,49 @@ function ProjectBoard({ name, id }) {
                 ⚙️
             </Button>
 
-            <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem', marginTop: '1rem' }}>
-                <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }} className="justify-content-start align-items-stretch">
-                    {columns.map((column) => (
-                        <Col key={column.id} style={{ minWidth: '410px', width: '410px', flexGrow: 0 }} className="me-2 h-100">
-                            <Column
-                                column={column}
+            <Button
+                variant="dark"
+                className="position-absolute d-flex align-items-center justify-content-center shadow-sm"
+                style={{
+                    top: '0.5rem',
+                    right: '5.5rem',
+                    height: '48px',
+                    backgroundColor: 'var(--project-button-bg)',
+                    color: 'var(--project-button-text)',
+                    borderColor: 'var(--border-color)',
+                    borderRadius: '0.5rem',
+                    zIndex: 10,
+                }}
+                onClick={() => setBoardMode(currentMode => (
+                    currentMode === BOARD_MODES.KANBAN ? BOARD_MODES.ROADMAP : BOARD_MODES.KANBAN
+                ))}
+                aria-label={`Переключить на ${boardMode === BOARD_MODES.KANBAN ? 'Roadmap' : 'Kanban'}`}
+            >
+                {boardMode === BOARD_MODES.KANBAN ? 'Roadmap' : 'Kanban'}
+            </Button>
+
+            {boardMode === BOARD_MODES.KANBAN ? (
+                <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem', marginTop: '1rem' }}>
+                    <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }} className="justify-content-start align-items-stretch">
+                        {columns.map((column) => (
+                            <Col key={column.id} style={{ minWidth: '410px', width: '410px', flexGrow: 0 }} className="me-2 h-100">
+                                <Column
+                                    column={column}
                                 projectId={id}
-                                onColumnUpdate={async (c) => { await patch(c); }}
-                                onColumnDelete={async () => { await remove(column); }}
-                            />
-                        </Col>
-                    ))}
-                </Row>
-            </div>
+                                    onColumnUpdate={async (c) => { await patch(c); }}
+                                    onColumnDelete={async () => { await remove(column); }}
+                                />
+                            </Col>
+                        ))}
+                    </Row>
+                </div>
+            ) : (
+                <Roadmap
+                    columns={columns}
+                    onColumnUpdate={async (column) => { await patch(column); }}
+                    onColumnDelete={async (column) => { await remove(column); }}
+                />
+            )}
 
             <ProjectContributors showSettings={showSettings} setShowSettings={setShowSettings} />
         </Container>
