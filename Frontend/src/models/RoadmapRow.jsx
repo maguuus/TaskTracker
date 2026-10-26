@@ -143,7 +143,11 @@ function RoadmapRow({ column, timeline, onColumnUpdate, onColumnDelete }) {
                 onDragOver={event => event.preventDefault()}
                 onDrop={handleDrop}
             >
-                {undatedTasks.map(renderTask)}
+                <div className="roadmap-undated-scroll">
+                    <div className="roadmap-undated-tasks">
+                        {undatedTasks.map(renderTask)}
+                    </div>
+                </div>
             </div>
 
             <div

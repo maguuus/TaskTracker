@@ -87,7 +87,8 @@
 .roadmap-scroll {
     height: calc(100vh - 170px);
     min-height: 300px;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: auto;
     margin-top: 1rem;
     padding-bottom: 0;
     border-radius: 16px;
@@ -167,9 +168,22 @@
     position: sticky;
     left: var(--roadmap-label-width);
     z-index: 2;
-    width: 600px;
+    width: 420px;
     border-right: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
     background: var(--roadmap-undated-bg, var(--surface));
+}
+
+.roadmap-undated-scroll {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.roadmap-undated-tasks {
+    display: grid;
+    width: max-content;
+    grid-template-columns: repeat(3, 260px);
+    gap: 0 12px;
 }
 
 .roadmap-time-header {

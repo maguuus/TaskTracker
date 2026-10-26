@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import RoadmapRow from '../models/RoadmapRow';
 
 const LABEL_WIDTH = 276;
-const UNDATED_WIDTH = 600;
+const UNDATED_WIDTH = 420;
 const DAY_WIDTH = 72;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
