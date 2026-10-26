@@ -108,6 +108,34 @@ function ProjectBoard({ name, id }) {
                         return col;
                     }));
                 }
+            } else if (entityType === 'task') {
+                const task = payload?.task;
+                const taskId = payload?.taskId ?? task?.id;
+
+                if (action === 'created' && task) {
+                    setColumns(prev => prev.map(col => col.id === task.columnId
+                        ? {
+                            ...col,
+                            tasks: [...col.tasks.filter(existing => existing.id !== task.id), task]
+                                .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+                        }
+                        : col
+                    ));
+                } else if (action === 'deleted' && taskId) {
+                    setColumns(prev => prev.map(col => ({
+                        ...col,
+                        tasks: col.tasks.filter(existing => existing.id !== taskId)
+                    })));
+                } else if (action === 'updated' && task) {
+                    setColumns(prev => prev.map(col => {
+                        const tasks = col.tasks.filter(existing => existing.id !== task.id);
+                        if (col.id !== task.columnId) return { ...col, tasks };
+                        return {
+                            ...col,
+                            tasks: [...tasks, task].sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+                        };
+                    }));
+                }
             }
 
         };
