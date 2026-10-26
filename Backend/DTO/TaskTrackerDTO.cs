@@ -6,9 +6,9 @@ public record UserRegisterDto(string? Name, string Email, string Password);
 public record UserLoginDto(string Email, string Password);
 public record UserResponseDto(Guid Id, string Name, string Email, string? Avatar);
 
-public record ProjectCreateDto(string Name, Guid OwnerId, string? Description);
-public record ProjectUpdateDto(string Name, string? Description);
-public record ProjectResponseDto(Guid Id, string Name, Guid OwnerId, DateTime CreatedAt, string? Description, ProjectRole Role);
+public record ProjectCreateDto(string Name, Guid OwnerId, string? Description,string? Cover);
+public record ProjectUpdateDto(string Name, string? Description,string? Cover);
+public record ProjectResponseDto(Guid Id, string Name, Guid OwnerId, DateTime CreatedAt, string? Description, ProjectRole Role, string? Cover);
 
 
 public record ColumnCreateDto(string? Title, int OrderIndex, Guid ProjectId);

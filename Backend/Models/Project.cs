@@ -7,7 +7,7 @@ public class Project
     public string? Description { get; set; }
     public Guid OwnerId { get; set; }
     public DateTime CreatedAt { get; set; }
-
+    public string? Cover { get; set; }
     // Навигационные свойства для связей
     public ICollection<Column>? Columns { get; set; }
     public User? Owner { get; set; }

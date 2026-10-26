@@ -28,7 +28,8 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
                 p.Description,
                 p.OwnerId == userId 
                     ? ProjectRole.Owner 
-                    : p.Members.Where(m => m.UserId == userId).Select(m => m.Role).FirstOrDefault()
+                    : p.Members.Where(m => m.UserId == userId).Select(m => m.Role).FirstOrDefault(),
+                p.Cover
             ))
             .ToListAsync();
     }
@@ -41,7 +42,8 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
             Name = projectDto.Name,
             Description = projectDto.Description,
             OwnerId = projectDto.OwnerId,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Cover = projectDto.Cover ?? "abstract",
         };
 
         context.Projects.Add(project);
@@ -59,7 +61,8 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
             project.OwnerId,
             project.CreatedAt,
             project.Description,
-            ProjectRole.Owner);
+            ProjectRole.Owner,
+            project.Cover);
 
         // Персональное уведомление создателю (чтобы синхронизировать открытые вкладки)
         await realtimeNotifier.NotifyUserAsync(project.OwnerId, "project", "created", new { project = response });
@@ -75,7 +78,7 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
 
         project.Name = projectDto.Name;
         project.Description = projectDto.Description;
-
+        project.Cover = projectDto.Cover;
         await context.SaveChangesAsync();
 
         var payload = new
@@ -83,7 +86,8 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
             id,
             name = project.Name,
             description = project.Description,
-            ownerId = project.OwnerId
+            ownerId = project.OwnerId,
+            cover = project.Cover
         };
 
         var memberUserIds = await context.ProjectMembers
