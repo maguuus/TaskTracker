@@ -8,7 +8,7 @@ import ProjectContributors from '../components/ProjectContributorsPanel';
 import useProject from "../context/ProjectContext.jsx";
 import { hub } from '../api/index.js';
 import { useTheme } from '../context/ThemeContext';
-
+import TaskSearchDrawer from '../components/TaskSearchDrawer';
 
 function ProjectBoard({ name, id }) {
     const [getColumns, getTasks, post, patch, remove] = useDBColumn();
@@ -16,7 +16,8 @@ function ProjectBoard({ name, id }) {
     const [addColumn, updateColumn, removeColumn] = useBoard();
     const [currentProject] = useProject();
     const [showSettings, setShowSettings] = useState(false);
-
+    const [showSearch, setShowSearch] = useState(false);
+    
     const isViewer = currentProject?.role === "Viewer";
     const newColumn = () => ({
         orderIndex: (columns[columns.length - 1]?.orderIndex ?? -1) + 1,
@@ -165,6 +166,27 @@ function ProjectBoard({ name, id }) {
                 ⚙️
             </Button>
 
+            <Button
+                variant="dark"
+                className="position-absolute d-flex align-items-center justify-content-center shadow-sm"
+                style={{
+                    top: '0.5rem',
+                    right: '5.5rem',
+                    height: '48px',
+                    paddingLeft: '1rem',
+                    paddingRight: '1rem',
+                    backgroundColor: 'var(--project-button-bg)',
+                    color: 'var(--project-button-text)',
+                    borderColor: 'var(--border-color)',
+                    borderRadius: '0.5rem',
+                    zIndex: 10,
+                }}
+                onClick={() => setShowSearch(true)}
+                aria-label="Поиск и фильтрация"
+            >
+                🔍 Поиск
+            </Button>
+
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '1rem', marginTop: '1rem' }}>
                 <Row style={{ flexWrap: 'nowrap', minWidth: 'min-content' }} className="justify-content-start align-items-stretch">
                     {columns.map((column) => (
@@ -181,6 +203,15 @@ function ProjectBoard({ name, id }) {
             </div>
 
             <ProjectContributors showSettings={showSettings} setShowSettings={setShowSettings} />
+
+            <TaskSearchDrawer
+                show={showSearch}
+                onHide={() => setShowSearch(false)}
+                projectId={id}
+                onTaskSelect={(task) => {
+                    console.log("Выбрана задача:", task);
+                }}
+            />
         </Container>
     );
 }

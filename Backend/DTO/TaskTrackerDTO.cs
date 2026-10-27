@@ -56,7 +56,25 @@ public record TaskResponseDto(
     DateTime UpdatedAt, 
     DateTime? DueDate, 
     DateTime? PlannedStartAt);
-    
+
+public record TaskSearchFilterDto(
+    string? Query,
+    string? Priority,
+    string? Urgency,
+    string? Tag);
+
+public record TaskSearchResultDto (
+    Guid Id,
+    Guid ColumnId,
+    string ColumnTitle,
+    string Title,
+    string? Description,
+    string? Priority,
+    string? Urgency,
+    string? Icon,
+    List<string>? Tags,
+    DateTime? DueDate,
+    DateTime UpdatedAt); 
     
 public record AddProjectMemberDto(string Email, ProjectRole Role = ProjectRole.Member);
 public record UpdateMemberRoleDto(ProjectRole Role);

@@ -177,4 +177,84 @@ public class TaskService(AppDbContext context, IRealtimeNotifier realtimeNotifie
 
         return true;
     }
+
+    public async Task<IEnumerable<TaskSearchResultDto>> SearchTasksAsync(Guid projectId, TaskSearchFilterDto filter)
+    {
+        var query = context.TaskItems
+            .Include(t => t.Column)
+            .Where(t => t.Column != null && t.Column.ProjectId == projectId)
+            .AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(filter.Query))
+        {
+            var pattern = $"%{filter.Query.Trim()}%";
+            query = query.Where(t => EF.Functions.ILike(t.Title, pattern) 
+                                     || (t.Description != null && EF.Functions.ILike(t.Description, pattern)));
+        }
+        if (!string.IsNullOrWhiteSpace(filter.Priority))
+        {
+            query = query.Where(t => t.Priority == filter.Priority);
+        }
+        if (!string.IsNullOrWhiteSpace(filter.Urgency))
+        {
+            query = query.Where(t => t.Urgency == filter.Urgency);
+        }
+        if (!string.IsNullOrWhiteSpace(filter.Tag))
+        {
+            var cleanTag = filter.Tag.Trim().Replace("#", "");
+            query = query.Where(t => t.Tags != null && t.Tags.Contains(cleanTag));
+        }
+        return await query
+            .OrderBy(t => t.Column!.OrderIndex)
+            .ThenBy(t => t.OrderIndex)
+            .Select(t => new TaskSearchResultDto(
+                t.Id,
+                t.ColumnId,
+                t.Column!.Title,
+                t.Title,
+                t.Description,
+                t.Priority,
+                t.Urgency,
+                t.Icon,
+                t.Tags,
+                t.DueDate,
+                t.UpdatedAt
+            ))
+            .ToListAsync();
+    }
+
+    public async Task<TaskSearchResultDto?> GetRandomTaskAsync(Guid projectId, TaskSearchFilterDto filter)
+    {
+        var query = context.TaskItems
+            .Include(t => t.Column)
+            .Where(t => t.Column != null && t.Column.ProjectId == projectId)
+            .AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(filter.Priority))
+            query = query.Where(t => t.Priority == filter.Priority);
+
+        if (!string.IsNullOrWhiteSpace(filter.Urgency))
+            query = query.Where(t => t.Urgency == filter.Urgency);
+
+        if (!string.IsNullOrWhiteSpace(filter.Tag))
+        {
+            var cleanTag = filter.Tag.Trim().Replace("#", "");
+            query = query.Where(t => t.Tags != null && t.Tags.Contains(cleanTag));
+        }
+        return await query
+            .OrderBy(r => EF.Functions.Random())
+            .Select(t => new TaskSearchResultDto(
+                t.Id,
+                t.ColumnId,
+                t.Column!.Title,
+                t.Title,
+                t.Description,
+                t.Priority,
+                t.Urgency,
+                t.Icon,
+                t.Tags,
+                t.DueDate,
+                t.UpdatedAt
+            ))
+            .FirstOrDefaultAsync();
+    }
 }
