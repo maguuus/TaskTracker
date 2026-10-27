@@ -5,15 +5,8 @@ import { useState } from "react";
 import { useDBUser } from "../hooks/DataBaseHook";
 import useProject from '../context/ProjectContext';
 import { useTheme } from '../context/ThemeContext';
-import avatar1 from '../image/1.png';
-import avatar2 from '../image/2.png';
-import avatar3 from '../image/3.png';
-import avatar4 from '../image/4.png';
-import avatar5 from '../image/5.png';
-import avatar6 from '../image/6.png';
-import avatar7 from '../image/7.png';
-import avatar8 from '../image/8.png';
-import defaultAvatar from '../image/9.jpg';
+import { avatarsIdImageArray } from '../hooks/Avatar';
+
 function Profile() {
     const [currentUser, setCurrentUser] = useUser();
     const navigate = useNavigate();
@@ -35,19 +28,8 @@ function Profile() {
         { id: 'mono', label: 'Чёрно-белая', icon: '◐' },
     ];
 
-    const avatars = [
-        { id: "1", image: avatar1 },
-        { id: "2", image: avatar2 },
-        { id: "3", image: avatar3 },
-        { id: "4", image: avatar4 },
-        { id: "5", image: avatar5 },
-        { id: "6", image: avatar6 },
-        { id: "7", image: avatar7 },
-        { id: "8", image: avatar8 },
-        { id: "9", image: defaultAvatar }
-    ];
 
-    const savedAvatar = avatars.find(avatar=>avatar.id == currentUser?.avatar) ?? avatars[8];
+    const savedAvatar = avatarsIdImageArray.find(avatar=>avatar.id == currentUser?.avatar) ?? avatarsIdImageArray[8];
     function onLogout() {
         localStorage.removeItem("token");
         setCurrentUser(null);
@@ -140,7 +122,7 @@ function Profile() {
                                     </Dropdown.Toggle>
                                     <Dropdown.Menu className='avatar-menu'>
                                         <div className='avatar-grid'>
-                                            {avatars.map((avatar) => (
+                                            {avatarsIdImageArray.map((avatar) => (
                                                 <button
                                                     key={avatar.id}
                                                     type="button"
