@@ -1,0 +1,45 @@
+
+.friends-modal-dialog {
+    max-width: 750px;
+    width: calc(100% - 32px);
+    margin: 1.75rem auto;
+}
+
+.friends-modal-dialog .modal-content {
+    border: none;
+    border-radius: 20px;
+}
+
+.friends-modal-dialog .modal-body {
+    padding: 24px;
+}
+
+.friends-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.friends-section {
+    min-height: 0;
+}
+
+.friends-section-title {
+    margin-bottom: 14px;
+    font-weight: 600;
+}
+
+.friends-list-scroll {
+    height: 220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+    border: 1px solid #eee2e2;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.friends-list-scroll .list-group-item {
+    border-radius: 8px;
+    padding: 12px 8px;
+}

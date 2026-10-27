@@ -28,6 +28,21 @@ public class UserController(IUserService userService): ControllerBase
         return Ok(new UserResponseDto(user.Id, user.Name, user.Email, user.Avatar));
     }
 
+    [HttpGet("search")]
+    public async Task<ActionResult<List<UserSearchDto>>> SearchUsers([FromQuery] string query)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("Invalid token");
+        }
+
+        var users = await userService.SearchUsersAsync(query, userId);
+
+        return Ok(users);
+    }
+
     [HttpPost("change-password")]
     public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordDto dto)
     {

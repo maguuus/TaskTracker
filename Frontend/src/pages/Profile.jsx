@@ -1,10 +1,13 @@
-import { Container, Card, Button, Form, Alert, Dropdown } from 'react-bootstrap';
+import { Container, Card, Button, Form, Alert, Dropdown, Modal, ListGroup } from 'react-bootstrap';
 import useUser from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDBUser } from "../hooks/DataBaseHook";
 import useProject from '../context/ProjectContext';
 import { useTheme } from '../context/ThemeContext';
+import FriendsModal from "../components/FriendModal";
+import AddFriendsModal from "../components/AddFriendsModal";
+import FriendRequestsModal from "../components/FriendRequestsModal";
 import { avatarsIdImageArray } from '../hooks/Avatar';
 
 function Profile() {
@@ -19,6 +22,10 @@ function Profile() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState({ text: '', type: '' });
     const [, setCurrentProject] = useProject(); // Проект остается в памяти даже для нового пользователя
+    const [showFriends, setShowFriends] = useState(false);
+    const [showAddFriends, setShowAddFriends] = useState(false);
+    const [showFriendRequests, setShowFriendRequests] = useState(false);
+
 
     const { theme, setTheme } = useTheme();
     const themes = [
@@ -168,7 +175,48 @@ function Profile() {
                                 Выйти из аккаунта
                             </Button>
                         </div>
+                        <div className="d-flex gap-3">
+                            <Button
+                                variant="dark"
+                                className="rounded-pill px-4"
+                                style={{ backgroundColor: '#212121', border: 'none' }}
+                                onClick={() => setShowFriends(true)}
+                            >
+                                Мои друзья
+                            </Button>
 
+                            <Button
+                                variant="dark"
+                                className="rounded-pill px-6"
+                                style={{ backgroundColor: '#212121', border: 'none' }}
+                                onClick={() => setShowAddFriends(true)}
+                            >
+                                Добавить друзей
+                            </Button>
+
+                            <Button
+                                variant="dark"
+                                className="rounded-pill px-8"
+                                onClick={() => setShowFriendRequests(true)}
+                            >
+                                Заявки в друзья
+                            </Button>
+                        </div>
+
+                        <FriendsModal
+                            show={showFriends}
+                            onHide={() => setShowFriends(false)}
+                        />
+
+                        <AddFriendsModal
+                            show={showAddFriends}
+                            onHide={() => setShowAddFriends(false)}
+                        />
+
+                        <FriendRequestsModal
+                            show={showFriendRequests}
+                            onHide={() => setShowFriendRequests(false)}
+                        />
 
                         {showPasswordForm && (
                             <Form onSubmit={handlePasswordSubmit} className="bg-white bg-opacity-75 p-4 rounded-4 border-0 shadow-sm">
