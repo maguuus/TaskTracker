@@ -127,3 +127,33 @@ export function useDBTask() {
 
     return [post, patch, remove];
 }
+
+
+/**
+ * @returns {[
+ *   (projectId: string, filter?: { query?: string, priority?: string, urgency?: string, tag?: string }) => Promise<any[]>,
+ *   (projectId: string, filter?: { priority?: string, urgency?: string, tag?: string }) => Promise<any>
+ * ]}
+ */
+export function useDBTaskSearch() {
+    async function search(projectId, filter = {}) {
+        const params = new URLSearchParams();
+        if (filter.query) params.append('query', filter.query);
+        if (filter.priority) params.append('priority', filter.priority);
+        if (filter.urgency) params.append('urgency', filter.urgency);
+        if (filter.tag) params.append('tag', filter.tag);
+
+        return (await api.get(`/api/tasks/project/${projectId}/search?${params.toString()}`)).data;
+    }
+
+    async function getRandom(projectId, filter = {}) {
+        const params = new URLSearchParams();
+        if (filter.priority) params.append('priority', filter.priority);
+        if (filter.urgency) params.append('urgency', filter.urgency);
+        if (filter.tag) params.append('tag', filter.tag);
+
+        return (await api.get(`/api/tasks/project/${projectId}/random?${params.toString()}`)).data;
+    }
+
+    return [search, getRandom];
+}

@@ -1,6 +1,26 @@
 import { Card, Button, Modal, Form, Badge, Col, Row } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 
+const getTagColor = (text) => {
+    const colors = [
+        { bg: '#FEE2E2', text: '#991B1B' }, // Красный
+        { bg: '#FEF3C7', text: '#92400E' }, // Янтарный
+        { bg: '#D1FAE5', text: '#065F46' }, // Зеленый
+        { bg: '#DBEAFE', text: '#1E40AF' }, // Синий
+        { bg: '#EDE9FE', text: '#5B21B6' }, // Фиолетовый
+        { bg: '#FCE7F3', text: '#9D174D' }, // Розовый
+        { bg: '#E0E7FF', text: '#3730A3' }, // Индиго
+        { bg: '#CCFBF1', text: '#115E59' }, // Бирюзовый
+    ];
+
+    let hash = 0;
+    const str = (text || '').toLowerCase().trim();
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+};
+
 /**
  * @param {Object} props
  * @param {Task} props.task
@@ -12,8 +32,8 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
     const [title, setTitle] = useState(task.title || '');
     const [description, setDescription] = useState(task.description || '');
     const [icon, setIcon] = useState(task.icon || '');
-    // const [tags, setTags] = useState(task.tags || []);
-    // const [tagInput, setTagInput] = useState('');
+    const [tags, setTags] = useState(task.tags || []);
+    const [tagInput, setTagInput] = useState('');
 
     const [priority, setPriority] = useState(task.priority || '');
     const [urgency, setUrgency] = useState(task.urgency || '');
@@ -28,7 +48,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
         setTitle(task.title || '');
         setDescription(task.description || '');
         setIcon(task.icon || '');
-        // setTags(task.tags || []);
+        setTags(task.tags || []);
         setPriority(task.priority || '');
         setUrgency(task.urgency || '');
         setDueDate(formatDateForInput(task.dueDate));
@@ -58,7 +78,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
             title: title,
             description: description,
             icon: icon,
-            // tags: tags,
+            tags: tags,
             priority: priority,
             urgency: urgency,
             dueDate: formattedDate
@@ -135,17 +155,35 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         {task.description || "Нет описания"}
                     </div>
 
-                    {/* <div className="d-flex flex-wrap gap-1 mb-3">
-                        {task.tags && task.tags.length > 0 ? (
-                            task.tags.map((tag, idx) => (
-                                <Badge bg="success" key={idx} className="fw-normal rounded-pill">
-                                    #{tag}
-                                </Badge>
-                            ))
-                        ) : (
-                            <Badge bg="success" className="fw-normal rounded-pill">#работа</Badge>
-                        )}
-                    </div> */}
+                    {task.tags && task.tags.length > 0 && (
+                        <div className="d-flex flex-wrap gap-1 mb-2" style={{ maxWidth: '100%'}}>
+                            {task.tags.map((tag, idx) => {
+                                const color = getTagColor(tag);
+                                return (
+                                    <span
+                                        key={idx}
+                                        title={`#${tag}`}
+                                        className="badge rounded-pill fw-medium"
+                                        style={{
+                                            backgroundColor: color.bg,
+                                            color: color.text,
+                                            fontSize: '0.68rem',
+                                            padding: '4px 10px',
+                                            maxWidth: '160px',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            display: 'inline-block',    
+                                            verticalAlign: 'middle',
+                                            lineHeight: 1.2
+                                        }}
+                                    >
+                                        #{tag}
+                                    </span>
+                                );
+                            })}
+                        </div>
+                    )}
 
                     {(task.priority || task.dueDate) && (
                         <div className="d-flex justify-content-between text-muted small mb-1 fw-bold">
@@ -186,6 +224,10 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                 setDueDate={setDueDate}
                 description={description}
                 setDescription={setDescription}
+                tags={tags}
+                setTags={setTags}
+                tagInput={tagInput}
+                setTagInput={setTagInput}
             />
         </>
     );
@@ -207,7 +249,11 @@ function TaskModal({ showModal,
     dueDate,
     setDueDate,
     description,
-    setDescription
+    setDescription,
+    tags,
+    setTags,
+    tagInput,
+    setTagInput    
 }) {
     return <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
         <Form onSubmit={handleSave}>
@@ -278,29 +324,68 @@ function TaskModal({ showModal,
                         className="bg-light border-0" />
                 </Form.Group>
 
-                {/* <Form.Group className="mb-3">
-            <Form.Label className="fw-bold text-muted small text-uppercase">Теги</Form.Label>
-            <div className="d-flex flex-wrap gap-2 mb-2">
-                {tags.map((tag, index) => (
-                    <Badge
-                        bg="primary"
-                        key={index}
-                        style={{ cursor: 'pointer', padding: '8px 12px' }}
-                        onClick={() => removeTag(tag)}
-                        title="Нажмите, чтобы удалить"
-                    >
-                        #{tag} &times;
-                    </Badge>
-                ))}
-            </div>
-            <Form.Control
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleTagKeyDown}
-                placeholder="Введите тег и нажмите Enter..."
-            />
-        </Form.Group> */}
+                <Form.Group className="mb-4">
+                    <Form.Label className="fw-bold text-muted small text-uppercase">Теги задачи</Form.Label>
+                    <div className="d-flex flex-wrap gap-1 mb-2" style={{ maxWidth: '100%' }}>
+                        {tags.map((tag, index) => {
+                            const color = getTagColor(tag);
+                            return (
+                                <span
+                                    key={index}
+                                    className="badge rounded-pill fw-medium d-inline-flex align-items-center"
+                                    style={{
+                                        backgroundColor: color.bg,
+                                        color: color.text,
+                                        cursor: 'pointer',
+                                        padding: '4px 10px',
+                                        fontSize: '0.8rem',
+                                        maxWidth: '220px',
+                                        gap: '4px'
+                                    }}
+                                    onClick={() => setTags(tags.filter(t => t !== tag))}
+                                    title={`#${tag}`}
+                                >
+                                    <span
+                                        style={{
+                                            maxWidth: '170px',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            display: 'inline-block',
+                                            lineHeight: 1.2
+                                        }}
+                                    >
+                                            #{tag}
+                                        </span>
+                                    <span style={{ fontSize: '14px', lineHeight: '1', flexShrink: 0 }}>
+                                        &times;
+                                    </span>
+                                </span>
+                            );
+                        })}
+                    </div>
+                    <Form.Control
+                        type="text"
+                        maxLength={25}
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const cleanTag = tagInput.trim().replace(/^#+/, '').slice(0, 25);
+                                if (cleanTag && !tags.includes(cleanTag) && tags.length < 8) {
+                                    setTags([...tags, cleanTag]);
+                                }
+                                setTagInput('');
+                            }
+                        }}
+                        placeholder="Введите тег и нажмите Enter (до 25 символов)..."
+                        className="bg-light border-0 shadow-none"
+                    />
+                    <Form.Text className="text-muted small">
+                        Нажмите Enter для добавления. До 8 тегов (макс. 25 симв.). Кликните для удаления.
+                    </Form.Text>
+                </Form.Group>
             </Modal.Body>
 
             <Modal.Footer className="border-0 pt-0">

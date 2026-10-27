@@ -8,7 +8,7 @@ import useColumns from '../context/BoardContext';
 import useProject from "../context/ProjectContext.jsx";
 import { useBoard } from '../hooks/BoardHooks';
 import { useDBColumn } from '../hooks/DataBaseHook';
-
+import TaskSearchDrawer from '../components/TaskSearchDrawer';
 const BOARD_MODES = Object.freeze({
     KANBAN: 'Kanban',
     ROADMAP: 'Roadmap'
@@ -21,6 +21,7 @@ function ProjectBoard({ name, id }) {
     const [currentProject] = useProject();
     const [showSettings, setShowSettings] = useState(false);
     const [boardMode, setBoardMode] = useState(BOARD_MODES.KANBAN);
+    const [showSearch, setShowSearch] = useState(false);
 
     const isViewer = currentProject?.role === "Viewer";
     const newColumn = () => ({
@@ -76,7 +77,7 @@ function ProjectBoard({ name, id }) {
         return () => {
             isMounted = false;
             if (hub.state === "Connected") {
-                hub.invoke("LeaveProject", id).catch(() => {});
+                hub.invoke("LeaveProject", id).catch(() => { });
             }
         };
     }, [id]);
@@ -156,12 +157,12 @@ function ProjectBoard({ name, id }) {
     return (
         <Container fluid className="project-board pt-2 px-4 position-relative">
             <div className="text-center mb-3">
-            <h1
-                className="project-heading fw-bold m-0 position-absolute start-50 translate-middle-x"
-                style={{ fontSize: '2.2rem', whiteSpace: 'nowrap' }}
-            >
-                Проект: <span style={{ textDecoration: 'underline', textUnderlineOffset: '6px' }}>{name}</span>
-            </h1>
+                <h1
+                    className="project-heading fw-bold m-0 position-absolute start-50 translate-middle-x"
+                    style={{ fontSize: '2.2rem', whiteSpace: 'nowrap' }}
+                >
+                    Проект: <span style={{ textDecoration: 'underline', textUnderlineOffset: '6px' }}>{name}</span>
+                </h1>
 
                 <div className="d-flex align-items-center" style={{ marginRight: '60px', paddingTop: '5px' }}>
                     {!isViewer && (
@@ -177,47 +178,68 @@ function ProjectBoard({ name, id }) {
                     )}
                 </div>
             </div>
-
-            <Button
-                variant="dark"
-                className="position-absolute d-flex align-items-center justify-content-center shadow-sm"
+            
+            <div
+                className="position-absolute d-flex gap-3 align-items-center"
                 style={{
                     top: '0.5rem',
                     right: '1.5rem',
-                    width: '48px',
-                    height: '48px',
-                    backgroundColor: 'var(--project-button-bg)',
-                    color: 'var(--project-button-text)',
-                    borderColor: 'var(--border-color)',
-                    borderRadius: '0.5rem',
                     zIndex: 10,
                 }}
-                onClick={(e) => { e.stopPropagation(); setShowSettings(true); }}
-                aria-label="Настройки"
             >
-                ⚙️
-            </Button>
+                <Button
+                    variant="dark"
+                    className="d-flex align-items-center justify-content-center shadow-sm"
+                    style={{
+                        height: '48px',
+                        paddingLeft: '1rem',
+                        paddingRight: '1rem',
+                        backgroundColor: 'var(--project-button-bg)',
+                        color: 'var(--project-button-text)',
+                        borderColor: 'var(--border-color)',
+                        borderRadius: '0.5rem',
+                    }}
+                    onClick={() => setShowSearch(true)}
+                    aria-label="Поиск и фильтрация"
+                >
+                    🔍 Поиск
+                </Button>
 
-            <Button
-                variant="dark"
-                className="position-absolute d-flex align-items-center justify-content-center shadow-sm"
-                style={{
-                    top: '0.5rem',
-                    right: '5.5rem',
-                    height: '48px',
-                    backgroundColor: 'var(--project-button-bg)',
-                    color: 'var(--project-button-text)',
-                    borderColor: 'var(--border-color)',
-                    borderRadius: '0.5rem',
-                    zIndex: 10,
-                }}
-                onClick={() => setBoardMode(currentMode => (
-                    currentMode === BOARD_MODES.KANBAN ? BOARD_MODES.ROADMAP : BOARD_MODES.KANBAN
-                ))}
-                aria-label={`Переключить на ${boardMode === BOARD_MODES.KANBAN ? 'Roadmap' : 'Kanban'}`}
-            >
-                {boardMode === BOARD_MODES.KANBAN ? 'Roadmap' : 'Kanban'}
-            </Button>
+                <Button
+                    variant="dark"
+                    className="d-flex align-items-center justify-content-center shadow-sm"
+                    style={{
+                        height: '48px',
+                        backgroundColor: 'var(--project-button-bg)',
+                        color: 'var(--project-button-text)',
+                        borderColor: 'var(--border-color)',
+                        borderRadius: '0.5rem',
+                    }}
+                    onClick={() => setBoardMode(currentMode => (
+                        currentMode === BOARD_MODES.KANBAN ? BOARD_MODES.ROADMAP : BOARD_MODES.KANBAN
+                    ))}
+                    aria-label={`Переключить на ${boardMode === BOARD_MODES.KANBAN ? 'Roadmap' : 'Kanban'}`}
+                >
+                    {boardMode === BOARD_MODES.KANBAN ? 'Roadmap' : 'Kanban'}
+                </Button>
+
+                <Button
+                    variant="dark"
+                    className="d-flex align-items-center justify-content-center shadow-sm"
+                    style={{
+                        width: '48px',
+                        height: '48px',
+                        backgroundColor: 'var(--project-button-bg)',
+                        color: 'var(--project-button-text)',
+                        borderColor: 'var(--border-color)',
+                        borderRadius: '0.5rem',
+                    }}
+                    onClick={(e) => { e.stopPropagation(); setShowSettings(true); }}
+                    aria-label="Настройки"
+                >
+                    ⚙️
+                </Button>
+            </div>
 
             {boardMode === BOARD_MODES.KANBAN ? (
                 <Kanban
@@ -234,6 +256,15 @@ function ProjectBoard({ name, id }) {
             )}
 
             <ProjectContributors showSettings={showSettings} setShowSettings={setShowSettings} />
+
+            <TaskSearchDrawer
+                show={showSearch}
+                onHide={() => setShowSearch(false)}
+                projectId={id}
+                onTaskSelect={(task) => {
+                    console.log("Выбрана задача:", task);
+                }}
+            />
         </Container>
     );
 }
