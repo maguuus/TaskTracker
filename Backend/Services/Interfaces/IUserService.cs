@@ -11,6 +11,7 @@ public interface IUserService
     Task<User> CreateUserAsync(UserRegisterDto registerDto);
     Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordDto dto);
     Task<List<UserSearchDto>> SearchUsersAsync(string query, Guid currentUserId);
+    Task<bool> ChangeAvatarAsync(Guid userId, ChangeAvatarDto dto);
     
     //Task<UserResponseDto> UpdateUserAsync(Guid id, UserUpdateDto updateDto);
     //Task<bool> DeleteUserAsync(Guid id);
