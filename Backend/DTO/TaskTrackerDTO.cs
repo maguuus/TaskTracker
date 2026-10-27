@@ -82,4 +82,4 @@ public record ProjectMemberDto(Guid Id, Guid UserId, string Email, string Name, 
 
 public record UserSearchDto(Guid Id, string Name, string Avatar);
 
-public record FriendDto(Guid Id, string Name, string Email);
+public record FriendDto(Guid Id, string Name, string Email, string Avatar);

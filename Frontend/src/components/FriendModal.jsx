@@ -1,4 +1,4 @@
-
+import { avatarsDictionary, defaultAvatar } from "../hooks/Avatar";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Button, Form, ListGroup, Modal, Spinner } from "react-bootstrap";
 import api from "../api/index";
@@ -131,9 +131,22 @@ function FriendsModal({ show, onHide }) {
                                 {filteredFriends.map((friend) => (
                                     <ListGroup.Item key={friend.id}>
                                         <div className="d-flex align-items-center justify-content-between gap-3">
-                                            <span className="text-break">
-                                                {friend.name}
-                                            </span>
+                                            <div className="d-flex align-items-center gap-2 min-w-0">
+                                                <img
+                                                    src={avatarsDictionary[String(friend.avatar)] || defaultAvatar}
+                                                    alt=""
+                                                    className="rounded-circle flex-shrink-0"
+                                                    style={{
+                                                        width: 42,
+                                                        height: 42,
+                                                        objectFit: "cover"
+                                                    }}
+                                                />
+
+                                                <span className="text-break">
+                                                    {friend.name}
+                                                </span>
+                                            </div>
 
                                             <Button
                                                 variant="outline-danger"

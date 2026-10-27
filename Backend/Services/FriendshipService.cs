@@ -45,7 +45,8 @@ public class FriendshipService(AppDbContext context) : IFriendshipService
             .Select(f => new FriendDto(
                 f.FriendId,
                 f.Friend.Name,
-                f.Friend.Email))
+                f.Friend.Email,
+                f.Friend.Avatar))
             .ToListAsync();
     }
 
