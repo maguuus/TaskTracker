@@ -55,9 +55,6 @@ namespace Backend.Migrations
                     b.Property<Guid>("FriendId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 

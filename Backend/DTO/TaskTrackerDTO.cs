@@ -81,8 +81,5 @@ public record UpdateMemberRoleDto(ProjectRole Role);
 public record ProjectMemberDto(Guid Id, Guid UserId, string Email, string Name, ProjectRole Role);
 
 public record UserSearchDto(Guid Id, string Name);
-public record SendFriendRequestDto(Guid FriendId);
-
-public record FriendRequestDto(Guid Id, Guid UserId, string Name);
 
 public record FriendDto(Guid Id, string Name, string Email);

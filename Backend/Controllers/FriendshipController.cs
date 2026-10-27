@@ -12,22 +12,21 @@ namespace Backend.Controllers;
 public class FriendshipController(
     IFriendshipService friendshipService) : ControllerBase
 {
-    [HttpPost("request")]
-    public async Task<IActionResult> SendRequest(
-        [FromBody] SendFriendRequestDto dto)
+    
+    [HttpPost("favorites/{friendId:guid}")]
+    public async Task<IActionResult> AddFavorite(Guid friendId)
     {
-        var userIdString =
-            User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (!Guid.TryParse(userIdString, out var userId))
-            return Unauthorized("Invalid token");
+        if (!Guid.TryParse(
+            User.FindFirstValue(ClaimTypes.NameIdentifier),
+            out var userId))
+        {
+            return Unauthorized();
+        }
 
         try
         {
-            await friendshipService.SendRequestAsync(
-                userId, dto.FriendId);
-
-            return Ok(new { message = "Заявка отправлена." });
+            await friendshipService.AddFavoriteAsync(userId, friendId);
+            return Ok(new { message = "Пользователь добавлен в избранное." });
         }
         catch (KeyNotFoundException ex)
         {
@@ -39,8 +38,9 @@ public class FriendshipController(
         }
     }
 
-    [HttpGet("requests")]
-    public async Task<IActionResult> GetIncomingRequests()
+
+    [HttpGet("favorites")]
+    public async Task<IActionResult> GetFavorites()
     {
         if (!Guid.TryParse(
             User.FindFirstValue(ClaimTypes.NameIdentifier),
@@ -49,14 +49,12 @@ public class FriendshipController(
             return Unauthorized();
         }
 
-        var requests =
-            await friendshipService.GetIncomingRequestsAsync(userId);
-
-        return Ok(requests);
+        var favorites = await friendshipService.GetFavoritesAsync(userId);
+        return Ok(favorites);
     }
 
-    [HttpPost("requests/{requestId:guid}/accept")]
-    public async Task<IActionResult> AcceptRequest(Guid requestId)
+    [HttpDelete("favorites/{friendId:guid}")]
+    public async Task<IActionResult> RemoveFavorite(Guid friendId)
     {
         if (!Guid.TryParse(
             User.FindFirstValue(ClaimTypes.NameIdentifier),
@@ -67,63 +65,7 @@ public class FriendshipController(
 
         try
         {
-            await friendshipService.AcceptRequestAsync(userId, requestId);
-            return Ok(new { message = "Заявка принята." });
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-    }
-
-    [HttpPost("requests/{requestId:guid}/reject")]
-    public async Task<IActionResult> RejectRequest(Guid requestId)
-    {
-        if (!Guid.TryParse(
-            User.FindFirstValue(ClaimTypes.NameIdentifier),
-            out var userId))
-        {
-            return Unauthorized();
-        }
-
-        try
-        {
-            await friendshipService.RejectRequestAsync(userId, requestId);
-            return Ok(new { message = "Заявка отклонена." });
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-    }
-
-    [HttpGet("friends")]
-    public async Task<IActionResult> GetFriends()
-    {
-        if (!Guid.TryParse(
-            User.FindFirstValue(ClaimTypes.NameIdentifier),
-            out var userId))
-        {
-            return Unauthorized();
-        }
-
-        var friends = await friendshipService.GetFriendsAsync(userId);
-        return Ok(friends);
-    }
-
-    [HttpDelete("friends/{friendId:guid}")]
-    public async Task<IActionResult> RemoveFriend(Guid friendId)
-    {
-        if (!Guid.TryParse(
-            User.FindFirstValue(ClaimTypes.NameIdentifier),
-            out var userId))
-        {
-            return Unauthorized();
-        }
-
-        try
-        {
-            await friendshipService.RemoveFriendAsync(userId, friendId);
+            await friendshipService.RemoveFavoriteAsync(userId, friendId);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
