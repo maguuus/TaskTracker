@@ -10,7 +10,8 @@ const TASK_LANE_HEIGHT = 155;
 function getTaskPosition(task, timeline) {
     const date = new Date(task.dueDate);
     const ratio = Math.max(0, Math.min(1, (date.getTime() - timeline.start) / (timeline.end - timeline.start)));
-    return Math.min(ratio * timeline.width, Math.max(0, timeline.width - TASK_CARD_WIDTH));
+    const dueDatePosition = ratio * timeline.width + 72;
+    return Math.max(0,Math.min(dueDatePosition - TASK_CARD_WIDTH, timeline.width - TASK_CARD_WIDTH));
 }
 
 function RoadmapRow({ column, timeline, onColumnUpdate, onColumnDelete }) {
