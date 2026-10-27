@@ -74,7 +74,7 @@ public class UserService(AppDbContext context) : IUserService
             .Where(u => u.Id != currentUserId &&
                         u.Name.ToLower().Contains(query.Trim().ToLower()))
             .OrderBy(u => u.Name)
-            .Select(u => new UserSearchDto(u.Id, u.Name))
+            .Select(u => new UserSearchDto(u.Id, u.Name, u.Avatar))
             .Take(20)
             .ToListAsync();
     }

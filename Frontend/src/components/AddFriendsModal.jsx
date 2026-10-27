@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Alert, Button, Form, ListGroup, Modal } from "react-bootstrap";
+import { avatarsDictionary, defaultAvatar } from "../hooks/Avatar";
 import api from "../api/index";
 
 function AddFriendsModal({ show, onHide }) {
@@ -145,7 +146,20 @@ function AddFriendsModal({ show, onHide }) {
                         {foundUsers.map((user) => (
                             <ListGroup.Item key={user.id}>
                                 <div className="d-flex align-items-center justify-content-between gap-3">
-                                    <span>{user.name}</span>
+                                    <div className="d-flex align-items-center gap-2">
+                                        <img
+                                            src={avatarsDictionary[String(user.avatar)] || defaultAvatar}
+                                            alt=""
+                                            className="rounded-circle flex-shrink-0"
+                                            style={{
+                                                width: 42,
+                                                height: 42,
+                                                objectFit: "cover"
+                                            }}
+                                        />
+
+                                        <span>{user.name}</span>
+                                    </div>
 
                                     <Button
                                         variant="dark"

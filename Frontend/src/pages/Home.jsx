@@ -10,8 +10,8 @@ import { hub } from '../api/index.js';
 
 const newProject = (ownerId) => ({
     ownerId: ownerId,
-    name: "New project",
-    description: 'Empty project',
+    name: "Новый проект",
+    description: 'Описание проекта',
 });
 
 function Home() {

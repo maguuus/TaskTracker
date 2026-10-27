@@ -80,6 +80,6 @@ public record AddProjectMemberDto(string Email, ProjectRole Role = ProjectRole.M
 public record UpdateMemberRoleDto(ProjectRole Role);
 public record ProjectMemberDto(Guid Id, Guid UserId, string Email, string Name, ProjectRole Role);
 
-public record UserSearchDto(Guid Id, string Name);
+public record UserSearchDto(Guid Id, string Name, string Avatar);
 
 public record FriendDto(Guid Id, string Name, string Email);
