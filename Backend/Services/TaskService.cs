@@ -229,6 +229,13 @@ public class TaskService(AppDbContext context, IRealtimeNotifier realtimeNotifie
             .Where(t => t.Column != null && t.Column.ProjectId == projectId)
             .AsNoTracking();
 
+        if (!string.IsNullOrWhiteSpace(filter.Query))
+        {
+            var pattern = $"%{filter.Query.Trim()}%";
+            query = query.Where(t => EF.Functions.ILike(t.Title, pattern) 
+                                     || (t.Description != null && EF.Functions.ILike(t.Description, pattern)));
+        }
+        
         if (!string.IsNullOrWhiteSpace(filter.Priority))
             query = query.Where(t => t.Priority == filter.Priority);
 

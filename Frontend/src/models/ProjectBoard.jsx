@@ -4,11 +4,12 @@ import { hub } from '../api/index.js';
 import Kanban from '../components/Kanban';
 import ProjectContributors from '../components/ProjectContributorsPanel';
 import Roadmap from '../components/Roadmap';
+import TaskSearchDrawer from '../components/TaskSearchDrawer';
 import useColumns from '../context/BoardContext';
 import useProject from "../context/ProjectContext.jsx";
 import { useBoard } from '../hooks/BoardHooks';
 import { useDBColumn } from '../hooks/DataBaseHook';
-import TaskSearchDrawer from '../components/TaskSearchDrawer';
+
 const BOARD_MODES = Object.freeze({
     KANBAN: 'Kanban',
     ROADMAP: 'Roadmap'
@@ -23,6 +24,11 @@ function ProjectBoard({ name, id }) {
     const [boardMode, setBoardMode] = useState(BOARD_MODES.KANBAN);
     const [showSearch, setShowSearch] = useState(false);
 
+    useEffect(() => {
+        const handleOpenSearchByTag = () => setShowSearch(true);
+        window.addEventListener('filter-by-tag', handleOpenSearchByTag);
+        return () => window.removeEventListener('filter-by-tag', handleOpenSearchByTag);
+    }, []);
     const isViewer = currentProject?.role === "Viewer";
     const newColumn = () => ({
         orderIndex: (columns[columns.length - 1]?.orderIndex ?? -1) + 1,
@@ -262,7 +268,44 @@ function ProjectBoard({ name, id }) {
                 onHide={() => setShowSearch(false)}
                 projectId={id}
                 onTaskSelect={(task) => {
-                    console.log("Выбрана задача:", task);
+                    setShowSearch(false);
+                    setTimeout(() => {
+                        const el = document.getElementById(`task-${task.id}`);
+                        if (!el) return;
+
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
+                        el.animate([
+                            {
+                                transform: 'scale(1)',
+                                boxShadow: '0 0 0 0 rgba(13, 110, 253, 0)',
+                                filter: 'brightness(1)'
+                            },
+                            {
+                                transform: 'scale(1.05)',
+                                boxShadow: '0 0 0 8px rgba(13, 110, 253, 0.75), 0 16px 32px rgba(13, 110, 253, 0.3)',
+                                filter: 'brightness(1.15)'
+                            },
+                            {
+                                transform: 'scale(1.01)',
+                                boxShadow: '0 0 0 4px rgba(13, 110, 253, 0.4), 0 6px 16px rgba(13, 110, 253, 0.15)',
+                                filter: 'brightness(1.05)'
+                            },
+                            {
+                                transform: 'scale(1.03)',
+                                boxShadow: '0 0 0 6px rgba(13, 110, 253, 0.6), 0 12px 24px rgba(13, 110, 253, 0.25)',
+                                filter: 'brightness(1.1)'
+                            },
+                            {
+                                transform: 'scale(1)',
+                                boxShadow: '0 0 0 0 rgba(13, 110, 253, 0)',
+                                filter: 'brightness(1)'
+                            }
+                        ], {
+                            duration: 1600,
+                            easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+                        });
+                    }, 280);
                 }}
             />
         </Container>
