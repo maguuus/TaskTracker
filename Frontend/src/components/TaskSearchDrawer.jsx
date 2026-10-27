@@ -30,6 +30,14 @@ export default function TaskSearchDrawer({ show, onHide, projectId, onTaskSelect
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [randomTask, setRandomTask] = useState(null);
+    useEffect(() => {
+        const handleFilterByTag = (e) => {
+            if (e.detail) setTag(e.detail);
+        };
+        window.addEventListener('filter-by-tag', handleFilterByTag);
+        return () => window.removeEventListener('filter-by-tag', handleFilterByTag);
+    }, []);
+    
     
     useEffect(() => {
         if (!show || !projectId) return;
@@ -52,7 +60,7 @@ export default function TaskSearchDrawer({ show, onHide, projectId, onTaskSelect
     const handleRandom = async () => {
         try {
             setLoading(true);
-            const task = await getRandomTask(projectId, { priority, urgency, tag });
+            const task = await getRandomTask(projectId, { query, priority, urgency, tag });
             setRandomTask(task);
         } catch {
             alert("Нет задач под выбранные критерии");

@@ -101,7 +101,9 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
 
     return (
         <>
-            <Card className={`task-card border border-${getBorderColor()} shadow-sm p-3 mb-3`}
+            <Card
+                id={`task-${task.id}`}
+                className={`task-card border border-${getBorderColor()} shadow-sm p-3 mb-3`}
                 style={{
                     borderLeftWidth: '5px',
                     borderRadius: '12px',
@@ -162,7 +164,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                                 return (
                                     <span
                                         key={idx}
-                                        title={`#${tag}`}
+                                        title={`#${tag} (Нажмите для фильтрации)`}
                                         className="badge rounded-pill fw-medium"
                                         style={{
                                             backgroundColor: color.bg,
@@ -175,7 +177,12 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                                             whiteSpace: 'nowrap',
                                             display: 'inline-block',    
                                             verticalAlign: 'middle',
-                                            lineHeight: 1.2
+                                            lineHeight: 1.2,
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            window.dispatchEvent(new CustomEvent('filter-by-tag', { detail: tag }));
                                         }}
                                     >
                                         #{tag}

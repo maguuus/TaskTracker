@@ -143,6 +143,7 @@ export function useDBTaskSearch() {
 
     async function getRandom(projectId, filter = {}) {
         const params = new URLSearchParams();
+        if (filter.query) params.append('query', filter.query);
         if (filter.priority) params.append('priority', filter.priority);
         if (filter.urgency) params.append('urgency', filter.urgency);
         if (filter.tag) params.append('tag', filter.tag);
