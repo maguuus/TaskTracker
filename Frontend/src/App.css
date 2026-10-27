@@ -508,6 +508,78 @@
     background: var(--page-bg);
     color: var(--text-primary);
 }
+.profile-main-info{
+    align-items: flex-start;
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.avatar-button {
+    width: 168px;
+    padding: 9px 16px;
+    font-size: 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.avatar-menu {
+    padding: 10px;
+    min-width: 220px;
+}
+
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 60px);
+    gap: 8px;
+}
+
+.avatar-option {
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.avatar-option:hover {
+    border-color: var(--accent);
+}
+
+.avatar-option img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-actions {
+    margin-left: 35px;
+}
+
+.user-info {
+    flex: 1;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+}
+
+.avatarka {
+    width: 170px;
+    height: 170px;
+    border-radius: 10px;
+}
 
 .profile-container {
     max-width: 600px;
@@ -520,7 +592,13 @@
     color: var(--text-primary);
     box-shadow: var(--task-shadow);
 }
-
+.navbar-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+}
 .profile-header {
     display: flex;
     align-items: center;

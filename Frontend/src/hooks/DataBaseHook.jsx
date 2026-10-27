@@ -6,6 +6,7 @@ import api from '../api/index.js';
  *   (user: { name?: string, email: string, password: string }) => Promise<{ token: string, user: User }>,
  *   () => Promise<User>,
  *   (dto: { oldPassword: string, newPassword: string }) => Promise<{ message?: string }>
+ *   (dto: {avatar: string}) => Promise<{message?: string}>
  * ]}
  */
 export function useDBUser() {
@@ -28,7 +29,11 @@ export function useDBUser() {
         return (await api.post('/api/user/change-password', dto)).data; 
     }
 
-    return [login, register, getMe, changePassword];
+    async function changeAvatar(dto) {
+        return (await api.patch('/api/user/change-avatar', dto)).data;
+    }
+
+    return [login, register, getMe, changePassword, changeAvatar];
 }
 
 /**

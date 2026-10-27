@@ -4,11 +4,11 @@ namespace Backend.DTO;
 
 public record UserRegisterDto(string? Name, string Email, string Password);
 public record UserLoginDto(string Email, string Password);
-public record UserResponseDto(Guid Id, string Name, string Email);
+public record UserResponseDto(Guid Id, string Name, string Email, string? Avatar);
 
-public record ProjectCreateDto(string Name, Guid OwnerId, string? Description);
-public record ProjectUpdateDto(string Name, string? Description);
-public record ProjectResponseDto(Guid Id, string Name, Guid OwnerId, DateTime CreatedAt, string? Description, ProjectRole Role);
+public record ProjectCreateDto(string Name, Guid OwnerId, string? Description,string? Cover);
+public record ProjectUpdateDto(string Name, string? Description,string? Cover);
+public record ProjectResponseDto(Guid Id, string Name, Guid OwnerId, DateTime CreatedAt, string? Description, ProjectRole Role, string? Cover);
 
 
 public record ColumnCreateDto(string? Title, int OrderIndex, Guid ProjectId);
@@ -17,7 +17,7 @@ public record ColumnResponseDto(Guid Id, string Title, int OrderIndex, Guid Proj
 
 public record TokenResponseDto(string AccessToken);
 public record ChangePasswordDto(string OldPassword, string NewPassword);
-
+public record ChangeAvatarDto(string Avatar);
 public record TaskCreateDto(
     string Title, 
     string? Description, 
@@ -61,3 +61,10 @@ public record TaskResponseDto(
 public record AddProjectMemberDto(string Email, ProjectRole Role = ProjectRole.Member);
 public record UpdateMemberRoleDto(ProjectRole Role);
 public record ProjectMemberDto(Guid Id, Guid UserId, string Email, string Name, ProjectRole Role);
+
+public record UserSearchDto(Guid Id, string Name);
+public record SendFriendRequestDto(Guid FriendId);
+
+public record FriendRequestDto(Guid Id, Guid UserId, string Name);
+
+public record FriendDto(Guid Id, string Name, string Email);

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Backend.DTO;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
@@ -24,7 +25,22 @@ public class UserController(IUserService userService): ControllerBase
         {
             return NotFound("User not found");
         }
-        return Ok(new UserResponseDto(user.Id, user.Name, user.Email));
+        return Ok(new UserResponseDto(user.Id, user.Name, user.Email, user.Avatar));
+    }
+
+    [HttpGet("search")]
+    public async Task<ActionResult<List<UserSearchDto>>> SearchUsers([FromQuery] string query)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("Invalid token");
+        }
+
+        var users = await userService.SearchUsersAsync(query, userId);
+
+        return Ok(users);
     }
 
     [HttpPost("change-password")]
@@ -51,4 +67,24 @@ public class UserController(IUserService userService): ControllerBase
         }
     }
 
+    [HttpPatch("change-avatar")]
+    public async Task<IActionResult> ChangeAvatarAsync([FromBody] ChangeAvatarDto dto)
+    {
+        try
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized("Invalid token");
+            }
+            await userService.ChangeAvatarAsync(userId, dto);
+            return Ok("Аватарка изменена");
+        } catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
+        } catch (InvalidOperationException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
 }
