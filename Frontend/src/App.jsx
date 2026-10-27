@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { GuestRoute } from './components/GuestRoute';
 import useUser from './context/UserContext';
+import { avatarsDictionary, defaultAvatar } from './hooks/Avatar';
 
 const mock = {
     id: 1,
@@ -21,15 +22,23 @@ function App() {
 
     const [ currentProject ] = useProject();
     let tryToBoard = `${currentProject ? `${currentProject.id}/board` : `/`}`;
+    const [currentUser] = useUser();
 
+    const currentAvatar = avatarsDictionary[currentUser?.avatar] ?? defaultAvatar;
     return (
         <BrowserRouter>
-            <nav className="container-fluid bg-dark text-light pt-3">
+            <nav className="container-fluid bg-dark text-light  p-3 d-flex align-items-center">
                 {"Task Tracker: "}
                 <NavLink to="/" className="text-light">Главная</NavLink> {"| "}
                 <NavLink to="/login" className="text-light">Вход</NavLink> {"| "}
                 <NavLink to="/profile" className="text-light">Профиль</NavLink> {"| "}
                 <NavLink to={tryToBoard} className="text-light">Доска</NavLink>
+                {currentUser && (<NavLink to="/profile" className="ms-auto"> <img
+                    src = {currentAvatar}
+                    className="navbar-avatar" 
+                    alt ="Аватар"
+                    />
+                </NavLink>)}
             </nav>
 
             <Routes>

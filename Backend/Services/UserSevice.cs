@@ -62,7 +62,19 @@ public class UserService(AppDbContext context) : IUserService
         await context.SaveChangesAsync();
         
         return true;
-}
+    }
+    public async Task<bool> ChangeAvatarAsync(Guid userId, ChangeAvatarDto dto)
+    {
+        var user = await context.Users.FindAsync(userId);
+        if (user is null)
+        {
+            throw new InvalidOperationException("User not found");
+        }
+        user.Avatar = dto.Avatar;
+        await context.SaveChangesAsync();
+        
+        return true;
+    }
     //Task<UserResponseDto> UpdateUserAsync(Guid id, UserUpdateDto updateDto);
     //Task<bool> DeleteUserAsync(Guid id){}
 }
