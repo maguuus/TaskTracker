@@ -182,7 +182,7 @@ function Profile() {
                                 style={{ backgroundColor: '#212121', border: 'none' }}
                                 onClick={() => setShowFriends(true)}
                             >
-                                Мои друзья
+                                Избранные
                             </Button>
 
                             <Button
@@ -191,7 +191,7 @@ function Profile() {
                                 style={{ backgroundColor: '#212121', border: 'none' }}
                                 onClick={() => setShowAddFriends(true)}
                             >
-                                Добавить друзей
+                                Добавить в избранные
                             </Button>
 
                             <Button
@@ -199,7 +199,7 @@ function Profile() {
                                 className="rounded-pill px-8"
                                 onClick={() => setShowFriendRequests(true)}
                             >
-                                Заявки в друзья
+                                Заявки на добавление в проект
                             </Button>
                         </div>
 

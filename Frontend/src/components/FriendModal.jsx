@@ -21,7 +21,7 @@ function FriendsModal({ show, onHide }) {
             setError("");
 
             try {
-                const response = await api.get("/api/Friendship/friends");
+                const response = await api.get("/api/Friendship/favorites");
 
                 if (!cancelled) {
                     setFriends(response.data);
@@ -30,7 +30,7 @@ function FriendsModal({ show, onHide }) {
                 if (!cancelled) {
                     setError(
                         err.response?.data?.message ||
-                        "Не удалось загрузить список друзей."
+                        "Не удалось загрузить избранное."
                     );
                 }
             } finally {
@@ -56,7 +56,7 @@ function FriendsModal({ show, onHide }) {
     }, [friends, query]);
 
     async function handleRemoveFriend(friend) {
-        if (!window.confirm(`Удалить ${friend.name} из друзей?`)) {
+        if (!window.confirm(`Удалить ${friend.name} из избранного?`)) {
             return;
         }
 
@@ -64,7 +64,7 @@ function FriendsModal({ show, onHide }) {
         setError("");
 
         try {
-            await api.delete(`/api/Friendship/friends/${friend.id}`);
+            await api.delete(`/api/Friendship/favorites/${friend.id}`);
 
             setFriends((prev) =>
                 prev.filter((item) => item.id !== friend.id)
@@ -72,7 +72,7 @@ function FriendsModal({ show, onHide }) {
         } catch (err) {
             setError(
                 err.response?.data?.message ||
-                "Не удалось удалить друга."
+                "Не удалось удалить пользователя из избранного."
             );
         } finally {
             setDeletingId(null);
@@ -93,7 +93,7 @@ function FriendsModal({ show, onHide }) {
             dialogClassName="friends-modal-dialog"
         >
             <Modal.Header closeButton>
-                <Modal.Title>Мои друзья</Modal.Title>
+                <Modal.Title>Избранное</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -113,14 +113,14 @@ function FriendsModal({ show, onHide }) {
                     <div className="text-center py-4">
                         <Spinner animation="border" size="sm" />
                         <span className="ms-2">
-                            Загружаем друзей...
+                            Загружаем избранное...
                         </span>
                     </div>
                 ) : (
                     <div className="friends-list-scroll">
                         {friends.length === 0 ? (
                             <p className="text-muted mb-0">
-                                У тебя пока нет друзей.
+                                Список избранного пока пуст.
                             </p>
                         ) : filteredFriends.length === 0 ? (
                             <p className="text-muted mb-0">
