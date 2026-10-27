@@ -170,7 +170,7 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
         context.ProjectMembers.Add(member);
         await context.SaveChangesAsync();
 
-        var payload = new ProjectMemberDto(user.Id, user.Id, user.Email, user.Name, member.Role);
+        var payload = new ProjectMemberDto(user.Id, user.Id, user.Email, user.Name, member.Role, user.Avatar);
 
         await realtimeNotifier.NotifyUserAsync(user.Id, "projectMember", "created", new { projectId, member = payload, userId = user.Id });
 
@@ -191,7 +191,7 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
         return await context.ProjectMembers
             .Where(pm => pm.ProjectId == projectId)
             .OrderBy(pm => pm.Role == ProjectRole.Owner ? 0 : pm.Role == ProjectRole.Member ? 1 : 2)
-            .Select(pm => new ProjectMemberDto(pm.UserId, pm.UserId, pm.User!.Email, pm.User.Name, pm.Role))
+            .Select(pm => new ProjectMemberDto(pm.UserId, pm.UserId, pm.User!.Email, pm.User.Name, pm.Role, pm.User.Avatar))
             .ToListAsync();
     }
 

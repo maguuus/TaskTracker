@@ -6,6 +6,7 @@ import useUser from "../context/UserContext.jsx";
 import { useProjectMembers } from '../hooks/ProjectMemberHook';
 import { hub } from '../api/index.js';
 import api from '../api/index.js';
+import { avatarsDictionary, defaultAvatar } from "../hooks/Avatar";
 
 function ProjectContributors({ showSettings, setShowSettings }) {
     const navigate = useNavigate();
@@ -159,11 +160,11 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
         setLoadingFriends(true);
 
         try {
-            const response = await api.get("/api/Friendship/friends");
+            const response = await api.get("/api/Friendship/favorites");
             setFriends(response.data);
             setFriendsLoaded(true);
         } catch (error) {
-            setErrorMessage("Не удалось загрузить список друзей.");
+            setErrorMessage("Не удалось загрузить избранные.");
         } finally {
             setLoadingFriends(false);
         }
@@ -253,7 +254,7 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
                 >
                 {loadingFriends ? (
                     <div className="p-3 text-muted small">
-                        Загружаем друзей...
+                        Загружаем избранные...
                     </div>
                 ) : filteredFriends.length > 0 ? (
                     <ListGroup variant="flush">
@@ -264,15 +265,30 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
                                 onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => handleSelectFriend(friend)}
                             >
-                                <div className="fw-semibold">{friend.name}</div>
-                                <div className="small text-muted">{friend.email}</div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <img
+                                        src={avatarsDictionary[String(friend.avatar)] || defaultAvatar}
+                                        alt=""
+                                        className="rounded-circle flex-shrink-0"
+                                        style={{
+                                            width: 38,
+                                            height: 38,
+                                            objectFit: "cover"
+                                        }}
+                                    />
+
+                                    <div className="min-w-0">
+                                        <div className="fw-semibold">{friend.name}</div>
+                                        <div className="small text-muted">{friend.email}</div>
+                                    </div>
+                                </div>
                             </ListGroup.Item>
                         ))}
                     </ListGroup>
                 ) : (
                     <div className="p-3 text-muted small">
                         {friends.length === 0
-                            ? "У тебя пока нет друзей."
+                            ? "У тебя пока нет избранных."
                             : "Друзья не найдены."}
                     </div>
                 )}
@@ -294,7 +310,19 @@ function ContributorsList({ contributors, currentUser, handleRemove }) {
                         key={c.userId || c.id || i}
                         className="d-flex justify-content-between align-items-center bg-transparent border-light-subtle px-0 py-2 text-dark small"
                     >
-                        <div className="text-truncate me-2 fw-semibold">{c.name}</div>
+                        <div className="d-flex align-items-center gap-2 me-2 min-w-0">
+                            <img
+                                src={avatarsDictionary[String(c.avatar)] || defaultAvatar}
+                                alt=""
+                                className="rounded-circle flex-shrink-0"
+                                style={{
+                                    width: 38,
+                                    height: 38,
+                                    objectFit: "cover"
+                                }}
+                            />
+                            <div className="text-truncate fw-semibold">{c.name}</div>
+                        </div>
                         <div className="text-secondary me-2">{c.email}</div>
 
                         <div className="d-flex align-items-center gap-2">
