@@ -83,3 +83,23 @@ public record ProjectMemberDto(Guid Id, Guid UserId, string Email, string Name, 
 public record UserSearchDto(Guid Id, string Name, string Avatar);
 
 public record FriendDto(Guid Id, string Name, string Email, string Avatar);
+
+public record CreateProjectInvitationDto(
+    string Name,
+    ProjectRole Role = ProjectRole.Member
+);
+
+public record ProjectInvitationResponseDto(
+    Guid Id,
+    Guid ProjectId,
+    string ProjectName,
+    Guid InviterId,
+    string InviterName,
+    Guid InviteeId,
+    string InviteeName,
+    ProjectRole Role,
+    string Status,
+    DateTime CreatedAt
+);
+
+public record RespondProjectInvitationDto(bool Accept);

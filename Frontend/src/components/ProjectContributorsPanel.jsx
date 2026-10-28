@@ -128,6 +128,7 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
     const [inviteEmail, setInviteEmail] = useState("");
     const [inviteRole, setInviteRole] = useState("Member");
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const [friends, setFriends] = useState([]);
     const [loadingFriends, setLoadingFriends] = useState(false);
     const [showFriends, setShowFriends] = useState(false);
@@ -172,7 +173,7 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
 
     function handleSelectFriend(friend) {
         setSelectedFriend(friend);
-        setInviteEmail(friend.email);
+        setInviteEmail(friend.name);
         setShowFriends(false);
         setErrorMessage("");
     }
@@ -181,15 +182,22 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
         if (e) e.preventDefault();
         if (!inviteEmail.trim()) return;
         setErrorMessage("");
+        setSuccessMessage("");
         try {
-            const newMember = await addProjectMember(currentProject, {
-                email: inviteEmail.trim(),
+            await api.post(`/api/Projects/${currentProject.id}/invitations`, {
+                name: inviteEmail.trim(),
                 role: inviteRole
             });
-            setContributors(prev => [...prev, newMember]);
             setInviteEmail("");
+            setSuccessMessage("Приглашение отправлено.");
         } catch (error) {
-            setErrorMessage(error.response?.data || "Ошибка при приглашении пользователя");
+            const data = error.response?.data;
+
+            setErrorMessage(
+                typeof data === "string"
+                    ? data
+                    : data?.message || "Не удалось отправить приглашение."
+            );
         }
     };
 
@@ -198,7 +206,7 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
         <div className="position-relative" ref={inviteRef}>
             <InputGroup className="d-flex w-100">
                 <Form.Control
-                    placeholder="Почта пользователя:"
+                    placeholder="Имя пользователя:"
                     value={inviteEmail}
                     autoComplete="off"
                     onFocus={() => {
@@ -296,6 +304,7 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
         )}
     </div>
         {errorMessage && <div className="text-danger small mt-1">{errorMessage}</div>}
+        {successMessage && (<div className="text-success small mt-1">{successMessage}</div>)}
     </Form>;
 }
 

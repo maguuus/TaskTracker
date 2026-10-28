@@ -122,62 +122,6 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
         return true;
     }
 
-    public async Task<ProjectMemberDto> AddMemberAsync(Guid projectId, Guid currentUserId, AddProjectMemberDto dto)
-    {
-        if (projectId == Guid.Empty)
-            throw new ArgumentException("Id проекта не может быть пустым.", nameof(projectId));
-
-        if (currentUserId == Guid.Empty)
-            throw new ArgumentException("Id текущего пользователя не может быть пустым.", nameof(currentUserId));
-
-        if (dto is null)
-            throw new ArgumentNullException(nameof(dto));
-
-        if (string.IsNullOrWhiteSpace(dto.Email))
-            throw new InvalidOperationException("Почта не может быть пустой.");
-
-        var project = await context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
-        if (project == null)
-            throw new InvalidOperationException("Проект не найден.");
-
-        if (project.OwnerId != currentUserId)
-            throw new UnauthorizedAccessException("Только владелец проекта может добавлять участников.");
-
-        if (dto.Role == ProjectRole.Owner)
-            throw new InvalidOperationException("Нельзя назначить второго владельца. Выберите Member или Viewer.");
-
-        var normalizedEmail = dto.Email.Trim().ToLower();
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
-        if (user == null)
-            throw new InvalidOperationException("Пользователь с такой почтой не найден.");
-
-        if (user.Id == project.OwnerId)
-            throw new InvalidOperationException("Владелец уже состоит в проекте.");
-
-        var isAlreadyMember = await context.ProjectMembers
-            .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
-
-        if (isAlreadyMember)
-            throw new InvalidOperationException("Пользователь уже является участником проекта.");
-
-        var member = new ProjectMember
-        {
-            ProjectId = projectId,
-            UserId = user.Id,
-            Role = dto.Role
-        };
-
-        context.ProjectMembers.Add(member);
-        await context.SaveChangesAsync();
-
-        var payload = new ProjectMemberDto(user.Id, user.Id, user.Email, user.Name, member.Role, user.Avatar);
-
-        await realtimeNotifier.NotifyUserAsync(user.Id, "projectMember", "created", new { projectId, member = payload, userId = user.Id });
-
-        await realtimeNotifier.NotifyProjectGroupAsync(projectId, "projectMember", "created", new { projectId, member = payload, userId = user.Id });
-
-        return payload;
-    }
 
     public async Task<IEnumerable<ProjectMemberDto>> GetMembersAsync(Guid projectId, Guid currentUserId)
     {
@@ -253,6 +197,171 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
         await realtimeNotifier.NotifyUserAsync(memberId, "projectMember", "deleted", new { projectId, memberId, userId = memberId });
 
         await realtimeNotifier.NotifyProjectGroupAsync(projectId, "projectMember", "deleted", new { projectId, memberId, userId = memberId });
+
+        return true;
+    }
+
+    public async Task<ProjectInvitationResponseDto> CreateInvitationAsync(Guid projectId, Guid currentUserId, CreateProjectInvitationDto dto)
+    {
+        if (projectId == Guid.Empty || currentUserId == Guid.Empty)
+            throw new ArgumentException("ID проекта и пользователя обязательны.");
+
+        if (dto is null || string.IsNullOrWhiteSpace(dto.Name))
+            throw new InvalidOperationException("Укажите имя пользователя.");
+
+        var project = await context.Projects
+            .FirstOrDefaultAsync(p => p.Id == projectId);
+
+        if (project is null)
+            throw new InvalidOperationException("Проект не найден.");
+
+        if (project.OwnerId != currentUserId)
+            throw new UnauthorizedAccessException(
+                "Только владелец проекта может приглашать участников.");
+
+        if (dto.Role == ProjectRole.Owner)
+            throw new InvalidOperationException(
+                "Нельзя назначить второго владельца.");
+
+        var name = dto.Name.Trim();
+
+        var invitee = await context.Users
+            .FirstOrDefaultAsync(u => u.Name.ToLower() == name.ToLower());
+
+        if (invitee is null)
+            throw new InvalidOperationException("Пользователь не найден.");
+
+        if (invitee.Id == currentUserId)
+            throw new InvalidOperationException("Нельзя пригласить самого себя.");
+
+        var isMember = await context.ProjectMembers
+            .AnyAsync(pm => pm.ProjectId == projectId &&
+                            pm.UserId == invitee.Id);
+
+        if (isMember)
+            throw new InvalidOperationException(
+                "Пользователь уже состоит в проекте.");
+
+        var hasPendingInvitation = await context.ProjectInvitations
+            .AnyAsync(i => i.ProjectId == projectId &&
+                        i.InviteeId == invitee.Id &&
+                        i.Status == "Pending");
+
+        if (hasPendingInvitation)
+            throw new InvalidOperationException(
+                "Приглашение этому пользователю уже отправлено.");
+
+        var invitation = new ProjectInvitation
+        {
+            ProjectId = projectId,
+            InviterId = currentUserId,
+            InviteeId = invitee.Id,
+            Role = dto.Role,
+            Status = "Pending",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        context.ProjectInvitations.Add(invitation);
+        await context.SaveChangesAsync();
+
+        return new ProjectInvitationResponseDto(
+            invitation.Id,
+            project.Id,
+            project.Name,
+            currentUserId,
+            (await context.Users
+                .Where(u => u.Id == currentUserId)
+                .Select(u => u.Name)
+                .FirstAsync()),
+            invitee.Id,
+            invitee.Name,
+            invitation.Role,
+            invitation.Status,
+            invitation.CreatedAt);
+    }
+
+    public async Task<IEnumerable<ProjectInvitationResponseDto>> GetMyInvitationsAsync(Guid currentUserId)
+    {
+        return await context.ProjectInvitations
+            .AsNoTracking()
+            .Where(i => i.InviteeId == currentUserId &&
+                        i.Status == "Pending")
+            .OrderByDescending(i => i.CreatedAt)
+            .Select(i => new ProjectInvitationResponseDto(
+                i.Id,
+                i.ProjectId,
+                i.Project.Name,
+                i.InviterId,
+                i.Inviter.Name,
+                i.InviteeId,
+                i.Invitee.Name,
+                i.Role,
+                i.Status,
+                i.CreatedAt))
+            .ToListAsync();
+    }
+
+    public async Task<bool> RespondToInvitationAsync(Guid invitationId, Guid currentUserId, bool accept)
+    {
+        var invitation = await context.ProjectInvitations
+            .FirstOrDefaultAsync(i =>
+                i.Id == invitationId &&
+                i.InviteeId == currentUserId);
+
+        if (invitation is null)
+            throw new InvalidOperationException(
+                "Приглашение не найдено.");
+
+        if (invitation.Status != "Pending")
+            throw new InvalidOperationException(
+                "Это приглашение уже обработано.");
+
+        if (accept)
+        {
+            var alreadyMember = await context.ProjectMembers
+                .AnyAsync(pm =>
+                    pm.ProjectId == invitation.ProjectId &&
+                    pm.UserId == currentUserId);
+
+            if (!alreadyMember)
+            {
+                context.ProjectMembers.Add(new ProjectMember
+                {
+                    ProjectId = invitation.ProjectId,
+                    UserId = currentUserId,
+                    Role = invitation.Role
+                });
+            }
+
+            invitation.Status = "Accepted";
+        }
+        else
+        {
+            invitation.Status = "Rejected";
+        }
+
+        await context.SaveChangesAsync();
+
+        if (accept)
+        {
+            var payload = new
+            {
+                projectId = invitation.ProjectId,
+                userId = currentUserId
+            };
+
+            await realtimeNotifier.NotifyUserAsync(
+                currentUserId,
+                "projectMember",
+                "created",
+                payload);
+
+            await realtimeNotifier.NotifyProjectGroupAsync(
+                invitation.ProjectId,
+                "projectMember",
+                "created",
+                payload);
+        }
 
         return true;
     }

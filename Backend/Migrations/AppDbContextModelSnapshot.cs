@@ -97,6 +97,43 @@ namespace Backend.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("Backend.Models.ProjectInvitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("InviteeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InviterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InviterId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("InviteeId", "Status");
+
+                    b.ToTable("ProjectInvitations");
+                });
+
             modelBuilder.Entity("Backend.Models.ProjectMember", b =>
                 {
                     b.Property<Guid>("ProjectId")
@@ -234,6 +271,33 @@ namespace Backend.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("Backend.Models.ProjectInvitation", b =>
+                {
+                    b.HasOne("Backend.Models.User", "Invitee")
+                        .WithMany("ReceivedProjectInvitations")
+                        .HasForeignKey("InviteeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.User", "Inviter")
+                        .WithMany("SentProjectInvitations")
+                        .HasForeignKey("InviterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.Project", "Project")
+                        .WithMany("Invitations")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invitee");
+
+                    b.Navigation("Inviter");
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("Backend.Models.ProjectMember", b =>
                 {
                     b.HasOne("Backend.Models.Project", "Project")
@@ -273,6 +337,8 @@ namespace Backend.Migrations
                 {
                     b.Navigation("Columns");
 
+                    b.Navigation("Invitations");
+
                     b.Navigation("Members");
                 });
 
@@ -284,7 +350,11 @@ namespace Backend.Migrations
 
                     b.Navigation("ReceivedFriendships");
 
+                    b.Navigation("ReceivedProjectInvitations");
+
                     b.Navigation("SentFriendships");
+
+                    b.Navigation("SentProjectInvitations");
                 });
 #pragma warning restore 612, 618
         }

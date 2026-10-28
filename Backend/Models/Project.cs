@@ -12,4 +12,5 @@ public class Project
     public ICollection<Column>? Columns { get; set; }
     public User? Owner { get; set; }
     public ICollection<ProjectMember> Members { get; set; } = new List<ProjectMember>();
+    public ICollection<ProjectInvitation> Invitations { get; set; } = new List<ProjectInvitation>();
 }
