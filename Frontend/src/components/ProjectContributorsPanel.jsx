@@ -153,8 +153,7 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
     }, []);
 
     const filteredFriends = friends.filter((friend) =>
-        friend.name?.toLowerCase().includes(searchQuery) ||
-        friend.email?.toLowerCase().includes(searchQuery)
+        friend.name?.toLowerCase().includes(searchQuery)
     );
 
     async function loadFriends() {
@@ -287,7 +286,6 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
 
                                     <div className="min-w-0">
                                         <div className="fw-semibold">{friend.name}</div>
-                                        <div className="small text-muted">{friend.email}</div>
                                     </div>
                                 </div>
                             </ListGroup.Item>
@@ -297,7 +295,7 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
                     <div className="p-3 text-muted small">
                         {friends.length === 0
                             ? "У тебя пока нет избранных."
-                            : "Друзья не найдены."}
+                            : "пользователь не найдены."}
                     </div>
                 )}
             </div>
@@ -332,7 +330,6 @@ function ContributorsList({ contributors, currentUser, handleRemove }) {
                             />
                             <div className="text-truncate fw-semibold">{c.name}</div>
                         </div>
-                        <div className="text-secondary me-2">{c.email}</div>
 
                         <div className="d-flex align-items-center gap-2">
                             <Badge bg="dark" className="fw-normal"> { /*Можно использовать MyRoleBadge, вопрос дизайна*/ }

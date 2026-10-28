@@ -99,7 +99,7 @@ function FriendsModal({ show, onHide }) {
             <Modal.Body>
                 <Form.Control
                     type="search"
-                    placeholder="Найти друга по имени..."
+                    placeholder="Найти пользователя по имени..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     className="rounded-3 mb-3"
