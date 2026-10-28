@@ -6,6 +6,8 @@ namespace Backend.Services;
 public interface IUserService
 {
     Task<User?> GetByEmailAsync(string email);
+
+    Task<User?> GetByNameAsync(string name);
     Task<User?> GetByIdAsync(Guid id);
     Task<bool> IsEmailTakenAsync(string email);
     Task<User> CreateUserAsync(UserRegisterDto registerDto);

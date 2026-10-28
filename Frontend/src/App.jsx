@@ -6,17 +6,13 @@ import Home from './pages/Home';
 import Board from './pages/Board';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import Register from './pages/Register';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { GuestRoute } from './components/GuestRoute';
 import useUser from './context/UserContext';
 import { avatarsDictionary, defaultAvatar } from './hooks/Avatar';
 
-const mock = {
-    id: 1,
-    email: "sdsd",
-    projects: []
-}
 
 function App() {
 
@@ -46,6 +42,11 @@ function App() {
                 <Route path="/login" element={
                     <GuestRoute>
                         <Login />
+                    </GuestRoute>
+                } />
+                <Route path="/register" element={
+                    <GuestRoute>
+                        <Register />
                     </GuestRoute>
                 } />
                 <Route path="/profile" element={

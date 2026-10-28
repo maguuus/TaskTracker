@@ -11,6 +11,12 @@ public class UserService(AppDbContext context) : IUserService
         return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 
+    public async Task<User?> GetByNameAsync(string name)
+    {
+        var normalizedName = name.Trim().ToLower();
+        return await context.Users.FirstOrDefaultAsync(u => u.Name.ToLower() == normalizedName);
+    }
+
     public async Task<User?> GetByIdAsync(Guid id)
     {
         return await context.Users.FindAsync(id);
@@ -22,20 +28,34 @@ public class UserService(AppDbContext context) : IUserService
     }
     public async Task<User> CreateUserAsync(UserRegisterDto registerDto)
     {
-        if (await IsEmailTakenAsync(registerDto.Email)) 
+        var name = registerDto.Name?.Trim();
+        var email = registerDto.Email.Trim();
+        if (string.IsNullOrWhiteSpace(name))
         {
-            throw new InvalidOperationException("Email is already taken");
+            throw new InvalidOperationException("Введите логин.");
         }
-
-        var finalName = string.IsNullOrWhiteSpace(registerDto.Name) 
-            ? registerDto.Email.Split('@')[0] 
-            : registerDto.Name;
+        if (await context.Users.AnyAsync(u => u.Name.ToLower() == name.ToLower()))
+        {
+            throw new InvalidOperationException("Этот логин уже занят.");
+        }
+        if (await IsEmailTakenAsync(email))
+        {
+            throw new InvalidOperationException("Эта почта уже зарегистрирован.");
+        }
+        if (name.Contains('@'))
+        {
+            throw new InvalidOperationException("Логин не должен содержать символ @.");
+        }
+        if (!email.Contains('@'))
+        {
+            throw new InvalidOperationException("Почта должена содержать символ @.");
+        }
 
         var user = new User
         {
             Id = Guid.NewGuid(),
-            Name = finalName,
-            Email = registerDto.Email,
+            Name = name,
+            Email = email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
         };
         

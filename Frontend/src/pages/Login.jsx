@@ -2,18 +2,14 @@ import { useState } from 'react';
 import { Button, Container, Form, InputGroup } from 'react-bootstrap';
 import useUser from '../context/UserContext';
 import { useDBUser } from '../hooks/DataBaseHook';
-
-// const mockUser = (email) => ({
-//     id: 1,
-//     email: email,
-//     projects: [projectMeta1, projectMeta2, projectMeta3]
-// })
+import { Link, useLocation } from 'react-router-dom';
 
 function Login() {
 
-    const [login, register, getMe] = useDBUser();
+    const [login, ,getMe] = useDBUser();
 
     const [currentUser, setCurrentUser] = useUser();
+    const location = useLocation();
 
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
@@ -29,6 +25,7 @@ function Login() {
 
             let profileResponse = await getMe();
             setCurrentUser({...profileResponse, projects: []});
+            console.log('Пользователь после входа:', profileResponse);
         }
         catch (e) {
             const errorMessage = e.response?.data || "Ошибка сети или неверные данные";
@@ -65,8 +62,8 @@ function Login() {
                             </svg>
                         </InputGroup.Text>
                         <Form.Control
-                            type="email"
-                            placeholder="Почта"
+                            type="text"
+                            placeholder="Логин или email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="border-0 shadow-none ps-2 py-2 text-muted-50 small"
@@ -103,16 +100,15 @@ function Login() {
                         >
                             Войти
                         </Button>
-
-                        <Button
-                            variant="link"
-                            onClick={(e) => handleAuth(e, register)}
-                            className="text-decoration-none p-0 border-0 shadow-none font-weight-bold text-white opacity-75 small"
-                            style={{ fontSize: '0.7rem' }}
-                        >
-                            Зарегестрироваться
-                        </Button>
                     </div>
+                    <Link
+                        to="/register"
+                        className="text-decoration-none text-white opacity-75 small mt-2"
+                        style={{ fontSize: '0.7rem' }}
+                    >
+                        Зарегистрироваться
+                    </Link>
+                    
                 </Form>
             </div>
         </Container>
