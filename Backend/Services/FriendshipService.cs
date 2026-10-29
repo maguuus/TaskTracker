@@ -11,19 +11,19 @@ public class FriendshipService(AppDbContext context) : IFriendshipService
     {
         if (userId == friendId)
             throw new InvalidOperationException(
-                "Нельзя добавить самого себя в избранное.");
+                "Нельзя добавить самого себя в избранные.");
 
         var friendExists = await context.Users
             .AnyAsync(u => u.Id == friendId);
 
         if (!friendExists)
-            throw new KeyNotFoundException("Пользователь не найден в избранном.");
+            throw new KeyNotFoundException("Пользователь не найден в избранных.");
 
         var existing = await context.Friendships
             .FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friendId);
 
         if (existing is not null)
-            throw new InvalidOperationException("Пользователь уже в избранном.");
+            throw new InvalidOperationException("Пользователь уже в избранных.");
 
         var friendship = new Friendship
         {

@@ -121,6 +121,38 @@ body,
     margin: 0;
 }
 
+html {
+    background-color: var(--page-bg);
+}
+
+html:has(.auth-page),
+html:has(.auth-page) body {
+    background-color: var(--auth-page-bg, var(--page-bg));
+}
+
+html:has(.home-page),
+html:has(.home-page) body {
+    background-color: var(--home-page-bg, var(--page-bg));
+}
+
+[data-theme="colorful"] {
+    --home-page-bg: #CBB4F5;
+}
+
+html:has(.project-board),
+html:has(.project-board) body {
+    background-color: var(--project-page-bg, var(--page-bg));
+}
+
+html:has(.profile-page),
+html:has(.profile-page) body {
+    background-color: var(--profile-page-bg, var(--page-bg));
+}
+
+[data-theme="beige"] {
+    --profile-page-bg: #fcfaf2;
+}
+
 body {
     background-color: var(--page-bg);
     color: var(--text-primary);

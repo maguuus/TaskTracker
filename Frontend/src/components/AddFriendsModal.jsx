@@ -30,7 +30,7 @@ function AddFriendsModal({ show, onHide }) {
                     success: true,
                     message:
                         response.data?.message ||
-                        "Пользователь добавлен в избранное.",
+                        "Пользователь добавлен в избранные.",
                 },
             }));
         } catch (error) {
@@ -40,7 +40,7 @@ function AddFriendsModal({ show, onHide }) {
                     success: false,
                     message:
                         error.response?.data?.message ||
-                        "Не удалось добавить пользователя в избранное.",
+                        "Не удалось добавить пользователя в избранные.",
                 },
             }));
         } finally {
@@ -102,7 +102,7 @@ function AddFriendsModal({ show, onHide }) {
     return (
         <Modal show={show} onHide={handleClose} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Добавить в избранное</Modal.Title>
+                <Modal.Title>Добавить в избранные</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -173,7 +173,7 @@ function AddFriendsModal({ show, onHide }) {
                                         {sendingUserId === user.id
                                             ? "Добавление..."
                                             : addResults[user.id]?.success
-                                                ? "В избранном"
+                                                ? "В избранных"
                                                 : "Добавить"}
                                     </Button>
                                 </div>

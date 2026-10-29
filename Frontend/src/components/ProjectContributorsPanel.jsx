@@ -294,8 +294,8 @@ function InviteForm({ currentProject, addProjectMember, setContributors }) {
                 ) : (
                     <div className="p-3 text-muted small">
                         {friends.length === 0
-                            ? "У тебя пока нет избранных."
-                            : "пользователь не найдены."}
+                            ? "У вас пока нет избранных."
+                            : "Пользователь не найден."}
                     </div>
                 )}
             </div>

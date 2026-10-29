@@ -30,7 +30,7 @@ function FriendsModal({ show, onHide }) {
                 if (!cancelled) {
                     setError(
                         err.response?.data?.message ||
-                        "Не удалось загрузить избранное."
+                        "Не удалось загрузить избранные."
                     );
                 }
             } finally {
@@ -56,7 +56,7 @@ function FriendsModal({ show, onHide }) {
     }, [friends, query]);
 
     async function handleRemoveFriend(friend) {
-        if (!window.confirm(`Удалить ${friend.name} из избранного?`)) {
+        if (!window.confirm(`Удалить ${friend.name} из избранных?`)) {
             return;
         }
 
@@ -72,7 +72,7 @@ function FriendsModal({ show, onHide }) {
         } catch (err) {
             setError(
                 err.response?.data?.message ||
-                "Не удалось удалить пользователя из избранного."
+                "Не удалось удалить пользователя из избранных."
             );
         } finally {
             setDeletingId(null);
@@ -93,7 +93,7 @@ function FriendsModal({ show, onHide }) {
             dialogClassName="friends-modal-dialog"
         >
             <Modal.Header closeButton>
-                <Modal.Title>Избранное</Modal.Title>
+                <Modal.Title>Избранные</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -113,14 +113,14 @@ function FriendsModal({ show, onHide }) {
                     <div className="text-center py-4">
                         <Spinner animation="border" size="sm" />
                         <span className="ms-2">
-                            Загружаем избранное...
+                            Загружаем избранные...
                         </span>
                     </div>
                 ) : (
                     <div className="friends-list-scroll">
                         {friends.length === 0 ? (
                             <p className="text-muted mb-0">
-                                Список избранного пока пуст.
+                                Список избранных пока пуст.
                             </p>
                         ) : filteredFriends.length === 0 ? (
                             <p className="text-muted mb-0">

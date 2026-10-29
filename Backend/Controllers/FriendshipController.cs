@@ -26,7 +26,7 @@ public class FriendshipController(
         try
         {
             await friendshipService.AddFavoriteAsync(userId, friendId);
-            return Ok(new { message = "Пользователь добавлен в избранное." });
+            return Ok(new { message = "Пользователь добавлен в избранные." });
         }
         catch (KeyNotFoundException ex)
         {

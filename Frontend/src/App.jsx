@@ -23,7 +23,7 @@ function App() {
     const currentAvatar = avatarsDictionary[currentUser?.avatar] ?? defaultAvatar;
     return (
         <BrowserRouter>
-            <nav className="container-fluid bg-dark text-light  p-3 d-flex align-items-center">
+            <nav className="app-navbar fixed-top container-fluid bg-dark text-light p-3 d-flex align-items-center">
                 {"Task Tracker: "}
                 <NavLink to="/" className="text-light">Главная</NavLink> {"| "}
                 <NavLink to="/login" className="text-light">Вход</NavLink> {"| "}
@@ -37,29 +37,31 @@ function App() {
                 </NavLink>)}
             </nav>
 
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={
-                    <GuestRoute>
-                        <Login />
-                    </GuestRoute>
-                } />
-                <Route path="/register" element={
-                    <GuestRoute>
-                        <Register />
-                    </GuestRoute>
-                } />
-                <Route path="/profile" element={
-                    <ProtectedRoute>
-                        <Profile />
-                    </ProtectedRoute>
-                } />
-                <Route path="/:projectId/board" element={
-                    <ProtectedRoute>
-                        <Board />
-                    </ProtectedRoute>
-                } />
-            </Routes>
+            <main className="app-content">
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={
+                        <GuestRoute>
+                            <Login />
+                        </GuestRoute>
+                    } />
+                    <Route path="/register" element={
+                        <GuestRoute>
+                            <Register />
+                        </GuestRoute>
+                    } />
+                    <Route path="/profile" element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/:projectId/board" element={
+                        <ProtectedRoute>
+                            <Board />
+                        </ProtectedRoute>
+                    } />
+                </Routes>
+            </main>
         </BrowserRouter>
     );
 

@@ -3,6 +3,15 @@
    Основная доска
    ======================================== */
 
+.app-navbar {
+    z-index: 1030;
+    min-height: 74px;
+}
+
+.app-content {
+    padding-top: 74px;
+}
+
 .board-container {
     min-height: 100vh;
     padding: 24px;
@@ -647,7 +656,15 @@
 .profile-theme-menu .dropdown-item.active,
 .profile-theme-menu .dropdown-item:active {
     background: var(--accent);
-    color: var(--text-primary);
+    color: var(--theme-selection-text, var(--text-primary));
+}
+
+[data-theme="neon"] {
+    --theme-selection-text: #171326;
+}
+
+[data-theme="mono"] {
+    --theme-selection-text: #FFFFFF;
 }
 
 @media (max-width: 576px) {
@@ -1191,7 +1208,7 @@
 /* Бежевая тема */
 [data-theme="beige"] {
     --auth-page-bg: #F3E9D8;
-    --auth-card-bg: #4c3301;
+    --auth-card-bg: var(--surface);
 }
 
 [data-theme="beige"] .form-control {
@@ -1220,7 +1237,7 @@
 /* Чёрно-белая тема */
 [data-theme="mono"] {
     --auth-page-bg: #F5F5F5;
-    --auth-card-bg: #302a2a;
+    --auth-card-bg: var(--surface);
 }
 
 [data-theme="mono"] .form-control {
@@ -1249,6 +1266,32 @@
 
 
 /* Компактная овальная кнопка входа */
+.login-card {
+    color: var(--text-primary);
+}
+
+.login-input {
+    background-color: #FFFFFF !important;
+    color: #212121 !important;
+}
+
+.login-field {
+    border: 1px solid #000000;
+}
+
+.login-input::placeholder {
+    color: #595959;
+    opacity: 1;
+}
+
+.login-input-icon {
+    color: #595959 !important;
+}
+
+.login-link {
+    color: var(--text-primary);
+}
+
 .login-button {
     padding: 6px 24px;
     min-height: 20px;
@@ -1274,12 +1317,12 @@
 /* Colorful — розовая */
 [data-theme="colorful"] .login-button {
     background-color: #EC7A91;
-    color: #FFFFFF;
+    color: #212121;
 }
 
 [data-theme="colorful"] .login-button:hover {
     background-color: #E36580;
-    color: #FFFFFF;
+    color: #212121;
 }
 
 /* Neon — салатовая */
@@ -1295,12 +1338,12 @@
 
 /* Beige — коричневая */
 [data-theme="beige"] .login-button {
-    background-color: #9C7954;
+    background-color: #806141;
     color: #FFFFFF;
 }
 
 [data-theme="beige"] .login-button:hover {
-    background-color: #806141;
+    background-color: #674D31;
     color: #FFFFFF;
 }
 

@@ -60,7 +60,7 @@ function Register() {
     return (
         <Container
             fluid
-            className="d-flex align-items-start justify-content-center"
+            className="auth-page d-flex align-items-start justify-content-center"
             style={{
                 backgroundColor: 'var(--auth-page-bg, #FBCED5)',
                 minHeight: '100vh',
