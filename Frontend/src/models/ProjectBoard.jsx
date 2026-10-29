@@ -162,7 +162,7 @@ function ProjectBoard({ name, id }) {
 
     return (
         <Container fluid className="project-board pt-2 px-4 position-relative">
-            <div className="text-center mb-3">
+            <div className="text-center mb-3" style={{ height: '50px' }}>
                 <h1
                     className="project-heading fw-bold m-0 position-absolute start-50 translate-middle-x"
                     style={{ fontSize: '2.2rem', whiteSpace: 'nowrap' }}
@@ -246,7 +246,7 @@ function ProjectBoard({ name, id }) {
                     ⚙️
                 </Button>
             </div>
-
+            <div>
             {boardMode === BOARD_MODES.KANBAN ? (
                 <Kanban
                     columns={columns}
@@ -260,6 +260,7 @@ function ProjectBoard({ name, id }) {
                     onColumnDelete={async (column) => { await remove(column); }}
                 />
             )}
+            </div>
 
             <ProjectContributors showSettings={showSettings} setShowSettings={setShowSettings} />
 
