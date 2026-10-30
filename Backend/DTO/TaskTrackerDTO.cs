@@ -6,7 +6,7 @@ public record UserRegisterDto(string? Name, string Email, string Password);
 public record UserLoginDto(string Email, string Password);
 public record UserResponseDto(Guid Id, string Name, string Email, string? Avatar);
 
-public record ProjectCreateDto(string Name, Guid OwnerId, string? Description,string? Cover);
+public record ProjectCreateDto(string Name, Guid? OwnerId = null, string? Description = null, string? Cover = null);
 public record ProjectUpdateDto(string Name, string? Description,string? Cover);
 public record ProjectResponseDto(Guid Id, string Name, Guid OwnerId, DateTime CreatedAt, string? Description, ProjectRole Role, string? Cover);
 
@@ -28,20 +28,23 @@ public record TaskCreateDto(
     Guid ColumnId, 
     int OrderIndex, 
     DateTime? DueDate, 
-    DateTime? PlannedStartAt);
+    DateTime? PlannedStartAt,
+    Guid? AssigneeId = null);
 
-public record TaskUpdateDto(string Title, 
-    string? Description, 
-    string? Priority, 
+public record TaskUpdateDto(
+    string Title,
+    string? Description,
+    string? Priority,
     string? Urgency,
     string? Icon,
     List<string>? Tags,
-    int OrderIndex, 
-    Guid ColumnId, 
-    DateTime? DueDate, 
+    int OrderIndex,
+    Guid ColumnId,
+    DateTime? DueDate,
     DateTime? PlannedStartAt,
-    DateTime UpdatedAt);
-
+    DateTime UpdatedAt,
+    Guid? AssigneeId = null);
+    
 public record TaskResponseDto(
     Guid Id, 
     string Title,
@@ -55,16 +58,59 @@ public record TaskResponseDto(
     DateTime CreatedAt, 
     DateTime UpdatedAt, 
     DateTime? DueDate, 
-    DateTime? PlannedStartAt);
-    
+    DateTime? PlannedStartAt,
+    Guid? AssigneeId = null,
+    string? AssigneeName = null,
+    string? AssigneeAvatar = null
+    );
+
+public record TaskSearchFilterDto(
+    string? Query,
+    string? Priority,
+    string? Urgency,
+    string? Tag,
+    string? Assignees = null);
+
+public record TaskSearchResultDto (
+    Guid Id,
+    Guid ColumnId,
+    string ColumnTitle,
+    string Title,
+    string? Description,
+    string? Priority,
+    string? Urgency,
+    string? Icon,
+    List<string>? Tags,
+    DateTime? DueDate,
+    DateTime UpdatedAt,
+    Guid? AssigneeId = null,
+    string? AssigneeName = null,
+    string? AssigneeAvatar = null); 
     
 public record AddProjectMemberDto(string Email, ProjectRole Role = ProjectRole.Member);
 public record UpdateMemberRoleDto(ProjectRole Role);
-public record ProjectMemberDto(Guid Id, Guid UserId, string Email, string Name, ProjectRole Role);
+public record ProjectMemberDto(Guid Id, Guid UserId, string Email, string Name, ProjectRole Role, string? Avatar);
 
-public record UserSearchDto(Guid Id, string Name);
-public record SendFriendRequestDto(Guid FriendId);
+public record UserSearchDto(Guid Id, string Name, string Avatar);
 
-public record FriendRequestDto(Guid Id, Guid UserId, string Name);
+public record FriendDto(Guid Id, string Name, string Email, string Avatar);
 
-public record FriendDto(Guid Id, string Name, string Email);
+public record CreateProjectInvitationDto(
+    string Name,
+    ProjectRole Role = ProjectRole.Member
+);
+
+public record ProjectInvitationResponseDto(
+    Guid Id,
+    Guid ProjectId,
+    string ProjectName,
+    Guid InviterId,
+    string InviterName,
+    Guid InviteeId,
+    string InviteeName,
+    ProjectRole Role,
+    string Status,
+    DateTime CreatedAt
+);
+
+public record RespondProjectInvitationDto(bool Accept);

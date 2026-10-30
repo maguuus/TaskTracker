@@ -1,7 +1,8 @@
-
+import { avatarsDictionary, defaultAvatar } from "../hooks/Avatar";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Button, Form, ListGroup, Modal, Spinner } from "react-bootstrap";
 import api from "../api/index";
+import AddFriendsModal from "./AddFriendsModal";
 import "./FriendsModal.css";
 
 function FriendsModal({ show, onHide }) {
@@ -10,6 +11,8 @@ function FriendsModal({ show, onHide }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [deletingId, setDeletingId] = useState(null);
+    const [showAddFriends, setShowAddFriends] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         if (!show) return;
@@ -21,7 +24,7 @@ function FriendsModal({ show, onHide }) {
             setError("");
 
             try {
-                const response = await api.get("/api/Friendship/friends");
+                const response = await api.get("/api/Friendship/favorites");
 
                 if (!cancelled) {
                     setFriends(response.data);
@@ -30,7 +33,7 @@ function FriendsModal({ show, onHide }) {
                 if (!cancelled) {
                     setError(
                         err.response?.data?.message ||
-                        "Не удалось загрузить список друзей."
+                        "Не удалось загрузить избранные."
                     );
                 }
             } finally {
@@ -43,7 +46,7 @@ function FriendsModal({ show, onHide }) {
         return () => {
             cancelled = true;
         };
-    }, [show]);
+    }, [show, refreshKey]);
 
     const filteredFriends = useMemo(() => {
         const normalizedQuery = query.trim().toLocaleLowerCase();
@@ -56,7 +59,7 @@ function FriendsModal({ show, onHide }) {
     }, [friends, query]);
 
     async function handleRemoveFriend(friend) {
-        if (!window.confirm(`Удалить ${friend.name} из друзей?`)) {
+        if (!window.confirm(`Удалить ${friend.name} из избранных?`)) {
             return;
         }
 
@@ -64,7 +67,7 @@ function FriendsModal({ show, onHide }) {
         setError("");
 
         try {
-            await api.delete(`/api/Friendship/friends/${friend.id}`);
+            await api.delete(`/api/Friendship/favorites/${friend.id}`);
 
             setFriends((prev) =>
                 prev.filter((item) => item.id !== friend.id)
@@ -72,7 +75,7 @@ function FriendsModal({ show, onHide }) {
         } catch (err) {
             setError(
                 err.response?.data?.message ||
-                "Не удалось удалить друга."
+                "Не удалось удалить пользователя из избранных."
             );
         } finally {
             setDeletingId(null);
@@ -86,83 +89,112 @@ function FriendsModal({ show, onHide }) {
     }
 
     return (
-        <Modal
-            show={show}
-            onHide={handleClose}
-            centered
-            dialogClassName="friends-modal-dialog"
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>Мои друзья</Modal.Title>
-            </Modal.Header>
+        <>
+            <Modal
+                show={show && !showAddFriends}
+                onHide={handleClose}
+                centered
+                dialogClassName="friends-modal-dialog"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Избранные</Modal.Title>
+                </Modal.Header>
 
-            <Modal.Body>
-                <Form.Control
-                    type="search"
-                    placeholder="Найти друга по имени..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    className="rounded-3 mb-3"
-                />
+                <Modal.Body>
+                    <Form.Control
+                        type="search"
+                        placeholder="Найти пользователя по имени..."
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        className="rounded-3 mb-3"
+                    />
 
-                {error && (
-                    <Alert variant="danger">{error}</Alert>
-                )}
+                    {error && (
+                        <Alert variant="danger">{error}</Alert>
+                    )}
 
-                {loading ? (
-                    <div className="text-center py-4">
-                        <Spinner animation="border" size="sm" />
-                        <span className="ms-2">
-                            Загружаем друзей...
-                        </span>
-                    </div>
-                ) : (
-                    <div className="friends-list-scroll">
-                        {friends.length === 0 ? (
-                            <p className="text-muted mb-0">
-                                У тебя пока нет друзей.
-                            </p>
-                        ) : filteredFriends.length === 0 ? (
-                            <p className="text-muted mb-0">
-                                По запросу «{query}» ничего не найдено.
-                            </p>
-                        ) : (
-                            <ListGroup variant="flush">
-                                {filteredFriends.map((friend) => (
-                                    <ListGroup.Item key={friend.id}>
-                                        <div className="d-flex align-items-center justify-content-between gap-3">
-                                            <span className="text-break">
-                                                {friend.name}
-                                            </span>
+                    {loading ? (
+                        <div className="text-center py-4">
+                            <Spinner animation="border" size="sm" />
+                            <span className="ms-2">
+                                Загружаем избранные...
+                            </span>
+                        </div>
+                    ) : (
+                        <div className="friends-list-scroll">
+                            {friends.length === 0 ? (
+                                <p className="text-muted mb-0">
+                                    Список избранных пока пуст.
+                                </p>
+                            ) : filteredFriends.length === 0 ? (
+                                <p className="text-muted mb-0">
+                                    По запросу «{query}» ничего не найдено.
+                                </p>
+                            ) : (
+                                <ListGroup variant="flush">
+                                    {filteredFriends.map((friend) => (
+                                        <ListGroup.Item key={friend.id}>
+                                            <div className="d-flex align-items-center justify-content-between gap-3">
+                                                <div className="d-flex align-items-center gap-2 min-w-0">
+                                                    <img
+                                                        src={avatarsDictionary[String(friend.avatar)] || defaultAvatar}
+                                                        alt=""
+                                                        className="rounded-circle flex-shrink-0"
+                                                        style={{
+                                                            width: 42,
+                                                            height: 42,
+                                                            objectFit: "cover"
+                                                        }}
+                                                    />
 
-                                            <Button
-                                                variant="outline-danger"
-                                                size="sm"
-                                                className="rounded-pill flex-shrink-0"
-                                                disabled={deletingId !== null}
-                                                onClick={() =>
-                                                    handleRemoveFriend(friend)
-                                                }
-                                            >
-                                                {deletingId === friend.id
-                                                    ? "Удаление..."
-                                                    : "Удалить"}
-                                            </Button>
-                                        </div>
-                                    </ListGroup.Item>
-                                ))}
-                            </ListGroup>
-                        )}
-                    </div>
-                )}
-            </Modal.Body>
+                                                    <span className="text-break">
+                                                        {friend.name}
+                                                    </span>
+                                                </div>
 
-            <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Закрыть
-                </Button>
-            </Modal.Footer>
-        </Modal>
+                                                <Button
+                                                    variant="outline-danger"
+                                                    size="sm"
+                                                    className="rounded-pill flex-shrink-0"
+                                                    disabled={deletingId !== null}
+                                                    onClick={() =>
+                                                        handleRemoveFriend(friend)
+                                                    }
+                                                >
+                                                    {deletingId === friend.id
+                                                        ? "Удаление..."
+                                                        : "Удалить"}
+                                                </Button>
+                                            </div>
+                                        </ListGroup.Item>
+                                    ))}
+                                </ListGroup>
+                            )}
+                        </div>
+                    )}
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button
+                        variant="primary"
+                        onClick={() => setShowAddFriends(true)}
+                    >
+                        Добавить в избранные
+                    </Button>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Закрыть
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <AddFriendsModal
+                show={showAddFriends}
+                onHide={() => {
+                    setShowAddFriends(false);
+                    setRefreshKey((current) => current + 1);
+                }}
+            />
+        </>
     );
 }
 

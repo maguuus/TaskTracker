@@ -12,6 +12,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<ProjectMember> ProjectMembers { get; set; }
     public DbSet<Friendship> Friendships { get; set; }
 
+    public DbSet<ProjectInvitation> ProjectInvitations { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -64,6 +66,37 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Friendship>()
             .HasIndex(f => new { f.UserId, f.FriendId })
             .IsUnique();
+
+        modelBuilder.Entity<ProjectInvitation>()
+            .Property(i => i.Role)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<ProjectInvitation>()
+            .HasOne(i => i.Project)
+            .WithMany(p => p.Invitations)
+            .HasForeignKey(i => i.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ProjectInvitation>()
+            .HasOne(i => i.Inviter)
+            .WithMany(u => u.SentProjectInvitations)
+            .HasForeignKey(i => i.InviterId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ProjectInvitation>()
+            .HasOne(i => i.Invitee)
+            .WithMany(u => u.ReceivedProjectInvitations)
+            .HasForeignKey(i => i.InviteeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ProjectInvitation>()
+            .HasIndex(i => new { i.InviteeId, i.Status });
+        
+        modelBuilder.Entity<TaskItem>()
+            .HasOne(t => t.Assignee)
+            .WithMany()
+            .HasForeignKey(t => t.AssigneeId)
+            .OnDelete(DeleteBehavior.SetNull);
         
         base.OnModelCreating(modelBuilder);
     }

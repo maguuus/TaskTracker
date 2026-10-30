@@ -26,15 +26,20 @@ interface Column {
     id: string;
     title: string;
     orderIndex: number;
+    projectId?: string;
     tasks: Task[];
 }
 
 interface Task {
     id: string;
+    columnId: string;
+    orderIndex: number;
     title: string;
-    description: string;
-    icon: string;
-    priority: string;
-    urgency: string;
-    dueDate: string;
+    description?: string;
+    icon?: string;
+    priority?: string;
+    urgency?: string;
+    dueDate?: string | null;
+    plannedStartAt?: string;
+    tags?: string[];
 }

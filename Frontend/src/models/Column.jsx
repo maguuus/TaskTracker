@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
-import { Badge, Card, Dropdown, Form } from 'react-bootstrap';
+import {useState, useRef, useEffect} from 'react';
+import { Badge, Button, Card, Dropdown, Form } from 'react-bootstrap';
 import { useColumn } from '../hooks/BoardHooks';
 import useColumns from '../context/BoardContext';
 import { useDBTask } from '../hooks/DataBaseHook';
 import { useTheme } from '../context/ThemeContext';
-import { hub } from '../api/index.js';
 import Task from './Task';
+import task from "./Task";
 
 /**
  * @param {Object} props
@@ -16,7 +16,7 @@ function Column({ column, projectId, onColumnUpdate, onColumnDelete }) {
     const [post, patch, remove] = useDBTask();
     const [, updateTask, removeTask] = useColumn(column.id);
     const [, setColumns] = useColumns();
-
+    
     const [title, setTitle] = useState(column.title);
     const inputRef = useRef(null);
     const { theme } = useTheme();
@@ -24,54 +24,6 @@ function Column({ column, projectId, onColumnUpdate, onColumnDelete }) {
     useEffect(() => {
         setTitle(column.title);
     }, [column.title]);
-
-    useEffect(() => {
-        const handleStateChanged = (message) => {
-            if (!message || message.type !== 'stateChanged' || message.projectId !== projectId) return;
-
-            const { entityType, action, payload } = message;
-            if (entityType !== 'task') return;
-
-            const task = payload?.task;
-            const taskId = payload?.taskId ?? task?.id;
-
-            if (action === 'created' && task && column.id === task.columnId) {
-                setColumns(prev => prev.map(col =>
-                    col.id === column.id
-                        ? { ...col, tasks: [...col.tasks.filter(t => t.id !== task.id), task] }
-                        : col
-                ));
-            } else if (action === 'deleted' && taskId) {
-                setColumns(prev => prev.map(col =>
-                    col.id === column.id
-                        ? { ...col, tasks: col.tasks.filter(t => t.id !== taskId) }
-                        : col
-                ));
-            } else if (action === 'updated' && task) {
-                setColumns(prev => prev.map(col => {
-                    if (col.id === column.id && col.id === task.columnId) {
-                        const cleanTasks = col.tasks.filter(t => t.id !== task.id);
-                        return {
-                            ...col, 
-                            tasks: [...cleanTasks, task].sort((a, b) => a.orderIndex - b.orderIndex)
-                        };
-                    }
-                    if (col.id === column.id) {
-                        return {
-                            ...col,
-                            tasks: col.tasks.filter(t => t.id !== task.id)
-                        };
-                    }
-                    return col;
-                }));
-            }
-        };
-
-        hub.on('stateChanged', handleStateChanged);
-        return () => {
-            hub.off('stateChanged', handleStateChanged);
-        };
-    }, [column.id, projectId, setColumns]);
 
     const getColumnBg = (title, theme = 'colorful') => {
         const t = title.toLowerCase();
@@ -104,16 +56,38 @@ function Column({ column, projectId, onColumnUpdate, onColumnDelete }) {
     const handleDrop = async (e) => {
         e.preventDefault();
 
-        if (window.__draggedTaskInstance && window.__draggedTaskInstance.columnId !== column.id) {
-            const taskToMove = window.__draggedTaskInstance;
+        const taskToMove = window.__draggedTaskInstance;
+        window.__draggedTaskInstance = null;
+        
+        if (taskToMove && taskToMove.columnId !== column.id) {
             const updatedTask = {
                 ...taskToMove,
                 columnId: column.id
             };
             window.__draggedTaskInstance = null;
-
+            const sourceColumnId = taskToMove.columnId;
+            const targetColumnId = column.id;
+            
             try {
-                await patch(updatedTask);
+                const saved = await patch(updatedTask);
+                const finalTask = saved || updatedTask;
+
+                setColumns(prev => prev.map(col => {
+                    if (col.id === sourceColumnId) {
+                        return {
+                            ...col,
+                            tasks: col.tasks.filter(t => t.id !== finalTask.id)
+                        };
+                    }
+                    if (col.id === targetColumnId) {
+                        const cleanTasks = col.tasks.filter(t => t.id !== finalTask.id);
+                        return {
+                            ...col,
+                            tasks: [...cleanTasks, finalTask].sort((a, b) => a.orderIndex - b.orderIndex)
+                        };
+                    }
+                    return col;
+                }));
             } catch (error) {
                 if (error.response?.status === 409) {
                     alert("Задача была изменена другим участником. Доска будет обновлена.");
@@ -132,11 +106,10 @@ function Column({ column, projectId, onColumnUpdate, onColumnDelete }) {
             columnId: col.id,
             orderIndex: order,
             title: `Новая задача ${order + 1}`,
-            description: `Описание задачи`
+            description: `Описание задачи`,
+            tags: []
         };
     }
-
-    const tasksList = column.tasks || [];
 
     return (
         <ColumnCard
@@ -215,26 +188,17 @@ function ColumnCard({
             }
         >
             <Card.Header className="bg-transparent border-0 text-center py-2 position-relative">
-                <Dropdown className="position-absolute" style={{ top: '0.5rem', right: '0.5rem' }} align="end">
-                    <Dropdown.Toggle
-                        variant="link"
-                        className="text-secondary p-0 border-0 shadow-none no-caret"
-                        style={{ fontSize: '1.2rem', textDecoration: 'none' }}
-                    >
-                        ⋮
-                    </Dropdown.Toggle>
-
-                    <Dropdown.Menu variant="dark">
-                        <Dropdown.Item onClick={async () => { await post(newTask(column)); }}>
-                            Добавить задачу
-                        </Dropdown.Item>
-                        <Dropdown.Item onClick={handleDeleteClick} className="text-danger">
-                            Удалить
-                        </Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-
                 <h3 className="column-title mb-0 d-flex align-items-center justify-content-center fw-normal">
+                    <Button
+                        type="button"
+                        variant="light"
+                        className="add-task-circle column-add-task"
+                        aria-label={`Добавить задачу в колонку ${title}`}
+                        title="Добавить задачу"
+                        onClick={async () => { await post(newTask(column)); }}
+                    >
+                        +
+                    </Button>
                     <Form className="d-inline-block w-auto" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
                         <Form.Control
                             ref={inputRef}
@@ -257,6 +221,22 @@ function ColumnCard({
                     >
                         {tasksList.length}
                     </Badge>
+
+                    <Dropdown className="column-menu-dropdown ms-2" align="end">
+                        <Dropdown.Toggle
+                            variant="link"
+                            className="text-secondary p-0 border-0 shadow-none no-caret"
+                            style={{ fontSize: '1.2rem', textDecoration: 'none' }}
+                        >
+                            ⋮
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu variant="dark">
+                            <Dropdown.Item onClick={handleDeleteClick} className="text-danger">
+                                Удалить
+                            </Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
                 </h3>
             </Card.Header>
 
@@ -266,10 +246,12 @@ function ColumnCard({
                 onDrop={handleDrop}
             >
                 {tasksList.map((task) => (
-                    <div key={task.id} onDragStart={() => { window.__draggedTaskInstance = task; }}>
+                    <div key={task.id} className="mb-3" onDragStart={() => { window.__draggedTaskInstance = task; }}>
                         <Task
                             key={task.id}
                             task={task}
+                            projectId={column.projectId}
+                            compact={false}
                             onTaskUpdate={async (t) => {
                                 try {
                                     const saved = await patch(t);

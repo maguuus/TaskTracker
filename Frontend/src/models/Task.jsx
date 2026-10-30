@@ -1,23 +1,46 @@
 import { Card, Button, Modal, Form, Badge, Col, Row } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
+import {avatarsDictionary, defaultAvatar} from "../hooks/Avatar.jsx";
+import api from "../api/index.js";
+
+const getTagColor = (text) => {
+    const colors = [
+        { bg: '#FEE2E2', text: '#991B1B' }, // Красный
+        { bg: '#FEF3C7', text: '#92400E' }, // Янтарный
+        { bg: '#D1FAE5', text: '#065F46' }, // Зеленый
+        { bg: '#DBEAFE', text: '#1E40AF' }, // Синий
+        { bg: '#EDE9FE', text: '#5B21B6' }, // Фиолетовый
+        { bg: '#FCE7F3', text: '#9D174D' }, // Розовый
+        { bg: '#E0E7FF', text: '#3730A3' }, // Индиго
+        { bg: '#CCFBF1', text: '#115E59' }, // Бирюзовый
+    ];
+
+    let hash = 0;
+    const str = (text || '').toLowerCase().trim();
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+};
 
 /**
  * @param {Object} props
  * @param {Task} props.task
  */
 
-function Task({ task, onTaskUpdate, onTaskDelete }) {
+function Task({ task, projectId, onTaskUpdate, onTaskDelete, compact = false }) {
     const [showModal, setShowModal] = useState(false);
 
     const [title, setTitle] = useState(task.title || '');
     const [description, setDescription] = useState(task.description || '');
     const [icon, setIcon] = useState(task.icon || '');
-    // const [tags, setTags] = useState(task.tags || []);
-    // const [tagInput, setTagInput] = useState('');
+    const [tags, setTags] = useState(task.tags || []);
+    const [tagInput, setTagInput] = useState('');
 
     const [priority, setPriority] = useState(task.priority || '');
     const [urgency, setUrgency] = useState(task.urgency || '');
-
+    const [assigneeId, setAssigneeId] = useState(task.assigneeId || '');
+    
     const formatDateForInput = (dateString) => {
         if (!dateString) return '';
         return new Date(dateString).toISOString().split('T')[0];
@@ -28,10 +51,11 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
         setTitle(task.title || '');
         setDescription(task.description || '');
         setIcon(task.icon || '');
-        // setTags(task.tags || []);
+        setTags(task.tags || []);
         setPriority(task.priority || '');
         setUrgency(task.urgency || '');
         setDueDate(formatDateForInput(task.dueDate));
+        setAssigneeId(task.assigneeId || '');
     }, [task]);
 
     // function handleTagKeyDown(e) {
@@ -58,10 +82,11 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
             title: title,
             description: description,
             icon: icon,
-            // tags: tags,
+            tags: tags,
             priority: priority,
             urgency: urgency,
-            dueDate: formattedDate
+            dueDate: formattedDate,
+            assigneeId: assigneeId || null
         });
         setShowModal(false);
     }
@@ -81,8 +106,9 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
 
     return (
         <>
-            <Card className={`task-card border border-${getBorderColor()} shadow-sm p-3 mb-3`}
-                style={{
+            <Card
+                id={`task-${task.id}`}
+                className={`task-card border border-${getBorderColor()} shadow-sm ${compact ? 'p-2 mb-0' : 'p-3 mb-3'}`}                style={{
                     borderLeftWidth: '5px',
                     borderRadius: '12px',
                     cursor: 'move',
@@ -90,11 +116,16 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                 }}
                 draggable="true"
                 onDragStart={(e) => {
+                    window.__draggedTaskInstance = task;
+                    const cardRect = e.currentTarget.getBoundingClientRect();
+                    window.__dragOffsetX = e.clientX - cardRect.left;
                     e.dataTransfer.setData("text/plain", task.id);
                     e.currentTarget.style.opacity = '0.5';
                 }}
                 onDragEnd={(e) => {
                     e.currentTarget.style.opacity = '1';
+                    window.__draggedTaskInstance = null;
+                    window.__dragOffsetX = null;
                 }}
                 onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-3px)';
@@ -108,9 +139,9 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                 <Card.Body className="p-0 position-relative">
 
                     <div className="d-flex align-items-start justify-content-between mb-2">
-                        <div className="d-flex align-items-center text-truncate me-2">
+                        <div className="d-flex align-items-center text-truncate me-2" title={task.title}>
                             {task.icon && <span className="fs-5 me-2">{task.icon}</span>}
-                            <h6 className="mb-0 fw-bold m-0 text-truncate">{task.title}</h6>
+                            <h6 className="mb-0 fw-bold m-0 text-truncate" title={task.title}>{task.title}</h6>
                         </div>
 
                         <div className="d-flex align-items-center gap-2 flex-shrink-0">
@@ -131,21 +162,53 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         </div>
                     </div>
 
-                    <div className="text-muted small mb-1 text-truncate">
+                    <div
+                        className="text-muted small mb-1 text-truncate"
+                        style={compact ? { maxHeight: '20px', overflow: 'hidden' } : undefined}
+                        title={task.description}
+                    >
                         {task.description || "Нет описания"}
                     </div>
 
-                    {/* <div className="d-flex flex-wrap gap-1 mb-3">
-                        {task.tags && task.tags.length > 0 ? (
-                            task.tags.map((tag, idx) => (
-                                <Badge bg="success" key={idx} className="fw-normal rounded-pill">
-                                    #{tag}
-                                </Badge>
-                            ))
-                        ) : (
-                            <Badge bg="success" className="fw-normal rounded-pill">#работа</Badge>
-                        )}
-                    </div> */}
+                    {task.tags && task.tags.length > 0 && (
+                        <div className="d-flex flex-wrap gap-1 mb-2" style={{ maxWidth: '100%' }}>
+                            {(compact ? task.tags.slice(0, 2) : task.tags).map((tag, idx) => {
+                                const color = getTagColor(tag);
+                                return (
+                                    <span
+                                        key={idx}
+                                        title={`#${tag} (Нажмите для фильтрации)`}
+                                        className="badge rounded-pill fw-medium"
+                                        style={{
+                                            backgroundColor: color.bg,
+                                            color: color.text,
+                                            fontSize: '0.68rem',
+                                            padding: '4px 10px',
+                                            maxWidth: compact ? '90px' : '160px',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            display: 'inline-block',
+                                            verticalAlign: 'middle',
+                                            lineHeight: 1.2,
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            window.dispatchEvent(new CustomEvent('filter-by-tag', { detail: tag }));
+                                        }}
+                                    >
+                                        #{tag}
+                                    </span>
+                                );
+                            })}
+                            {compact && task.tags.length > 2 && (
+                                <span className="badge rounded-pill bg-light text-muted border" style={{ fontSize: '0.68rem' }} title={task.tags.slice(2).map(t => `#${t}`).join(', ')}>
+                                    +{task.tags.length - 2}
+                                </span>
+                            )}
+                        </div>
+                    )}
 
                     {(task.priority || task.dueDate) && (
                         <div className="d-flex justify-content-between text-muted small mb-1 fw-bold">
@@ -158,6 +221,19 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         </div>
                     )}
 
+                    {task.assigneeName && (
+                        <div className="d-flex align-items-center gap-1 mt-2 pt-1 border-top" title={`Исполнитель: ${task.assigneeName}`}>
+                            <img
+                                src={avatarsDictionary[String(task.assigneeAvatar)] || defaultAvatar}
+                                alt={task.assigneeName}
+                                className="rounded-circle flex-shrink-0"
+                                style={{ width: 20, height: 20, objectFit: "cover" }}
+                            />
+                            <span className="small text-muted text-truncate fw-medium" style={{ fontSize: '0.75rem' }}>
+                                {task.assigneeName}
+                            </span>
+                        </div>
+                    )}                    
                     {/* <div className="d-flex justify-content-end">
                         <Button
                             variant="secondary d-inline-flex focus-ring focus-ring-secondary py-1 px-2 text-decoration-none border rounded-2"
@@ -174,6 +250,9 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                 showModal={showModal}
                 setShowModal={setShowModal}
                 handleSave={handleSave}
+                projectId={projectId}
+                assigneeId={assigneeId}
+                setAssigneeId={setAssigneeId}
                 icon={icon}
                 setIcon={setIcon}
                 title={title}
@@ -186,6 +265,10 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                 setDueDate={setDueDate}
                 description={description}
                 setDescription={setDescription}
+                tags={tags}
+                setTags={setTags}
+                tagInput={tagInput}
+                setTagInput={setTagInput}
             />
         </>
     );
@@ -196,6 +279,9 @@ export default Task;
 function TaskModal({ showModal,
     setShowModal,
     handleSave,
+    projectId,
+    assigneeId,
+    setAssigneeId,    
     icon,
     setIcon,
     title, // перенести внутрь TaskModal
@@ -207,8 +293,22 @@ function TaskModal({ showModal,
     dueDate,
     setDueDate,
     description,
-    setDescription
+    setDescription,
+    tags,
+    setTags,
+    tagInput,
+    setTagInput    
 }) {
+    const [members, setMembers] = useState([]);
+
+    useEffect(() => {
+        if (!showModal || !projectId) return;
+
+        api.get(`/api/projects/${projectId}/members`)
+            .then(res => setMembers(res.data || []))
+            .catch(err => console.error("Ошибка загрузки участников:", err));
+    }, [showModal, projectId]);
+    
     return <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
         <Form onSubmit={handleSave}>
             <Modal.Header closeButton className="border-0 pb-0">
@@ -227,13 +327,14 @@ function TaskModal({ showModal,
                         onChange={(e) => setTitle(e.target.value)}
                         className="fs-4 fw-bold border-0 shadow-none px-0"
                         placeholder="Название задачи"
+                        title={title}
                         required />
                 </div>
             </Modal.Header>
 
             <Modal.Body>
                 <Row className="mb-4 bg-light p-3 rounded mx-0">
-                    <Col md={4}>
+                    <Col md={3}>
                         <Form.Group>
                             <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Приоритет</Form.Label>
                             <Form.Select value={priority} onChange={(e) => setPriority(e.target.value)} className="border-0 shadow-sm">
@@ -245,7 +346,7 @@ function TaskModal({ showModal,
                             </Form.Select>
                         </Form.Group>
                     </Col>
-                    <Col md={4}>
+                    <Col md={3}>
                         <Form.Group>
                             <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Срочность</Form.Label>
                             <Form.Select value={urgency} onChange={(e) => setUrgency(e.target.value)} className="border-0 shadow-sm">
@@ -256,7 +357,7 @@ function TaskModal({ showModal,
                             </Form.Select>
                         </Form.Group>
                     </Col>
-                    <Col md={4}>
+                    <Col md={3}>
                         <Form.Group>
                             <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Дедлайн</Form.Label>
                             <Form.Control
@@ -264,6 +365,23 @@ function TaskModal({ showModal,
                                 value={dueDate}
                                 onChange={(e) => setDueDate(e.target.value)}
                                 className="border-0 shadow-sm" />
+                        </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                        <Form.Group>
+                            <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Исполнитель</Form.Label>
+                            <Form.Select
+                                value={assigneeId || ''}
+                                onChange={(e) => setAssigneeId(e.target.value || null)}
+                                className="border-0 shadow-sm"
+                            >
+                                <option value="">Не назначен</option>
+                                {members.map(member => (
+                                    <option key={member.userId || member.id} value={member.userId || member.id}>
+                                        {member.name}
+                                    </option>
+                                ))}
+                            </Form.Select>
                         </Form.Group>
                     </Col>
                 </Row>
@@ -278,29 +396,68 @@ function TaskModal({ showModal,
                         className="bg-light border-0" />
                 </Form.Group>
 
-                {/* <Form.Group className="mb-3">
-            <Form.Label className="fw-bold text-muted small text-uppercase">Теги</Form.Label>
-            <div className="d-flex flex-wrap gap-2 mb-2">
-                {tags.map((tag, index) => (
-                    <Badge
-                        bg="primary"
-                        key={index}
-                        style={{ cursor: 'pointer', padding: '8px 12px' }}
-                        onClick={() => removeTag(tag)}
-                        title="Нажмите, чтобы удалить"
-                    >
-                        #{tag} &times;
-                    </Badge>
-                ))}
-            </div>
-            <Form.Control
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleTagKeyDown}
-                placeholder="Введите тег и нажмите Enter..."
-            />
-        </Form.Group> */}
+                <Form.Group className="mb-4">
+                    <Form.Label className="fw-bold text-muted small text-uppercase">Теги задачи</Form.Label>
+                    <div className="d-flex flex-wrap gap-1 mb-2" style={{ maxWidth: '100%' }}>
+                        {tags.map((tag, index) => {
+                            const color = getTagColor(tag);
+                            return (
+                                <span
+                                    key={index}
+                                    className="badge rounded-pill fw-medium d-inline-flex align-items-center"
+                                    style={{
+                                        backgroundColor: color.bg,
+                                        color: color.text,
+                                        cursor: 'pointer',
+                                        padding: '4px 10px',
+                                        fontSize: '0.8rem',
+                                        maxWidth: '220px',
+                                        gap: '4px'
+                                    }}
+                                    onClick={() => setTags(tags.filter(t => t !== tag))}
+                                    title={`#${tag}`}
+                                >
+                                    <span
+                                        style={{
+                                            maxWidth: '170px',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            display: 'inline-block',
+                                            lineHeight: 1.2
+                                        }}
+                                    >
+                                            #{tag}
+                                        </span>
+                                    <span style={{ fontSize: '14px', lineHeight: '1', flexShrink: 0 }}>
+                                        &times;
+                                    </span>
+                                </span>
+                            );
+                        })}
+                    </div>
+                    <Form.Control
+                        type="text"
+                        maxLength={25}
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const cleanTag = tagInput.trim().replace(/^#+/, '').slice(0, 25);
+                                if (cleanTag && !tags.includes(cleanTag) && tags.length < 8) {
+                                    setTags([...tags, cleanTag]);
+                                }
+                                setTagInput('');
+                            }
+                        }}
+                        placeholder="Введите тег и нажмите Enter (до 25 символов)..."
+                        className="bg-light border-0 shadow-none"
+                    />
+                    <Form.Text className="text-muted small">
+                        Нажмите Enter для добавления. До 8 тегов (макс. 25 симв.). Кликните для удаления.
+                    </Form.Text>
+                </Form.Group>
             </Modal.Body>
 
             <Modal.Footer className="border-0 pt-0">

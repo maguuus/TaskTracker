@@ -1,25 +1,24 @@
-
 import { useEffect, useState } from "react";
 import { Alert, Button, ListGroup, Modal, Spinner } from "react-bootstrap";
 import api from "../api/index";
 
 function FriendRequestsModal({ show, onHide }) {
-    const [requests, setRequests] = useState([]);
+    const [invitations, setInvitations] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [processingId, setProcessingId] = useState(null);
 
-    async function loadRequests() {
+    async function loadInvitations() {
         setLoading(true);
         setError("");
 
         try {
-            const response = await api.get("/api/Friendship/requests");
-            setRequests(response.data);
+            const response = await api.get("/api/Projects/invitations");
+            setInvitations(response.data);
         } catch (err) {
             setError(
                 err.response?.data?.message ||
-                "Не удалось загрузить заявки."
+                "Не удалось загрузить приглашения."
             );
         } finally {
             setLoading(false);
@@ -28,90 +27,93 @@ function FriendRequestsModal({ show, onHide }) {
 
     useEffect(() => {
         if (show) {
-            loadRequests();
+            loadInvitations();
         }
     }, [show]);
 
-    async function handleRequest(requestId, action) {
-        setProcessingId(requestId);
+    async function handleInvitation(invitationId, accept) {
+        setProcessingId(invitationId);
         setError("");
 
         try {
             await api.post(
-                `/api/Friendship/requests/${requestId}/${action}`
+                `/api/Projects/invitations/${invitationId}/respond`,
+                { accept }
             );
 
-            setRequests((prev) =>
-                prev.filter((request) => request.id !== requestId)
+            setInvitations(prev =>
+                prev.filter(invitation => invitation.id !== invitationId)
             );
         } catch (err) {
             setError(
                 err.response?.data?.message ||
-                `Не удалось ${action === "accept" ? "принять" : "отклонить"} заявку.`
+                `Не удалось ${accept ? "принять" : "отклонить"} приглашение.`
             );
         } finally {
             setProcessingId(null);
         }
     }
 
-    function handleClose() {
-        onHide();
-    }
-
     return (
-        <Modal show={show} onHide={handleClose} centered>
+        <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Заявки в друзья</Modal.Title>
+                <Modal.Title>Приглашения в проекты</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
-                {error && (
-                    <Alert variant="danger">{error}</Alert>
-                )}
+                {error && <Alert variant="danger">{error}</Alert>}
 
                 {loading ? (
                     <div className="text-center py-4">
                         <Spinner animation="border" size="sm" />
-                        <span className="ms-2">Загружаем заявки...</span>
+                        <span className="ms-2">
+                            Загружаем приглашения...
+                        </span>
                     </div>
-                ) : requests.length === 0 ? (
+                ) : invitations.length === 0 ? (
                     <p className="text-muted mb-0">
-                        Входящих заявок пока нет.
+                        Входящих приглашений пока нет.
                     </p>
                 ) : (
                     <ListGroup variant="flush">
-                        {requests.map((request) => (
-                            <ListGroup.Item key={request.id}>
-                                <div className="d-flex align-items-center justify-content-between gap-3">
-                                    <span className="fw-medium">
-                                        {request.name}
-                                    </span>
+                        {invitations.map(invitation => (
+                            <ListGroup.Item key={invitation.id}>
+                                <div className="fw-semibold">
+                                    {invitation.projectName}
+                                </div>
 
-                                    <div className="d-flex gap-2">
-                                        <Button
-                                            variant="success"
-                                            size="sm"
-                                            disabled={processingId !== null}
-                                            onClick={() =>
-                                                handleRequest(request.id, "accept")
-                                            }
-                                        >
-                                            {processingId === request.id
-                                                ? "..."
-                                                : "Принять"}
-                                        </Button>
+                                <div className="small text-muted mb-3">
+                                    Приглашение от: {invitation.inviterName}
+                                    <br />
+                                    Роль: {invitation.role === "Viewer"
+                                        ? "Наблюдатель"
+                                        : "Участник"}
+                                </div>
 
-                                        <Button
-                                            variant="outline-danger"
-                                            size="sm"
-                                            disabled={processingId !== null}
-                                            onClick={() =>
-                                                handleRequest(request.id, "reject")
-                                            }
-                                        >
-                                            Отклонить
-                                        </Button>
-                                    </div>
+                                <div className="d-flex gap-2">
+                                    <Button
+                                        variant="success"
+                                        size="sm"
+                                        disabled={processingId !== null}
+                                        onClick={() =>
+                                            handleInvitation(invitation.id, true)
+                                        }
+                                    >
+                                        {processingId === invitation.id
+                                            ? "Обработка..."
+                                            : "Принять"}
+                                    </Button>
+
+                                    <Button
+                                        variant="outline-danger"
+                                        size="sm"
+                                        disabled={processingId !== null}
+                                        onClick={() =>
+                                            handleInvitation(invitation.id, false)
+                                        }
+                                    >
+                                        Отклонить
+                                    </Button>
                                 </div>
                             </ListGroup.Item>
                         ))}
@@ -120,7 +122,7 @@ function FriendRequestsModal({ show, onHide }) {
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
+                <Button variant="secondary" onClick={onHide}>
                     Закрыть
                 </Button>
             </Modal.Footer>

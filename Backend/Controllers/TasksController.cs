@@ -90,4 +90,19 @@ public class TasksController(ITaskService taskService, IProjectAccessService acc
             return NotFound();
         }
     }
+    
+    [HttpGet("project/{projectId}/search")]
+    public async Task<IActionResult> SearchTasks(Guid projectId, [FromQuery] TaskSearchFilterDto filter)
+    {
+        var tasks = await taskService.SearchTasksAsync(projectId, filter);
+        return Ok(tasks);
+    }
+
+    [HttpGet("project/{projectId}/random")]
+    public async Task<IActionResult> GetRandomTask(Guid projectId, [FromQuery] TaskSearchFilterDto filter)
+    {
+        var task = await taskService.GetRandomTaskAsync(projectId, filter);
+        if (task == null) return NotFound("Подходящих задач не найдено");
+        return Ok(task);
+    }
 }

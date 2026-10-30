@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Alert, Button, Form, ListGroup, Modal } from "react-bootstrap";
+import { avatarsDictionary, defaultAvatar } from "../hooks/Avatar";
 import api from "../api/index";
 
 function AddFriendsModal({ show, onHide }) {
@@ -9,38 +10,37 @@ function AddFriendsModal({ show, onHide }) {
     const [searching, setSearching] = useState(false);
     const [searchError, setSearchError] = useState("");
     const [sendingUserId, setSendingUserId] = useState(null);
-    const [requestResults, setRequestResults] = useState({});
+    const [addResults, setAddResults] = useState({});
 
     async function handleAddFriend(user) {
         setSendingUserId(user.id);
-        setRequestResults((prev) => ({
+        setAddResults((prev) => ({
             ...prev,
             [user.id]: null,
         }));
 
         try {
-            const response = await api.post("/api/Friendship/request", {
-                friendId: user.id,
-            });
+            const response = await api.post(
+                `/api/Friendship/favorites/${user.id}`
+            );
 
-            setRequestResults((prev) => ({
+            setAddResults((prev) => ({
                 ...prev,
                 [user.id]: {
                     success: true,
-                    message: response.data?.message || "Заявка отправлена.",
+                    message:
+                        response.data?.message ||
+                        "Пользователь добавлен в избранные.",
                 },
             }));
         } catch (error) {
-            setRequestResults((prev) => ({
+            setAddResults((prev) => ({
                 ...prev,
                 [user.id]: {
                     success: false,
                     message:
                         error.response?.data?.message ||
-                        (typeof error.response?.data === "string"
-                            ? error.response.data
-                            : null) ||
-                        "Не удалось отправить заявку.",
+                        "Не удалось добавить пользователя в избранные.",
                 },
             }));
         } finally {
@@ -95,14 +95,14 @@ function AddFriendsModal({ show, onHide }) {
         setFriendQuery("");
         setFoundUsers([]);
         setSearchError("");
-        setRequestResults({});
+        setAddResults({});
         onHide();
     }
 
     return (
         <Modal show={show} onHide={handleClose} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Добавить друзей</Modal.Title>
+                <Modal.Title>Добавить в избранные</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -146,34 +146,47 @@ function AddFriendsModal({ show, onHide }) {
                         {foundUsers.map((user) => (
                             <ListGroup.Item key={user.id}>
                                 <div className="d-flex align-items-center justify-content-between gap-3">
-                                    <span>{user.name}</span>
+                                    <div className="d-flex align-items-center gap-2">
+                                        <img
+                                            src={avatarsDictionary[String(user.avatar)] || defaultAvatar}
+                                            alt=""
+                                            className="rounded-circle flex-shrink-0"
+                                            style={{
+                                                width: 42,
+                                                height: 42,
+                                                objectFit: "cover"
+                                            }}
+                                        />
+
+                                        <span>{user.name}</span>
+                                    </div>
 
                                     <Button
                                         variant="dark"
                                         className="rounded-pill px-3 flex-shrink-0"
                                         disabled={
                                             sendingUserId === user.id ||
-                                            requestResults[user.id]?.success
+                                            addResults[user.id]?.success
                                         }
                                         onClick={() => handleAddFriend(user)}
                                     >
                                         {sendingUserId === user.id
-                                            ? "Отправка..."
-                                            : requestResults[user.id]?.success
-                                                ? "Отправлено"
+                                            ? "Добавление..."
+                                            : addResults[user.id]?.success
+                                                ? "В избранных"
                                                 : "Добавить"}
                                     </Button>
                                 </div>
 
-                                {requestResults[user.id] && (
+                                {addResults[user.id] && (
                                     <p
                                         className={`small mt-2 mb-0 ${
-                                            requestResults[user.id].success
+                                            addResults[user.id].success
                                                 ? "text-success"
                                                 : "text-danger"
                                         }`}
                                     >
-                                        {requestResults[user.id].message}
+                                        {addResults[user.id].message}
                                     </p>
                                 )}
                             </ListGroup.Item>

@@ -10,13 +10,5 @@ public class Friendship
 
     public Guid FriendId { get; set; }
     public User Friend { get; set; } = null!;
-
-    public FriendshipStatus Status { get; set; }
-        = FriendshipStatus.Pending;
 }
 
-public enum FriendshipStatus
-{
-    Pending,
-    Accepted
-}

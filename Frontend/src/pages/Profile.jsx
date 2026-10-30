@@ -1,12 +1,11 @@
-import { Container, Card, Button, Form, Alert, Dropdown, Modal, ListGroup } from 'react-bootstrap';
+import { Container, Card, Button, Form, Alert, Dropdown } from 'react-bootstrap';
 import useUser from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDBUser } from "../hooks/DataBaseHook";
 import useProject from '../context/ProjectContext';
 import { useTheme } from '../context/ThemeContext';
 import FriendsModal from "../components/FriendModal";
-import AddFriendsModal from "../components/AddFriendsModal";
 import FriendRequestsModal from "../components/FriendRequestsModal";
 import { avatarsIdImageArray } from '../hooks/Avatar';
 
@@ -23,7 +22,6 @@ function Profile() {
     const [message, setMessage] = useState({ text: '', type: '' });
     const [, setCurrentProject] = useProject(); // Проект остается в памяти даже для нового пользователя
     const [showFriends, setShowFriends] = useState(false);
-    const [showAddFriends, setShowAddFriends] = useState(false);
     const [showFriendRequests, setShowFriendRequests] = useState(false);
 
 
@@ -37,11 +35,21 @@ function Profile() {
 
 
     const savedAvatar = avatarsIdImageArray.find(avatar=>avatar.id == currentUser?.avatar) ?? avatarsIdImageArray[8];
-    function onLogout() {
+    async function onLogout() {
+        try {
+            if (hub.state === "Connected" || hub.state === "Connecting") {
+                await hub.stop();
+            }
+        } catch (e) {
+            console.error("Ошибка остановки сокета:", e);
+        }
+
         localStorage.removeItem("token");
+        localStorage.removeItem("currentProject");
         setCurrentUser(null);
         setCurrentProject(null);
         navigate('/login');
+        // window.location.href = '/login';
     }
 
     async function handlePasswordSubmit(e) {
@@ -76,7 +84,7 @@ function Profile() {
                 text: 'Аватар успешно изменен.',
                 type: 'success'
             });
-        } catch (error) {
+        } catch {
             setMessage({text: 'Ошибка при смене аватара.', type: 'danger'});
         }
     }
@@ -113,104 +121,80 @@ function Profile() {
                                 </Dropdown.Menu>
                             </Dropdown>
                         </div>
-                        <div className='profile-main-info'>
-                            <div className='avatar'>
-                                <img 
-                                    className='avatarka'
-                                    src = {savedAvatar.image}
-                                    alt = "Аватар"
-                                />
-                                <Dropdown>
-                                    <Dropdown.Toggle
-                                        variant="dark"
-                                        className="avatar-button"
-                                    >
-                                        Сменить аватарку
-                                    </Dropdown.Toggle>
-                                    <Dropdown.Menu className='avatar-menu'>
-                                        <div className='avatar-grid'>
-                                            {avatarsIdImageArray.map((avatar) => (
-                                                <button
-                                                    key={avatar.id}
-                                                    type="button"
-                                                    className='avatar-option'
-                                                    onClick={()=>handleAvatarChange(avatar)}
-                                                >
-                                                    <img
-                                                        src={avatar.image}
-                                                        alt={`Аватар ${avatar.id}`}
-                                                    />
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </Dropdown.Menu>                            
-                                </Dropdown>
+                        <div className="profile-layout">
+                            <div className="profile-left">
+                                <div className='avatar'>
+                                    <img 
+                                        className='avatarka'
+                                        src={savedAvatar.image}
+                                        alt="Аватар"
+                                    />
+
+                                    <Dropdown>
+                                        <Dropdown.Toggle
+                                            className="avatar-button"
+                                        >
+                                            Сменить аватарку
+                                        </Dropdown.Toggle>
+
+                                        <Dropdown.Menu className='avatar-menu'>
+                                            <div className='avatar-grid'>
+                                                {avatarsIdImageArray.map((avatar) => (
+                                                    <button
+                                                        key={avatar.id}
+                                                        type="button"
+                                                        className='avatar-option'
+                                                        onClick={() => handleAvatarChange(avatar)}
+                                                    >
+                                                        <img
+                                                            src={avatar.image}
+                                                            alt={`Аватар ${avatar.id}`}
+                                                        />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                </div>
+
+                                <div className="profile-side-actions">
+                                    <Button className="profile-side-button"
+                                        onClick={() => setShowFriends(true)}>
+                                        Избранные
+                                    </Button>
+                                </div>
                             </div>
 
-                            <div className="user-info">
-                                <p className="mb-2 fs-5"><strong>Имя: </strong> {currentUser?.name}</p>
-                                <p className="mb-0 fs-5 text-muted"><strong>Email: </strong> {currentUser?.email}</p>
+                            <div className="profile-right">
+                                <div className="user-info">
+                                    <p className="mb-2 fs-5"><strong>Имя: </strong> {currentUser?.name}</p>
+                                    <p className="mb-0 fs-5 text-muted"><strong>Email: </strong> {currentUser?.email}</p>
+                                </div>
+
+                                <div className="profile-main-actions">
+                                    <Button
+                                        className="profile-secondary-button"
+                                        onClick={() => setShowFriendRequests(true)}
+                                    >
+                                        Заявки на добавление в проект
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                         {message.text && (
-                            <Alert variant={message.type} onClose={() => setMessage({ text: '', type: '' })} dismissible className="rounded-3">
+                            <Alert
+                                variant={message.type}
+                                onClose={() => setMessage({ text: '', type: '' })}
+                                dismissible
+                                className="rounded-3 mt-3"
+                            >
                                 {message.text}
                             </Alert>
                         )}
 
-                        <div className="d-flex gap-3 mb-4 profile-actions ">
-                            <Button
-                                variant="dark"
-                                className="rounded-pill px-4"
-                                style={{ backgroundColor: '#212121', border: 'none' }}
-                                onClick={() => setShowPasswordForm(!showPasswordForm)}
-                            >
-                                {showPasswordForm ? 'Отменить' : 'Сменить пароль'}
-                            </Button>
-                            <Button
-                                variant="danger"
-                                className="rounded-pill px-4"
-                                onClick={onLogout}
-                            >
-                                Выйти из аккаунта
-                            </Button>
-                        </div>
-                        <div className="d-flex gap-3">
-                            <Button
-                                variant="dark"
-                                className="rounded-pill px-4"
-                                style={{ backgroundColor: '#212121', border: 'none' }}
-                                onClick={() => setShowFriends(true)}
-                            >
-                                Мои друзья
-                            </Button>
-
-                            <Button
-                                variant="dark"
-                                className="rounded-pill px-6"
-                                style={{ backgroundColor: '#212121', border: 'none' }}
-                                onClick={() => setShowAddFriends(true)}
-                            >
-                                Добавить друзей
-                            </Button>
-
-                            <Button
-                                variant="dark"
-                                className="rounded-pill px-8"
-                                onClick={() => setShowFriendRequests(true)}
-                            >
-                                Заявки в друзья
-                            </Button>
-                        </div>
-
                         <FriendsModal
                             show={showFriends}
                             onHide={() => setShowFriends(false)}
-                        />
-
-                        <AddFriendsModal
-                            show={showAddFriends}
-                            onHide={() => setShowAddFriends(false)}
                         />
 
                         <FriendRequestsModal
@@ -258,15 +242,29 @@ function Profile() {
                                 </Form.Group>
 
                                 <Button
-                                    variant="dark"
                                     type="submit"
-                                    className="w-100 rounded-pill py-2 mt-2"
-                                    style={{ backgroundColor: '#212121', border: 'none' }}
+                                    className="profile-save-password"
                                 >
                                     Сохранить новый пароль
                                 </Button>
                             </Form>
                         )}
+
+                        <div className="profile-footer-actions">
+                            <Button
+                                className="profile-primary-button"
+                                onClick={() => setShowPasswordForm(!showPasswordForm)}
+                            >
+                                {showPasswordForm ? 'Отменить' : 'Сменить пароль'}
+                            </Button>
+
+                            <Button
+                                className="profile-outline-button"
+                                onClick={onLogout}
+                            >
+                                Выйти из аккаунта
+                            </Button>
+                        </div>
                     </Card.Body>
                 </Card>
             </Container>

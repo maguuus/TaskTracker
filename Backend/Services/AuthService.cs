@@ -16,11 +16,13 @@ public class AuthService(IUserService userService, ITokenService tokenService) :
     
     public async Task<TokenResponseDto> LoginAsync(UserLoginDto dto)
     {
-        var user = await userService.GetByEmailAsync(dto.Email);
+        var user = dto.Email.Contains('@')
+        ? await userService.GetByEmailAsync(dto.Email.Trim())
+        : await userService.GetByNameAsync(dto.Email.Trim());
         
         if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
         {
-            throw new UnauthorizedAccessException("Invalid email or password");
+            throw new UnauthorizedAccessException("Неверный логин/email или пароль.");
         }
         
         var token = tokenService.GenerateToken(user);

@@ -2,11 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Backend.Data;
 using Backend.DTO;
+using Backend.Hubs;
 using Backend.Models;
 using Backend.Services;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Controllers;
@@ -15,7 +17,7 @@ namespace Backend.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ProjectsController(IProjectService projectService, IProjectAccessService accessService) : ControllerBase
+public class ProjectsController(IProjectService projectService, IProjectAccessService accessService, IRealtimeNotifier notifier) : ControllerBase
 {
     private Guid? GetCurrentUserId()
     {
@@ -138,28 +140,6 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
         catch (UnauthorizedAccessException ex) { return StatusCode(StatusCodes.Status403Forbidden, ex.Message); }
     }
 
-    [HttpPost("{id:guid}/members")]
-    public async Task<ActionResult<ProjectMemberDto>> AddMember(Guid id, [FromBody] AddProjectMemberDto dto)
-    {
-        var currentUserId = GetCurrentUserId();
-        if (currentUserId is null)
-        {
-            return Unauthorized("Некорректный токен пользователя.");
-        }
-
-        try
-        {
-            var member = await projectService.AddMemberAsync(id, currentUserId.Value, dto);
-            return Ok(member);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (UnauthorizedAccessException ex) { return StatusCode(StatusCodes.Status403Forbidden, ex.Message); }
-        catch (InvalidOperationException ex) { return BadRequest(ex.Message); }
-    }
-
     [HttpPatch("{id:guid}/members/{memberId:guid}")]
     public async Task<IActionResult> UpdateMemberRole(Guid id, Guid memberId, [FromBody] UpdateMemberRoleDto dto)
     {
@@ -196,4 +176,66 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
         catch (UnauthorizedAccessException ex) { return StatusCode(StatusCodes.Status403Forbidden, ex.Message); }
         catch (InvalidOperationException ex) { return BadRequest(ex.Message); }
     }
+
+    [HttpPost("{id:guid}/invitations")]
+    public async Task<IActionResult> CreateInvitation(Guid id, [FromBody] CreateProjectInvitationDto dto)
+    {
+        try
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+                return Unauthorized("Некорректный токен пользователя.");
+
+            var invitation = await projectService.CreateInvitationAsync(id, currentUserId.Value, dto);
+            
+            await notifier.NotifyUserAsync(invitation.InviteeId, "invitation", "created", invitation);
+            
+            return Ok(invitation);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("invitations")]
+    public async Task<IActionResult> GetMyInvitations()
+    {
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId == null)
+            return Unauthorized("Некорректный токен пользователя.");
+
+        var invitations = await projectService.GetMyInvitationsAsync(currentUserId.Value);
+
+        return Ok(invitations);
+    }
+
+    [HttpPost("invitations/{invitationId:guid}/respond")]
+    public async Task<IActionResult> RespondToInvitation(Guid invitationId, [FromBody] RespondProjectInvitationDto dto)
+    {
+        try
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+                return Unauthorized("Некорректный токен пользователя.");
+            await projectService.RespondToInvitationAsync(invitationId, currentUserId.Value, dto.Accept);
+
+            await notifier.NotifyUserAsync(currentUserId.Value, "invitation", "responded", new { invitationId });
+            
+            return Ok(new { message = "Приглашение обработано." });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
 }

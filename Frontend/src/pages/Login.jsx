@@ -2,18 +2,15 @@ import { useState } from 'react';
 import { Button, Container, Form, InputGroup } from 'react-bootstrap';
 import useUser from '../context/UserContext';
 import { useDBUser } from '../hooks/DataBaseHook';
-
-// const mockUser = (email) => ({
-//     id: 1,
-//     email: email,
-//     projects: [projectMeta1, projectMeta2, projectMeta3]
-// })
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 
 function Login() {
 
-    const [login, register, getMe] = useDBUser();
+    const navigate = useNavigate();
+    const [login, ,getMe] = useDBUser();
 
     const [currentUser, setCurrentUser] = useUser();
+    const location = useLocation();
 
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
@@ -27,8 +24,10 @@ function Login() {
             const token = response.token || response.accessToken;
             localStorage.setItem('token', token);
 
+            // window.localStoragetion.href = '/';
             let profileResponse = await getMe();
             setCurrentUser({...profileResponse, projects: []});
+            navigate('/');
         }
         catch (e) {
             const errorMessage = e.response?.data || "Ошибка сети или неверные данные";
@@ -39,7 +38,7 @@ function Login() {
     return (
         <Container
             fluid
-            className="d-flex align-items-start justify-content-center"
+            className="auth-page login-page d-flex align-items-start justify-content-center"
             style={{
                 backgroundColor: 'var(--auth-page-bg, #FBCED5)',
                 minHeight: '100vh',
@@ -48,7 +47,7 @@ function Login() {
             }}
         >
             <div
-                className="p-5 text-center d-flex flex-column justify-content-center align-items-center shadow-sm"
+                className="login-card p-5 text-center d-flex flex-column justify-content-center align-items-center shadow-sm"
                 style={{
                     backgroundColor: 'var(--auth-card-bg, #EFA6B2)',
                     borderRadius: '60px',
@@ -58,33 +57,33 @@ function Login() {
                 }}
             >
                 <Form style={{ width: '85%' }}>
-                    <InputGroup className="mb-3 overflow-hidden rounded-2 border-0 bg-white">
-                        <InputGroup.Text className="bg-white border-0 text-muted pe-1 ps-3">
+                    <InputGroup className="login-field mb-3 overflow-hidden rounded-2 bg-white">
+                        <InputGroup.Text className="login-input-icon bg-white border-0 pe-1 ps-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-person-fill" viewBox="0 0 16 16">
                                 <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
                             </svg>
                         </InputGroup.Text>
                         <Form.Control
-                            type="email"
-                            placeholder="Почта"
+                            type="text"
+                            placeholder="Логин или email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="border-0 shadow-none ps-2 py-2 text-muted-50 small"
+                            className="login-input border-0 shadow-none ps-2 py-2 small"
                             style={{ fontSize: '0.85rem' }}
                         />
                     </InputGroup>
 
-                    <InputGroup className="mb-4 overflow-hidden rounded-2 border-0 bg-white">
+                    <InputGroup className="login-field mb-4 overflow-hidden rounded-2 bg-white">
                         <Form.Control
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="Your password"
+                            placeholder="Пароль"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="border-0 shadow-none ps-3 py-2 text-muted-50 small"
+                            className="login-input border-0 shadow-none ps-3 py-2 small"
                             style={{ fontSize: '0.85rem' }}
                         />
                         <InputGroup.Text
-                            className="bg-white border-0 text-muted ps-1 pe-3 cursor-pointer"
+                            className="login-input-icon bg-white border-0 ps-1 pe-3 cursor-pointer"
                             onClick={() => setShowPassword(!showPassword)}
                             style={{ cursor: 'pointer' }}
                         >
@@ -103,16 +102,15 @@ function Login() {
                         >
                             Войти
                         </Button>
-
-                        <Button
-                            variant="link"
-                            onClick={(e) => handleAuth(e, register)}
-                            className="text-decoration-none p-0 border-0 shadow-none font-weight-bold text-white opacity-75 small"
-                            style={{ fontSize: '0.7rem' }}
-                        >
-                            Зарегестрироваться
-                        </Button>
                     </div>
+                    <Link
+                        to="/register"
+                        className="login-link d-block text-decoration-none small mt-4"
+                        style={{ fontSize: '0.7rem' }}
+                    >
+                        Зарегистрироваться
+                    </Link>
+                    
                 </Form>
             </div>
         </Container>
