@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Button, Container, Form, InputGroup } from 'react-bootstrap';
 import useUser from '../context/UserContext';
 import { useDBUser } from '../hooks/DataBaseHook';
-import { Link, useLocation } from 'react-router-dom';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 
 function Login() {
 
+    const navigate = useNavigate();
     const [login, ,getMe] = useDBUser();
 
     const [currentUser, setCurrentUser] = useUser();
@@ -23,9 +24,10 @@ function Login() {
             const token = response.token || response.accessToken;
             localStorage.setItem('token', token);
 
+            // window.localStoragetion.href = '/';
             let profileResponse = await getMe();
             setCurrentUser({...profileResponse, projects: []});
-            console.log('Пользователь после входа:', profileResponse);
+            navigate('/');
         }
         catch (e) {
             const errorMessage = e.response?.data || "Ошибка сети или неверные данные";

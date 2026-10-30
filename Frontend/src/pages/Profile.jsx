@@ -35,11 +35,21 @@ function Profile() {
 
 
     const savedAvatar = avatarsIdImageArray.find(avatar=>avatar.id == currentUser?.avatar) ?? avatarsIdImageArray[8];
-    function onLogout() {
+    async function onLogout() {
+        try {
+            if (hub.state === "Connected" || hub.state === "Connecting") {
+                await hub.stop();
+            }
+        } catch (e) {
+            console.error("Ошибка остановки сокета:", e);
+        }
+
         localStorage.removeItem("token");
+        localStorage.removeItem("currentProject");
         setCurrentUser(null);
         setCurrentProject(null);
         navigate('/login');
+        // window.location.href = '/login';
     }
 
     async function handlePasswordSubmit(e) {
