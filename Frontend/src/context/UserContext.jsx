@@ -38,6 +38,13 @@ export function UserProvider({ children }) {
     useEffect(() => {
         if (!currentUser) return;
 
+        const handleDeadline = (message) => {
+            alert("got message:");
+            if (!message || message.type !== 'deadline') return;
+
+            alert(JSON.stringify(message.payload));
+        }
+
         const syncHub = async () => {
             try {
                 if (hub.state === "Connected") {
@@ -52,6 +59,12 @@ export function UserProvider({ children }) {
         };
 
         syncHub();
+
+        hub.on('deadline', handleDeadline);
+        return () => {
+            hub.off('deadline', handleDeadline);
+        };
+
     }, [currentUser?.id]);
 
     const memoized = useMemo(() => ([currentUser, setCurrentUser, reloadUser]), [currentUser, reloadUser]);

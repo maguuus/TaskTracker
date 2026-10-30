@@ -6,4 +6,6 @@ public interface IRealtimeNotifier
     Task NotifyUserAsync(Guid userId, string entityType, string action, object payload);
 
     Task NotifyUsersAsync(IEnumerable<Guid> userIds, string entityType, string action, object payload);
+
+    Task NotifyUserDeadline(Guid userId, object payload);
 }

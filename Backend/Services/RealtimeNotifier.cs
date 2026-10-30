@@ -5,6 +5,27 @@ namespace Backend.Services;
 
 public class RealtimeNotifier(IHubContext<TaskTrackerHub> hubContext) : IRealtimeNotifier
 {
+    /*
+    var List<TaskItem> withDeadline = ...;
+
+    foreach (var item in withDeadline) {
+        if (item.asignee == null) conitnue;    
+        NotifyUserDeadline(item.asignee.id, item);
+    }
+    */
+    public Task NotifyUserDeadline(Guid userId, object payload)
+    {
+        var message = new
+        {
+            type = "deadline",
+            payload,
+            userId,
+            timestamp = DateTime.UtcNow
+        };
+
+        return hubContext.Clients.All.SendAsync("deadline", message);
+    }
+
     public Task NotifyProjectGroupAsync(Guid projectId, string entityType, string action, object payload)
     {
         var message = new
