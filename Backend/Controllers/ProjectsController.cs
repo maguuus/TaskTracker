@@ -2,11 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Backend.Data;
 using Backend.DTO;
+using Backend.Hubs;
 using Backend.Models;
 using Backend.Services;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Controllers;
@@ -15,7 +17,7 @@ namespace Backend.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ProjectsController(IProjectService projectService, IProjectAccessService accessService) : ControllerBase
+public class ProjectsController(IProjectService projectService, IProjectAccessService accessService, IRealtimeNotifier notifier) : ControllerBase
 {
     private Guid? GetCurrentUserId()
     {
@@ -185,7 +187,9 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
                 return Unauthorized("Некорректный токен пользователя.");
 
             var invitation = await projectService.CreateInvitationAsync(id, currentUserId.Value, dto);
-
+            
+            await notifier.NotifyUserAsync(invitation.InviteeId, "invitation", "created", invitation);
+            
             return Ok(invitation);
         }
         catch (UnauthorizedAccessException ex)
@@ -220,6 +224,8 @@ public class ProjectsController(IProjectService projectService, IProjectAccessSe
                 return Unauthorized("Некорректный токен пользователя.");
             await projectService.RespondToInvitationAsync(invitationId, currentUserId.Value, dto.Accept);
 
+            await notifier.NotifyUserAsync(currentUserId.Value, "invitation", "responded", new { invitationId });
+            
             return Ok(new { message = "Приглашение обработано." });
         }
         catch (UnauthorizedAccessException)
