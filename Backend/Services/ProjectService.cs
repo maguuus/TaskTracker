@@ -36,12 +36,15 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
 
     public async Task<ProjectResponseDto> CreateProjectAsync(ProjectCreateDto projectDto)
     {
+        var ownerId = projectDto.OwnerId
+            ?? throw new InvalidOperationException("Project owner is required.");
+
         var project = new Project
         {
             Id = Guid.NewGuid(),
             Name = projectDto.Name,
             Description = projectDto.Description,
-            OwnerId = projectDto.OwnerId,
+            OwnerId = ownerId,
             CreatedAt = DateTime.UtcNow,
             Cover = projectDto.Cover ?? "abstract",
         };
@@ -50,7 +53,7 @@ public class ProjectService(AppDbContext context, IRealtimeNotifier realtimeNoti
         context.ProjectMembers.Add(new ProjectMember
         {
             ProjectId = project.Id,
-            UserId = project.OwnerId,
+            UserId = ownerId,
             Role = ProjectRole.Owner
         });
         await context.SaveChangesAsync();

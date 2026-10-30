@@ -6,7 +6,7 @@ public record UserRegisterDto(string? Name, string Email, string Password);
 public record UserLoginDto(string Email, string Password);
 public record UserResponseDto(Guid Id, string Name, string Email, string? Avatar);
 
-public record ProjectCreateDto(string Name, Guid OwnerId = null, string? Description = null, string? Cover = null);
+public record ProjectCreateDto(string Name, Guid? OwnerId = null, string? Description = null, string? Cover = null);
 public record ProjectUpdateDto(string Name, string? Description,string? Cover);
 public record ProjectResponseDto(Guid Id, string Name, Guid OwnerId, DateTime CreatedAt, string? Description, ProjectRole Role, string? Cover);
 
