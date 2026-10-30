@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import { Badge, Dropdown, Form } from 'react-bootstrap';
+import { Badge, Button, Dropdown, Form } from 'react-bootstrap';
 import { useColumn } from '../hooks/BoardHooks';
 import { useDBTask } from '../hooks/DataBaseHook';
 import useColumns from '../context/BoardContext';
@@ -236,7 +236,6 @@ function RoadmapRow({ column, timeline, onColumnUpdate, onColumnDelete }) {
                             ⋮
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <Dropdown.Item onClick={handleAddTask}>Добавить задачу</Dropdown.Item>
                             <Dropdown.Item onClick={() => {
                                 if (window.confirm('Удалить колонку?')) onColumnDelete();
                             }} className="text-danger">
@@ -255,6 +254,16 @@ function RoadmapRow({ column, timeline, onColumnUpdate, onColumnDelete }) {
                         aria-label="Название группы"
                     />
                 </Form>
+                <Button
+                    type="button"
+                    variant="light"
+                    className="add-task-circle roadmap-add-task"
+                    aria-label={`Добавить задачу в группу ${title}`}
+                    title="Добавить задачу"
+                    onClick={handleAddTask}
+                >
+                    +
+                </Button>
             </div>
 
             <div

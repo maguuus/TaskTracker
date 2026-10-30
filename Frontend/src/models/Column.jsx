@@ -1,5 +1,5 @@
 import {useState, useRef, useEffect} from 'react';
-import { Badge, Card, Dropdown, Form } from 'react-bootstrap';
+import { Badge, Button, Card, Dropdown, Form } from 'react-bootstrap';
 import { useColumn } from '../hooks/BoardHooks';
 import useColumns from '../context/BoardContext';
 import { useDBTask } from '../hooks/DataBaseHook';
@@ -198,9 +198,6 @@ function ColumnCard({
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu variant="dark">
-                        <Dropdown.Item onClick={async () => { await post(newTask(column)); }}>
-                            Добавить задачу
-                        </Dropdown.Item>
                         <Dropdown.Item onClick={handleDeleteClick} className="text-danger">
                             Удалить
                         </Dropdown.Item>
@@ -208,6 +205,16 @@ function ColumnCard({
                 </Dropdown>
 
                 <h3 className="column-title mb-0 d-flex align-items-center justify-content-center fw-normal">
+                    <Button
+                        type="button"
+                        variant="light"
+                        className="add-task-circle column-add-task"
+                        aria-label={`Добавить задачу в колонку ${title}`}
+                        title="Добавить задачу"
+                        onClick={async () => { await post(newTask(column)); }}
+                    >
+                        +
+                    </Button>
                     <Form className="d-inline-block w-auto" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
                         <Form.Control
                             ref={inputRef}
