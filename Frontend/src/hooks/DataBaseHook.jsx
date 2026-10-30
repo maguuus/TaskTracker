@@ -142,6 +142,7 @@ export function useDBTaskSearch() {
         if (filter.priority) params.append('priority', filter.priority);
         if (filter.urgency) params.append('urgency', filter.urgency);
         if (filter.tag) params.append('tag', filter.tag);
+        if (filter.assignees) params.append('assignees', filter.assignees);
 
         return (await api.get(`/api/tasks/project/${projectId}/search?${params.toString()}`)).data;
     }

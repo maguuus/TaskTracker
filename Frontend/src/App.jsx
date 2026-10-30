@@ -23,18 +23,41 @@ function App() {
     const currentAvatar = avatarsDictionary[currentUser?.avatar] ?? defaultAvatar;
     return (
         <BrowserRouter>
-            <nav className="app-navbar fixed-top container-fluid bg-dark text-light p-3 d-flex align-items-center">
-                {"Task Tracker: "}
-                <NavLink to="/" className="text-light">Главная</NavLink> {"| "}
-                <NavLink to="/login" className="text-light">Вход</NavLink> {"| "}
-                <NavLink to="/profile" className="text-light">Профиль</NavLink> {"| "}
-                <NavLink to={tryToBoard} className="text-light">Доска</NavLink>
-                {currentUser && (<NavLink to="/profile" className="ms-auto"> <img
-                    src = {currentAvatar}
-                    className="navbar-avatar" 
-                    alt ="Аватар"
-                    />
-                </NavLink>)}
+            <nav className="app-navbar fixed-top container-fluid bg-dark text-light px-4 py-3 d-flex align-items-center">
+    <span className="fw-bold fs-5 me-4" style={{ letterSpacing: '0.5px' }}>
+        Task Tracker
+    </span>
+
+                <div className="d-flex align-items-center">
+                    <NavLink to="/" className="text-light text-decoration-none opacity-75 hover-opacity-100">
+                        Главная
+                    </NavLink>
+                    <span className="mx-3 opacity-25">|</span>
+
+                    <NavLink to="/login" className="text-light text-decoration-none opacity-75 hover-opacity-100">
+                        Вход
+                    </NavLink>
+                    <span className="mx-3 opacity-25">|</span>
+
+                    <NavLink to="/profile" className="text-light text-decoration-none opacity-75 hover-opacity-100">
+                        Профиль
+                    </NavLink>
+                    <span className="mx-3 opacity-25">|</span>
+
+                    <NavLink to={tryToBoard} className="text-light text-decoration-none opacity-75 hover-opacity-100">
+                        Доска
+                    </NavLink>
+                </div>
+
+                {currentUser && (
+                    <NavLink to="/profile" className="ms-auto">
+                        <img
+                            src={currentAvatar}
+                            className="navbar-avatar"
+                            alt="Аватар"
+                        />
+                    </NavLink>
+                )}
             </nav>
 
             <main className="app-content">

@@ -22,6 +22,11 @@ public class TaskItem
     public DateTime? PlannedStartAt { get; set; }
         
     public int OrderIndex { get; set; }
+    
+    public Guid? AssigneeId { get; set; }
+    
+    public User? Assignee { get; set; }
+    
 
     public Guid ColumnId { get; set; }
 

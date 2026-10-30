@@ -159,6 +159,9 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AssigneeId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("ColumnId")
                         .HasColumnType("uuid");
 
@@ -198,6 +201,8 @@ namespace Backend.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssigneeId");
 
                     b.HasIndex("ColumnId");
 
@@ -319,11 +324,18 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Models.TaskItem", b =>
                 {
+                    b.HasOne("Backend.Models.User", "Assignee")
+                        .WithMany()
+                        .HasForeignKey("AssigneeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Backend.Models.Column", "Column")
                         .WithMany("TaskItems")
                         .HasForeignKey("ColumnId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Assignee");
 
                     b.Navigation("Column");
                 });

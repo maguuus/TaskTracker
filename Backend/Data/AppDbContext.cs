@@ -92,6 +92,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<ProjectInvitation>()
             .HasIndex(i => new { i.InviteeId, i.Status });
         
+        modelBuilder.Entity<TaskItem>()
+            .HasOne(t => t.Assignee)
+            .WithMany()
+            .HasForeignKey(t => t.AssigneeId)
+            .OnDelete(DeleteBehavior.SetNull);
+        
         base.OnModelCreating(modelBuilder);
     }
 

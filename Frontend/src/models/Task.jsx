@@ -1,5 +1,7 @@
 import { Card, Button, Modal, Form, Badge, Col, Row } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
+import {avatarsDictionary, defaultAvatar} from "../hooks/Avatar.jsx";
+import api from "../api/index.js";
 
 const getTagColor = (text) => {
     const colors = [
@@ -26,7 +28,7 @@ const getTagColor = (text) => {
  * @param {Task} props.task
  */
 
-function Task({ task, onTaskUpdate, onTaskDelete }) {
+function Task({ task, projectId, onTaskUpdate, onTaskDelete, compact = false }) {
     const [showModal, setShowModal] = useState(false);
 
     const [title, setTitle] = useState(task.title || '');
@@ -37,7 +39,8 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
 
     const [priority, setPriority] = useState(task.priority || '');
     const [urgency, setUrgency] = useState(task.urgency || '');
-
+    const [assigneeId, setAssigneeId] = useState(task.assigneeId || '');
+    
     const formatDateForInput = (dateString) => {
         if (!dateString) return '';
         return new Date(dateString).toISOString().split('T')[0];
@@ -52,6 +55,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
         setPriority(task.priority || '');
         setUrgency(task.urgency || '');
         setDueDate(formatDateForInput(task.dueDate));
+        setAssigneeId(task.assigneeId || '');
     }, [task]);
 
     // function handleTagKeyDown(e) {
@@ -81,7 +85,8 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
             tags: tags,
             priority: priority,
             urgency: urgency,
-            dueDate: formattedDate
+            dueDate: formattedDate,
+            assigneeId: assigneeId || null
         });
         setShowModal(false);
     }
@@ -103,8 +108,7 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
         <>
             <Card
                 id={`task-${task.id}`}
-                className={`task-card border border-${getBorderColor()} shadow-sm p-3 mb-3`}
-                style={{
+                className={`task-card border border-${getBorderColor()} shadow-sm ${compact ? 'p-2 mb-0' : 'p-3 mb-3'}`}                style={{
                     borderLeftWidth: '5px',
                     borderRadius: '12px',
                     cursor: 'move',
@@ -112,11 +116,16 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                 }}
                 draggable="true"
                 onDragStart={(e) => {
+                    window.__draggedTaskInstance = task;
+                    const cardRect = e.currentTarget.getBoundingClientRect();
+                    window.__dragOffsetX = e.clientX - cardRect.left;
                     e.dataTransfer.setData("text/plain", task.id);
                     e.currentTarget.style.opacity = '0.5';
                 }}
                 onDragEnd={(e) => {
                     e.currentTarget.style.opacity = '1';
+                    window.__draggedTaskInstance = null;
+                    window.__dragOffsetX = null;
                 }}
                 onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-3px)';
@@ -130,9 +139,9 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                 <Card.Body className="p-0 position-relative">
 
                     <div className="d-flex align-items-start justify-content-between mb-2">
-                        <div className="d-flex align-items-center text-truncate me-2">
+                        <div className="d-flex align-items-center text-truncate me-2" title={task.title}>
                             {task.icon && <span className="fs-5 me-2">{task.icon}</span>}
-                            <h6 className="mb-0 fw-bold m-0 text-truncate">{task.title}</h6>
+                            <h6 className="mb-0 fw-bold m-0 text-truncate" title={task.title}>{task.title}</h6>
                         </div>
 
                         <div className="d-flex align-items-center gap-2 flex-shrink-0">
@@ -153,13 +162,17 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         </div>
                     </div>
 
-                    <div className="text-muted small mb-1 text-truncate">
+                    <div
+                        className="text-muted small mb-1 text-truncate"
+                        style={compact ? { maxHeight: '20px', overflow: 'hidden' } : undefined}
+                        title={task.description}
+                    >
                         {task.description || "Нет описания"}
                     </div>
 
                     {task.tags && task.tags.length > 0 && (
-                        <div className="d-flex flex-wrap gap-1 mb-2" style={{ maxWidth: '100%'}}>
-                            {task.tags.map((tag, idx) => {
+                        <div className="d-flex flex-wrap gap-1 mb-2" style={{ maxWidth: '100%' }}>
+                            {(compact ? task.tags.slice(0, 2) : task.tags).map((tag, idx) => {
                                 const color = getTagColor(tag);
                                 return (
                                     <span
@@ -171,11 +184,11 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                                             color: color.text,
                                             fontSize: '0.68rem',
                                             padding: '4px 10px',
-                                            maxWidth: '160px',
+                                            maxWidth: compact ? '90px' : '160px',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
                                             whiteSpace: 'nowrap',
-                                            display: 'inline-block',    
+                                            display: 'inline-block',
                                             verticalAlign: 'middle',
                                             lineHeight: 1.2,
                                             cursor: 'pointer'
@@ -189,6 +202,11 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                                     </span>
                                 );
                             })}
+                            {compact && task.tags.length > 2 && (
+                                <span className="badge rounded-pill bg-light text-muted border" style={{ fontSize: '0.68rem' }} title={task.tags.slice(2).map(t => `#${t}`).join(', ')}>
+                                    +{task.tags.length - 2}
+                                </span>
+                            )}
                         </div>
                     )}
 
@@ -203,6 +221,19 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                         </div>
                     )}
 
+                    {task.assigneeName && (
+                        <div className="d-flex align-items-center gap-1 mt-2 pt-1 border-top" title={`Исполнитель: ${task.assigneeName}`}>
+                            <img
+                                src={avatarsDictionary[String(task.assigneeAvatar)] || defaultAvatar}
+                                alt={task.assigneeName}
+                                className="rounded-circle flex-shrink-0"
+                                style={{ width: 20, height: 20, objectFit: "cover" }}
+                            />
+                            <span className="small text-muted text-truncate fw-medium" style={{ fontSize: '0.75rem' }}>
+                                {task.assigneeName}
+                            </span>
+                        </div>
+                    )}                    
                     {/* <div className="d-flex justify-content-end">
                         <Button
                             variant="secondary d-inline-flex focus-ring focus-ring-secondary py-1 px-2 text-decoration-none border rounded-2"
@@ -219,6 +250,9 @@ function Task({ task, onTaskUpdate, onTaskDelete }) {
                 showModal={showModal}
                 setShowModal={setShowModal}
                 handleSave={handleSave}
+                projectId={projectId}
+                assigneeId={assigneeId}
+                setAssigneeId={setAssigneeId}
                 icon={icon}
                 setIcon={setIcon}
                 title={title}
@@ -245,6 +279,9 @@ export default Task;
 function TaskModal({ showModal,
     setShowModal,
     handleSave,
+    projectId,
+    assigneeId,
+    setAssigneeId,    
     icon,
     setIcon,
     title, // перенести внутрь TaskModal
@@ -262,6 +299,16 @@ function TaskModal({ showModal,
     tagInput,
     setTagInput    
 }) {
+    const [members, setMembers] = useState([]);
+
+    useEffect(() => {
+        if (!showModal || !projectId) return;
+
+        api.get(`/api/projects/${projectId}/members`)
+            .then(res => setMembers(res.data || []))
+            .catch(err => console.error("Ошибка загрузки участников:", err));
+    }, [showModal, projectId]);
+    
     return <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
         <Form onSubmit={handleSave}>
             <Modal.Header closeButton className="border-0 pb-0">
@@ -280,13 +327,14 @@ function TaskModal({ showModal,
                         onChange={(e) => setTitle(e.target.value)}
                         className="fs-4 fw-bold border-0 shadow-none px-0"
                         placeholder="Название задачи"
+                        title={title}
                         required />
                 </div>
             </Modal.Header>
 
             <Modal.Body>
                 <Row className="mb-4 bg-light p-3 rounded mx-0">
-                    <Col md={4}>
+                    <Col md={3}>
                         <Form.Group>
                             <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Приоритет</Form.Label>
                             <Form.Select value={priority} onChange={(e) => setPriority(e.target.value)} className="border-0 shadow-sm">
@@ -298,7 +346,7 @@ function TaskModal({ showModal,
                             </Form.Select>
                         </Form.Group>
                     </Col>
-                    <Col md={4}>
+                    <Col md={3}>
                         <Form.Group>
                             <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Срочность</Form.Label>
                             <Form.Select value={urgency} onChange={(e) => setUrgency(e.target.value)} className="border-0 shadow-sm">
@@ -309,7 +357,7 @@ function TaskModal({ showModal,
                             </Form.Select>
                         </Form.Group>
                     </Col>
-                    <Col md={4}>
+                    <Col md={3}>
                         <Form.Group>
                             <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Дедлайн</Form.Label>
                             <Form.Control
@@ -317,6 +365,23 @@ function TaskModal({ showModal,
                                 value={dueDate}
                                 onChange={(e) => setDueDate(e.target.value)}
                                 className="border-0 shadow-sm" />
+                        </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                        <Form.Group>
+                            <Form.Label className="fw-bold text-muted small text-uppercase mb-1">Исполнитель</Form.Label>
+                            <Form.Select
+                                value={assigneeId || ''}
+                                onChange={(e) => setAssigneeId(e.target.value || null)}
+                                className="border-0 shadow-sm"
+                            >
+                                <option value="">Не назначен</option>
+                                {members.map(member => (
+                                    <option key={member.userId || member.id} value={member.userId || member.id}>
+                                        {member.name}
+                                    </option>
+                                ))}
+                            </Form.Select>
                         </Form.Group>
                     </Col>
                 </Row>

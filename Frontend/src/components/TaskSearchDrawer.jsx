@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Offcanvas, Form, Button, Badge, Card, Spinner, Row, Col } from 'react-bootstrap';
 import { useDBTaskSearch } from '../hooks/DataBaseHook';
+import api from "../api/index.js";
+import {avatarsDictionary, defaultAvatar} from "../hooks/Avatar.jsx";
 
 const getTagColor = (text) => {
     const colors = [
@@ -26,10 +28,21 @@ export default function TaskSearchDrawer({ show, onHide, projectId, onTaskSelect
     const [priority, setPriority] = useState('');
     const [urgency, setUrgency] = useState('');
     const [tag, setTag] = useState('');
-
+    const [selectedAssignees, setSelectedAssignees] = useState([]);
+    
+    const [members, setMembers] = useState([]);
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [randomTask, setRandomTask] = useState(null);
+
+    useEffect(() => {
+        if (!show || !projectId) return;
+
+        api.get(`/api/projects/${projectId}/members`)
+            .then(res => setMembers(res.data || []))
+            .catch(err => console.error("Ошибка загрузки участников:", err));
+    }, [show, projectId]);
+    
     useEffect(() => {
         const handleFilterByTag = (e) => {
             if (e.detail) setTag(e.detail);
@@ -45,7 +58,8 @@ export default function TaskSearchDrawer({ show, onHide, projectId, onTaskSelect
         const timer = setTimeout(async () => {
             setLoading(true);
             try {
-                const data = await searchTasks(projectId, { query, priority, urgency, tag });
+                const assigneesParam = selectedAssignees.join(',');
+                const data = await searchTasks(projectId, { query, priority, urgency, tag, assignees: assigneesParam });
                 setResults(data || []);
             } catch (err) {
                 console.error("Ошибка поиска:", err);
@@ -55,15 +69,21 @@ export default function TaskSearchDrawer({ show, onHide, projectId, onTaskSelect
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [show, projectId, query, priority, urgency, tag]);
+    }, [show, projectId, query, priority, urgency, tag, selectedAssignees]);
 
+    const toggleAssignee = (id) => {
+        setSelectedAssignees(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
+    };
+    
     const handleRandom = async () => {
         try {
             setLoading(true);
             const task = await getRandomTask(projectId, { query, priority, urgency, tag });
             setRandomTask(task);
         } catch {
-            alert("Нет задач под выбранные критерии");
+            alert("Нет свободных задач под выбранные критерии");
         } finally {
             setLoading(false);
         }
@@ -74,6 +94,7 @@ export default function TaskSearchDrawer({ show, onHide, projectId, onTaskSelect
         setPriority('');
         setUrgency('');
         setTag('');
+        setSelectedAssignees([]);
         setRandomTask(null);
     };
 
@@ -94,6 +115,46 @@ export default function TaskSearchDrawer({ show, onHide, projectId, onTaskSelect
                         autoFocus
                     />
                 </Form.Group>
+
+                <div className="mb-3">
+                    <Form.Label className="small text-muted fw-bold text-uppercase mb-2 d-block">
+                        Исполнитель
+                    </Form.Label>
+                    <div className="d-flex flex-wrap gap-1">
+                        <Button
+                            variant={selectedAssignees.includes('unassigned') ? 'dark' : 'outline-secondary'}
+                            size="sm"
+                            className="rounded-pill py-1 px-2 d-flex align-items-center gap-1 border"
+                            style={{ fontSize: '0.75rem' }}
+                            onClick={() => toggleAssignee('unassigned')}
+                        >
+                            <span>👤</span> Без исполнителя
+                        </Button>
+
+                        {members.map(member => {
+                            const memberId = member.userId || member.id;
+                            const isSelected = selectedAssignees.includes(memberId);
+                            return (
+                                <Button
+                                    key={memberId}
+                                    variant={isSelected ? 'dark' : 'outline-secondary'}
+                                    size="sm"
+                                    className="rounded-pill py-1 px-2 d-flex align-items-center gap-1 border"
+                                    style={{ fontSize: '0.75rem' }}
+                                    onClick={() => toggleAssignee(memberId)}
+                                >
+                                    <img
+                                        src={avatarsDictionary[String(member.avatar)] || defaultAvatar}
+                                        alt=""
+                                        className="rounded-circle"
+                                        style={{ width: 16, height: 16, objectFit: 'cover' }}
+                                    />
+                                    <span>{member.name}</span>
+                                </Button>
+                            );
+                        })}
+                    </div>
+                </div>
 
                 <Row className="g-2 mb-3">
                     <Col xs={6}>
@@ -144,7 +205,7 @@ export default function TaskSearchDrawer({ show, onHide, projectId, onTaskSelect
                     >
                         <span>🎲</span> Что взять в работу?
                     </Button>
-                    {(query || priority || urgency || tag) && (
+                    {(query || priority || urgency || tag || selectedAssignees.length > 0) && (
                         <Button variant="outline-secondary" size="sm" onClick={resetFilters}>
                             Сбросить
                         </Button>
@@ -155,7 +216,7 @@ export default function TaskSearchDrawer({ show, onHide, projectId, onTaskSelect
                     <Card className="mb-3 border-warning bg-warning bg-opacity-10 shadow-sm">
                         <Card.Body className="p-3">
                             <div className="d-flex justify-content-between align-items-center mb-1">
-                                <span className="badge bg-warning text-dark fw-bold">🎯 Случайная задача</span>
+                                <span className="badge bg-warning text-dark fw-bold">🎯 Свободная задача</span>
                                 <small className="text-muted">{randomTask.columnTitle}</small>
                             </div>
                             <h6 className="fw-bold mb-1">{randomTask.icon} {randomTask.title}</h6>
@@ -224,11 +285,28 @@ export default function TaskSearchDrawer({ show, onHide, projectId, onTaskSelect
                                             );
                                         })}
                                     </div>
-                                    {task.priority && (
-                                        <small className="text-danger fw-bold" style={{ fontSize: '0.7rem' }}>
-                                            ⚡ {task.priority}
-                                        </small>
-                                    )}
+                                    <div className="d-flex align-items-center gap-1">
+                                        {task.assigneeName ? (
+                                            <span className="badge bg-light text-dark border d-flex align-items-center gap-1" style={{ fontSize: '0.65rem' }}>
+                                                <img
+                                                    src={avatarsDictionary[String(task.assigneeAvatar)] || defaultAvatar}
+                                                    alt=""
+                                                    className="rounded-circle"
+                                                    style={{ width: 14, height: 14, objectFit: 'cover' }}
+                                                />
+                                                {task.assigneeName}
+                                            </span>
+                                        ) : (
+                                            <span className="badge bg-light text-muted border" style={{ fontSize: '0.65rem' }}>
+                                                Свободна
+                                            </span>
+                                        )}
+                                        {task.priority && (
+                                            <small className="text-danger fw-bold" style={{ fontSize: '0.7rem' }}>
+                                                ⚡ {task.priority}
+                                            </small>
+                                        )}
+                                    </div>
                                 </div>
                             </Card>
                         ))}

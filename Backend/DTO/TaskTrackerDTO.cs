@@ -28,20 +28,23 @@ public record TaskCreateDto(
     Guid ColumnId, 
     int OrderIndex, 
     DateTime? DueDate, 
-    DateTime? PlannedStartAt);
+    DateTime? PlannedStartAt,
+    Guid? AssigneeId = null);
 
-public record TaskUpdateDto(string Title, 
-    string? Description, 
-    string? Priority, 
+public record TaskUpdateDto(
+    string Title,
+    string? Description,
+    string? Priority,
     string? Urgency,
     string? Icon,
     List<string>? Tags,
-    int OrderIndex, 
-    Guid ColumnId, 
-    DateTime? DueDate, 
+    int OrderIndex,
+    Guid ColumnId,
+    DateTime? DueDate,
     DateTime? PlannedStartAt,
-    DateTime UpdatedAt);
-
+    DateTime UpdatedAt,
+    Guid? AssigneeId = null);
+    
 public record TaskResponseDto(
     Guid Id, 
     string Title,
@@ -55,13 +58,18 @@ public record TaskResponseDto(
     DateTime CreatedAt, 
     DateTime UpdatedAt, 
     DateTime? DueDate, 
-    DateTime? PlannedStartAt);
+    DateTime? PlannedStartAt,
+    Guid? AssigneeId = null,
+    string? AssigneeName = null,
+    string? AssigneeAvatar = null
+    );
 
 public record TaskSearchFilterDto(
     string? Query,
     string? Priority,
     string? Urgency,
-    string? Tag);
+    string? Tag,
+    string? Assignees = null);
 
 public record TaskSearchResultDto (
     Guid Id,
@@ -74,7 +82,10 @@ public record TaskSearchResultDto (
     string? Icon,
     List<string>? Tags,
     DateTime? DueDate,
-    DateTime UpdatedAt); 
+    DateTime UpdatedAt,
+    Guid? AssigneeId = null,
+    string? AssigneeName = null,
+    string? AssigneeAvatar = null); 
     
 public record AddProjectMemberDto(string Email, ProjectRole Role = ProjectRole.Member);
 public record UpdateMemberRoleDto(ProjectRole Role);

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useLayoutEffect  } from 'react';
 import RoadmapRow from '../models/RoadmapRow';
 
 const LABEL_WIDTH = 276;
@@ -21,13 +21,19 @@ function getTimeline(columns) {
         .map(task => toValidDate(task.dueDate))
         .filter(Boolean))
         .sort((first, second) => first - second);
+    
     const now = new Date();
-    const firstMonth = getMonthStart(taskDates[0] || now, taskDates.length ? -1 : -3);
-    const lastMonth = getMonthStart(taskDates[taskDates.length - 1] || now, taskDates.length ? 1 : 10);
+    const minDate = taskDates.length && taskDates[0] < now ? taskDates[0] : now;
+    const maxDate = taskDates.length && taskDates[taskDates.length - 1] > now ? taskDates[taskDates.length - 1] : now;
+    
+    const firstMonth = getMonthStart(minDate, -2);
+    const lastMonth = getMonthStart(maxDate, 6);
+    
     const start = firstMonth.getTime();
     const end = lastMonth.getTime();
     const dayCount = Math.max(1, Math.ceil((end - start) / DAY_MS));
     const width = dayCount * DAY_WIDTH;
+    
     const days = Array.from({ length: dayCount }, (_, index) => {
         const date = new Date(start + index * DAY_MS);
         return {
@@ -52,8 +58,24 @@ function Roadmap({ columns, onColumnUpdate, onColumnDelete }) {
     const timeline = useMemo(() => getTimeline(columns), [columns]);
     const gridColumns = `${LABEL_WIDTH}px ${UNDATED_WIDTH}px ${timeline.width}px`;
 
+    const scrollRef = useRef(null);
+    const prevStartRef = useRef(timeline.start);
+
+    // Якорение: если шкала расширилась или сузилась слева — сдвигаем скролл синхронно
+    useLayoutEffect(() => {
+        if (prevStartRef.current !== null && prevStartRef.current !== timeline.start) {
+            const diffDays = Math.round((prevStartRef.current - timeline.start) / DAY_MS);
+            const diffPx = diffDays * DAY_WIDTH;
+
+            if (scrollRef.current && diffPx !== 0) {
+                scrollRef.current.scrollLeft += diffPx;
+            }
+        }
+        prevStartRef.current = timeline.start;
+    }, [timeline.start]);
+    
     return (
-        <div className="roadmap-scroll roadmap-view">
+        <div className="roadmap-scroll roadmap-view" ref={scrollRef}>
             <div className="roadmap-grid" style={{ gridTemplateColumns: gridColumns }}>
                 <div className="roadmap-header roadmap-label roadmap-corner">Группа</div>
                 <div className="roadmap-header roadmap-label roadmap-undated-header">Без даты</div>

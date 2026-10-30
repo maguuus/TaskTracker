@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import {useState, useRef, useEffect} from 'react';
 import { Badge, Card, Dropdown, Form } from 'react-bootstrap';
 import { useColumn } from '../hooks/BoardHooks';
+import useColumns from '../context/BoardContext';
 import { useDBTask } from '../hooks/DataBaseHook';
 import { useTheme } from '../context/ThemeContext';
 import Task from './Task';
+import task from "./Task";
 
 /**
  * @param {Object} props
@@ -13,10 +15,15 @@ import Task from './Task';
 function Column({ column, projectId, onColumnUpdate, onColumnDelete }) {
     const [post, patch, remove] = useDBTask();
     const [, updateTask, removeTask] = useColumn(column.id);
-
+    const [, setColumns] = useColumns();
+    
     const [title, setTitle] = useState(column.title);
     const inputRef = useRef(null);
     const { theme } = useTheme();
+
+    useEffect(() => {
+        setTitle(column.title);
+    }, [column.title]);
 
     const getColumnBg = (title, theme = 'colorful') => {
         const t = title.toLowerCase();
@@ -49,8 +56,10 @@ function Column({ column, projectId, onColumnUpdate, onColumnDelete }) {
     const handleDrop = async (e) => {
         e.preventDefault();
 
-        if (window.__draggedTaskInstance && window.__draggedTaskInstance.columnId !== column.id) {
-            const taskToMove = window.__draggedTaskInstance;
+        const taskToMove = window.__draggedTaskInstance;
+        window.__draggedTaskInstance = null;
+        
+        if (taskToMove && taskToMove.columnId !== column.id) {
             const updatedTask = {
                 ...taskToMove,
                 columnId: column.id
@@ -230,10 +239,12 @@ function ColumnCard({
                 onDrop={handleDrop}
             >
                 {tasksList.map((task) => (
-                    <div key={task.id} onDragStart={() => { window.__draggedTaskInstance = task; }}>
+                    <div key={task.id} className="mb-3" onDragStart={() => { window.__draggedTaskInstance = task; }}>
                         <Task
                             key={task.id}
                             task={task}
+                            projectId={column.projectId}
+                            compact={false}
                             onTaskUpdate={async (t) => {
                                 try {
                                     const saved = await patch(t);
