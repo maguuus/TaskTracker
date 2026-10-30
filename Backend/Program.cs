@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Backend.Data;
 using Backend.Hubs;
+using Backend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Backend.Services;
 using Backend.Services.Interfaces;
@@ -38,6 +39,7 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IProjectAccessService, ProjectAccessService>();
 builder.Services.AddScoped<IRealtimeNotifier, RealtimeNotifier>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
+builder.Services.AddScoped<ITriggerService, TriggerService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -109,4 +111,18 @@ app.MapControllers();
 
 app.MapGet("/", () => "API is running");
 
+WorkingNotify();
+
 app.Run();
+return;
+
+async Task<bool> WorkingNotify()
+{
+    while (true)
+    {
+        await Task.Delay(TimeSpan.FromSeconds(10));
+        var x = app.Services.GetService(typeof(ITriggerService)) as ITriggerService;
+        x?.GetClosedDeadlines();
+    }
+
+}
