@@ -188,22 +188,6 @@ function ColumnCard({
             }
         >
             <Card.Header className="bg-transparent border-0 text-center py-2 position-relative">
-                <Dropdown className="position-absolute" style={{ top: '0.5rem', right: '0.5rem' }} align="end">
-                    <Dropdown.Toggle
-                        variant="link"
-                        className="text-secondary p-0 border-0 shadow-none no-caret"
-                        style={{ fontSize: '1.2rem', textDecoration: 'none' }}
-                    >
-                        ⋮
-                    </Dropdown.Toggle>
-
-                    <Dropdown.Menu variant="dark">
-                        <Dropdown.Item onClick={handleDeleteClick} className="text-danger">
-                            Удалить
-                        </Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-
                 <h3 className="column-title mb-0 d-flex align-items-center justify-content-center fw-normal">
                     <Button
                         type="button"
@@ -237,6 +221,22 @@ function ColumnCard({
                     >
                         {tasksList.length}
                     </Badge>
+
+                    <Dropdown className="column-menu-dropdown ms-2" align="end">
+                        <Dropdown.Toggle
+                            variant="link"
+                            className="text-secondary p-0 border-0 shadow-none no-caret"
+                            style={{ fontSize: '1.2rem', textDecoration: 'none' }}
+                        >
+                            ⋮
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu variant="dark">
+                            <Dropdown.Item onClick={handleDeleteClick} className="text-danger">
+                                Удалить
+                            </Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
                 </h3>
             </Card.Header>
 

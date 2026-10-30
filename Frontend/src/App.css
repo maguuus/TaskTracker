@@ -792,6 +792,14 @@
     gap: 12px;
 }
 
+.profile-footer-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+}
+
 .project-heading-centered {
     position: absolute;
     left: 50%;
@@ -1168,7 +1176,8 @@
 
     .profile-side-actions,
     .profile-main-actions,
-    .profile-extra-actions {
+    .profile-extra-actions,
+    .profile-footer-actions {
         justify-content: center;
     }
 }

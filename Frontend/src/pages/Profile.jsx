@@ -1,12 +1,11 @@
-import { Container, Card, Button, Form, Alert, Dropdown, Modal, ListGroup } from 'react-bootstrap';
+import { Container, Card, Button, Form, Alert, Dropdown } from 'react-bootstrap';
 import useUser from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDBUser } from "../hooks/DataBaseHook";
 import useProject from '../context/ProjectContext';
 import { useTheme } from '../context/ThemeContext';
 import FriendsModal from "../components/FriendModal";
-import AddFriendsModal from "../components/AddFriendsModal";
 import FriendRequestsModal from "../components/FriendRequestsModal";
 import { avatarsIdImageArray } from '../hooks/Avatar';
 
@@ -23,7 +22,6 @@ function Profile() {
     const [message, setMessage] = useState({ text: '', type: '' });
     const [, setCurrentProject] = useProject(); // Проект остается в памяти даже для нового пользователя
     const [showFriends, setShowFriends] = useState(false);
-    const [showAddFriends, setShowAddFriends] = useState(false);
     const [showFriendRequests, setShowFriendRequests] = useState(false);
 
 
@@ -76,7 +74,7 @@ function Profile() {
                 text: 'Аватар успешно изменен.',
                 type: 'success'
             });
-        } catch (error) {
+        } catch {
             setMessage({text: 'Ошибка при смене аватара.', type: 'danger'});
         }
     }
@@ -165,28 +163,9 @@ function Profile() {
 
                                 <div className="profile-main-actions">
                                     <Button
-                                        className="profile-primary-button"
-                                        onClick={() => setShowPasswordForm(!showPasswordForm)}
+                                        className="profile-secondary-button"
+                                        onClick={() => setShowFriendRequests(true)}
                                     >
-                                        {showPasswordForm ? 'Отменить' : 'Сменить пароль'}
-                                    </Button>
-
-                                    <Button
-                                        className="profile-outline-button"
-                                        onClick={onLogout}
-                                    >
-                                        Выйти из аккаунта
-                                    </Button>
-                                </div>
-
-                                <div className="profile-extra-actions">
-                                    <Button className="profile-secondary-button"
-                                     onClick={() => setShowAddFriends(true)}>
-                                        Добавить в избранные
-                                    </Button>
-
-                                    <Button className="profile-secondary-button"
-                                    onClick={() => setShowFriendRequests(true)}>
                                         Заявки на добавление в проект
                                     </Button>
                                 </div>
@@ -206,11 +185,6 @@ function Profile() {
                         <FriendsModal
                             show={showFriends}
                             onHide={() => setShowFriends(false)}
-                        />
-
-                        <AddFriendsModal
-                            show={showAddFriends}
-                            onHide={() => setShowAddFriends(false)}
                         />
 
                         <FriendRequestsModal
@@ -265,6 +239,22 @@ function Profile() {
                                 </Button>
                             </Form>
                         )}
+
+                        <div className="profile-footer-actions">
+                            <Button
+                                className="profile-primary-button"
+                                onClick={() => setShowPasswordForm(!showPasswordForm)}
+                            >
+                                {showPasswordForm ? 'Отменить' : 'Сменить пароль'}
+                            </Button>
+
+                            <Button
+                                className="profile-outline-button"
+                                onClick={onLogout}
+                            >
+                                Выйти из аккаунта
+                            </Button>
+                        </div>
                     </Card.Body>
                 </Card>
             </Container>
