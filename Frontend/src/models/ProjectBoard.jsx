@@ -169,10 +169,10 @@ function ProjectBoard({ name, id }) {
 
     return (
         <Container fluid className="project-board pt-2 px-4">
-            <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3 pb-2 border-bottom border-light-subtle">
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3 pb-2 border-bottom border-light-subtle position-relative">
                 <div className="d-flex align-items-center gap-3 flex-wrap min-w-0">
                     <h1
-                        className="project-heading fw-bold m-0 text-truncate"
+                        className="project-heading  project-heading-centered  fw-bold m-0 text-truncate"
                         style={{ fontSize: '1.9rem', maxWidth: '1000px' }}
                         title={name}
                     >
